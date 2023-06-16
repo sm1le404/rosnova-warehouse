@@ -38,3 +38,6 @@ junit.xml
 
 #env
 .env
+
+#db
+*.db
