@@ -10,6 +10,19 @@ import * as winston from 'winston';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import AppDataSource from 'ormconfig';
 import { DataSource } from 'typeorm';
+import { DriverModule } from './driver/driver.module';
+import { MeasurementModule } from './measurement/measurement.module';
+import { FuelHolderModule } from './fuel-holder/fuel-holder.module';
+import { UserModule } from './user/user.module';
+import { FuelModule } from './fuel/fuel.module';
+import { DispenserModule } from './dispenser/dispenser.module';
+import { RefineryModule } from './refinery/refinery.module';
+import { TankModule } from './tank/tank.module';
+import { VehicleModule } from './vehicle/vehicle.module';
+import { SupplyModule } from './supply/supply.module';
+import { OutcomeModule } from './outcome/outcome.module';
+import { ShiftModule } from './shift/shift.module';
+import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -49,6 +62,19 @@ import { DataSource } from 'typeorm';
         };
       },
     }),
+    DriverModule,
+    VehicleModule,
+    TankModule,
+    RefineryModule,
+    DispenserModule,
+    FuelModule,
+    UserModule,
+    FuelHolderModule,
+    MeasurementModule,
+    SupplyModule,
+    OutcomeModule,
+    ShiftModule,
+    EventModule,
   ],
   controllers: [],
   providers: [],

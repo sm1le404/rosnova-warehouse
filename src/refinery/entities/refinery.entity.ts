@@ -1,0 +1,19 @@
+import { Column, Entity } from 'typeorm';
+
+import { ApiProperty } from '@nestjs/swagger';
+import { CommonEntity } from '../../common/entities/common.entity';
+
+@Entity()
+export class Refinery extends CommonEntity {
+  @ApiProperty()
+  @Column({ type: 'varchar', nullable: false })
+  fullName: string;
+
+  @ApiProperty()
+  @Column({ type: 'varchar', nullable: true })
+  shortName: string;
+
+  @ApiProperty()
+  @Column({ type: 'boolean', default: true })
+  isEnabled: boolean;
+}

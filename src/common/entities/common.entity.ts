@@ -9,9 +9,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CommonEntity extends BaseEntity {
-  @ApiProperty({ format: 'uuid' })
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @ApiProperty()
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @ApiProperty()
   @CreateDateColumn({ type: 'timestamp' })
