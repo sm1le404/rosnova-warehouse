@@ -24,6 +24,9 @@ export class PaginatedMeta<T> {
   search: string;
 
   @ApiProperty()
+  select: string[];
+
+  @ApiProperty()
   filter?: {
     [column: string]: string | string[];
   };
