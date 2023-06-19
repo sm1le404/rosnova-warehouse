@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { ActiveFuelType } from '../enum';
+import { Measurement } from '../../measurement/entities/measurement.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
@@ -15,8 +16,8 @@ export class Tank extends CommonEntity {
   activeFuel: ActiveFuelType;
 
   @ApiProperty()
-  @Column({ type: 'float', nullable: false })
-  order: number;
+  @Column({ type: 'int', nullable: false })
+  sortIndex: number;
 
   @ApiProperty()
   @Column({ type: 'float', nullable: false })
@@ -53,4 +54,8 @@ export class Tank extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
+
+  @ApiProperty()
+  @OneToMany(() => Measurement, (measurement) => measurement.tank)
+  measurement: Measurement;
 }

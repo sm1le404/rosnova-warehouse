@@ -1,7 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
+import { Shift } from '../../shift/entities/shift.entity';
+import { Tank } from '../../tank/entities/tank.entity';
 
 @Entity()
 export class Measurement extends CommonEntity {
@@ -20,4 +22,13 @@ export class Measurement extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'int', nullable: false })
   level: number;
+
+  @ApiProperty()
+  @OneToOne(() => Shift)
+  @JoinColumn()
+  shift: Shift;
+
+  @ApiProperty()
+  @ManyToOne(() => Tank, (tank) => tank.measurement)
+  tank: Tank;
 }

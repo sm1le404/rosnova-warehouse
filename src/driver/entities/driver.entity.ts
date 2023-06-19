@@ -1,4 +1,4 @@
-import { Column, Entity } from 'typeorm';
+import { AfterLoad, Column, Entity } from 'typeorm';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -20,4 +20,13 @@ export class Driver extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
+
+  @Column()
+  protected fullName: string;
+
+  @AfterLoad()
+  getFullName() {
+    this.fullName =
+      `${this.lastName} ${this.firstName} ${this.middleName}`.trim();
+  }
 }
