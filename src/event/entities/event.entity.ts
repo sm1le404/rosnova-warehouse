@@ -13,7 +13,7 @@ export class Event extends CommonEntity {
 
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: EventType,
     default: EventType.PROCESS,
   })
@@ -21,7 +21,7 @@ export class Event extends CommonEntity {
 
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: EventCollectionType,
     default: EventCollectionType.PROCESS,
   })

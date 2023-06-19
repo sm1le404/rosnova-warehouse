@@ -8,7 +8,7 @@ import { CarModelType, VehicleType } from '../enums';
 export class Vehicle extends CommonEntity {
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: VehicleType,
     default: VehicleType.TRUCK,
   })
@@ -16,7 +16,7 @@ export class Vehicle extends CommonEntity {
 
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: CarModelType,
     default: CarModelType.UNKNOWN,
   })

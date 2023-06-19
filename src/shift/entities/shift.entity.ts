@@ -7,12 +7,12 @@ import { Event } from '../../event/entities/event.entity';
 @Entity()
 export class Shift extends CommonEntity {
   @ApiProperty()
-  @Column({ type: 'timestamp', nullable: false })
-  startedAt: Date;
+  @Column({ type: 'int', nullable: false })
+  startedAt: number;
 
   @ApiProperty()
-  @Column({ type: 'timestamp', nullable: false })
-  closedAt: Date;
+  @Column({ type: 'int', nullable: false })
+  closedAt: number;
 
   @ApiProperty()
   @OneToMany(() => Event, (event) => event.shift)

@@ -19,7 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm -d ormconfig",
-    "typeorm:dev": "DEV=1 ts-node -r tsconfig-paths/register --project ./tsconfig.build.json ./node_modules/typeorm/cli.js -d ./ormconfig.ts",
+    "typeorm:dev": "DEV=1 ts-node -r tsconfig-paths/register --project ./tsconfig.build.json ./node_modules/typeorm/cli.js -d ./src/ormconfig.ts",
     "migration:generate": "pnpm typeorm:dev migration:generate",
     "migration:create": "DEV=1 ts-node --project ./tsconfig.build.json ./node_modules/typeorm/cli.js migration:create",
     "migration:run": "pnpm typeorm:dev migration:run",

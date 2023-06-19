@@ -8,7 +8,7 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import AppDataSource from 'ormconfig';
+import AppDataSource from './ormconfig';
 import { DataSource } from 'typeorm';
 import { DriverModule } from './driver/driver.module';
 import { MeasurementModule } from './measurement/measurement.module';

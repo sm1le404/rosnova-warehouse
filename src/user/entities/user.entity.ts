@@ -8,7 +8,7 @@ import { RoleType } from '../enums';
 export class User extends CommonEntity {
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: RoleType,
     default: RoleType.USER,
   })

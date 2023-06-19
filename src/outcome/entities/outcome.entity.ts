@@ -8,7 +8,7 @@ import { StatusType } from '../enums';
 export class Outcome extends CommonEntity {
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: StatusType,
     default: StatusType.PROCESS,
   })

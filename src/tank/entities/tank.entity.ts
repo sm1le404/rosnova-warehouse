@@ -9,7 +9,7 @@ import { Measurement } from '../../measurement/entities/measurement.entity';
 export class Tank extends CommonEntity {
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: ActiveFuelType,
     default: ActiveFuelType.PETROL,
   })

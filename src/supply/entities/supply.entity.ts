@@ -12,7 +12,7 @@ export class Supply extends CommonEntity {
 
   @ApiProperty()
   @Column({
-    type: 'enum',
+    type: 'text',
     enum: SupplyType,
     default: SupplyType.PROCESS,
   })

@@ -14,15 +14,15 @@ export class CommonEntity extends BaseEntity {
   id: number;
 
   @ApiProperty()
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  @CreateDateColumn({ type: 'int' })
+  createdAt: number;
 
   @ApiProperty()
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  @UpdateDateColumn({ type: 'int' })
+  updatedAt: number;
 
-  @DeleteDateColumn({ type: 'timestamp', nullable: true, select: false })
-  deletedAt: Date;
+  @DeleteDateColumn({ type: 'int', nullable: true, select: false })
+  deletedAt: number;
 
   constructor(partial: Partial<CommonEntity>) {
     super();
