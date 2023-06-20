@@ -21,7 +21,7 @@ async function bootstrap() {
   const { httpAdapter } = adapterHost;
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter, winstonLogger));
 
-  // swagger(app);
+  //swagger(app);
 
   app.enableShutdownHooks();
 
