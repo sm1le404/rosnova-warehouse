@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
 import { AuthController } from './controllers/auth.controller';
-import { AuthService } from './services/auth-customer.service';
+import { AuthService } from './services/auth.service';
 import { EncryptionService } from './services/encryption.service';
 import { TokensService } from './services/token.service';
 import { AnonymousStrategy } from './strategy/anonymous.strategy';

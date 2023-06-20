@@ -14,7 +14,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthService } from '../services/auth-customer.service';
+import { AuthService } from '../services/auth.service';
 import { AuthLoginRequestDto } from '../dto/auth-login-request.dto';
 import { Response, Request } from 'express';
 import { JwtRefreshAuthGuard } from '../guard/jwt-refresh-auth.guard';
