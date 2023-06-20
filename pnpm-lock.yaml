@@ -43,6 +43,7 @@ specifiers:
   jest: ^29.5.0
   nest-winston: ^1.9.2
   nestjs-paginate: ^8.1.4
+  passport: ^0.6.0
   passport-jwt: ^4.0.1
   prettier: ^2.8.8
   reflect-metadata: ^0.1.13
@@ -65,7 +66,7 @@ dependencies:
   '@nestjs/config': 3.0.0_m5xpgmi5ysotikvqezn7bajdee
   '@nestjs/core': 10.0.0_zhjfo4z43ql5yyjoa2gdvrnxcy
   '@nestjs/jwt': 10.1.0_@nestjs+common@10.0.0
-  '@nestjs/passport': 10.0.0_@nestjs+common@10.0.0
+  '@nestjs/passport': 10.0.0_cyyriwuy3lsu37atthes27av5q
   '@nestjs/platform-express': 10.0.0_7l66yxhem73vti7tpr6wmtoigq
   '@nestjs/schedule': 3.0.0_t2q5b5lexcp7lvze6sph4httga
   '@nestjs/swagger': 6.3.0_gwcwtrbvttboftgmobwy7qhfcy
@@ -78,6 +79,7 @@ dependencies:
   dotenv: 16.2.0
   nest-winston: 1.9.2_66kk3c4rv3jjn3mzljchp5zbf4
   nestjs-paginate: 8.1.4_ebe6qbmh74t47ctkekh7jdv2lm
+  passport: 0.6.0
   passport-jwt: 4.0.1
   reflect-metadata: 0.1.13
   rxjs: 7.8.1
@@ -1075,13 +1077,14 @@ packages:
       reflect-metadata: 0.1.13
     dev: false
 
-  /@nestjs/passport/10.0.0_@nestjs+common@10.0.0:
+  /@nestjs/passport/10.0.0_cyyriwuy3lsu37atthes27av5q:
     resolution: {integrity: sha512-IlKKc6M7JOe+4dBbW6gZsXBSD05ZYgwfGf3GJhgCmUGYVqffpDdALQSS6JftnExrE+12rACoEmHkzYwKAGVK0Q==}
     peerDependencies:
       '@nestjs/common': ^8.0.0 || ^9.0.0 || ^10.0.0
       passport: ^0.4.0 || ^0.5.0 || ^0.6.0
     dependencies:
       '@nestjs/common': 10.0.0_j3td4gnlgk75ora6o6suo62byy
+      passport: 0.6.0
     dev: false
 
   /@nestjs/platform-express/10.0.0_7l66yxhem73vti7tpr6wmtoigq:
@@ -5503,6 +5506,15 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: false
 
+  /passport/0.6.0:
+    resolution: {integrity: sha512-0fe+p3ZnrWRW74fe8+SvCyf4a3Pb2/h7gFkQ8yTJpAO50gDzlfjZUZTO1k5Eg9kUct22OxHLqDZoKUWRHOh9ug==}
+    engines: {node: '>= 0.4.0'}
+    dependencies:
+      passport-strategy: 1.0.0
+      pause: 0.0.1
+      utils-merge: 1.0.1
+    dev: false
+
   /path-exists/4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
@@ -5539,6 +5551,10 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
     dev: true
+
+  /pause/0.0.1:
+    resolution: {integrity: sha512-KG8UEiEVkR3wGEb4m5yZkVCzigAD+cVEJck2CzYZO37ZGJfctvVptVO192MwrtPhzONn6go8ylnOdMhKqi4nfg==}
+    dev: false
 
   /picocolors/1.0.0:
     resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}

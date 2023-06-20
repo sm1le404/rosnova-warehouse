@@ -31,7 +31,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(request: Request, payload: TokenPayload) {
     const token = request.cookies?.Refresh;
 
-    const { refreshToken, ...user } = await this.findIdentity(payload);
+    const { refreshToken, ...user } = await this.userService.findOne({ id: payload.id });
 
     if (!user || !token || !refreshToken) {
       return false;
@@ -47,25 +47,5 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     return user;
-  }
-
-  private findIdentity(payload: TokenPayload) {
-    if (payload.type === UserType.Customer) {
-      return this.customersService.findWithSelection(
-        {
-          id: payload.id,
-          phone: payload.phone,
-        },
-        ['authCode'],
-      );
-    } else if (payload.type === UserType.PartnerOfficeUser) {
-      return this.userService.findWithSelection(
-        {
-          id: payload.id,
-          email: payload.email,
-        },
-        ['inviteCode'],
-      );
-    }
   }
 }
