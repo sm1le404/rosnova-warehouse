@@ -23,6 +23,10 @@ export class User extends CommonEntity {
   password: string;
 
   @ApiProperty()
+  @Column({ type: 'varchar', nullable: true, select: false })
+  refreshToken?: string;
+
+  @ApiProperty()
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 }

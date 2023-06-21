@@ -23,6 +23,7 @@ import { SupplyModule } from './supply/supply.module';
 import { OutcomeModule } from './outcome/outcome.module';
 import { ShiftModule } from './shift/shift.module';
 import { EventModule } from './event/event.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { EventModule } from './event/event.module';
     OutcomeModule,
     ShiftModule,
     EventModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
