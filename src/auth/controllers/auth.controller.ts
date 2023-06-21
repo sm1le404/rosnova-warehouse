@@ -15,9 +15,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
-import { AuthLoginRequestDto } from '../dto/auth-login-request.dto';
+import { AuthLoginRequestDto } from '../dto';
 import { Response, Request } from 'express';
-import { JwtRefreshAuthGuard } from '../guard/jwt-refresh-auth.guard';
+import { JwtRefreshAuthGuard } from '../guard';
 import { TokensService } from '../services/token.service';
 import { User } from '../../user/entities/user.entity';
 import { ApiOkResponse } from '../../common/decorators/api-ok-response.decorator';
