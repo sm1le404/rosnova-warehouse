@@ -13,15 +13,22 @@ import {
 } from 'typeorm';
 import { isUniqueViolatesError } from '../../common/db';
 import { UpdateUserDto } from '../dto';
+import { CommonService } from '../../common/services/common.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends CommonService<User> {
   constructor(
     @InjectRepository(User)
-    protected readonly userRepository: Repository<User>,
-  ) {}
+    private userRepository: Repository<User>,
+  ) {
+    super();
+  }
 
-  async findOne(
+  getRepository(): Repository<User> {
+    return this.userRepository;
+  }
+
+  async findUser(
     where: FindOptionsWhere<User>,
     relations?: FindOptionsRelations<User>,
   ): Promise<User> {
@@ -31,12 +38,12 @@ export class UserService {
     });
   }
 
-  async update(
+  async updateUser(
     filter: FindOptionsWhere<User>,
     model: UpdateUserDto,
   ): Promise<User> {
     await this.userRepository.update(filter, model);
 
-    return this.findOne(filter);
+    return this.findUser(filter);
   }
 }

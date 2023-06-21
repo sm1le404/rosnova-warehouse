@@ -17,7 +17,7 @@ export class AuthService {
   ) {}
 
   async login(request: AuthLoginRequestDto): Promise<User> {
-    const user = await this.userService.findOne({ login: request.login });
+    const user = await this.userService.findUser({ login: request.login });
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');
     }
@@ -44,7 +44,7 @@ export class AuthService {
     id: number,
   ): Promise<User> {
     const hashedToken = await this.encryptionService.hash(token);
-    return this.userService.update(
+    return this.userService.updateUser(
       { id },
       {
         refreshToken: hashedToken,

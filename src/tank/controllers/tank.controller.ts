@@ -22,7 +22,7 @@ export class TankController {
 
   @Get()
   @ApiOperation({
-    description: 'Get fuel-holder list',
+    description: 'Get tank list',
   })
   @ApiResponse({ type: Tank, isArray: true })
   async findAll(): Promise<Tank[]> {
@@ -31,7 +31,7 @@ export class TankController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get fuel-holder by id',
+    description: 'Get tank by id',
   })
   @ApiResponse({ type: Tank })
   async findOne(@Param('id') id: number): Promise<Tank> {
@@ -44,7 +44,7 @@ export class TankController {
 
   @Post()
   @ApiOperation({
-    summary: 'Add fuel-holder',
+    summary: 'Add tank',
   })
   @ApiResponse({ type: Tank })
   async create(@Body() createTankDto: CreateTankDto): Promise<Tank> {
@@ -53,7 +53,7 @@ export class TankController {
 
   @Put(':id')
   @ApiOperation({
-    summary: 'Update fuel-holder by id',
+    summary: 'Update tank by id',
   })
   @ApiResponse({ type: Tank })
   async update(
@@ -72,7 +72,7 @@ export class TankController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete fuel holder by id',
+    summary: 'Delete tank by id',
   })
   @ApiResponse({ type: Tank })
   async delete(@Param('id') id: number): Promise<Tank> {

@@ -8,12 +8,12 @@ import { Vehicle } from '../entities/vehicle.entity';
 export class VehicleService extends CommonService<Vehicle> {
   constructor(
     @InjectRepository(Vehicle)
-    private fuelHolderRepository: Repository<Vehicle>,
+    private vehicleRepository: Repository<Vehicle>,
   ) {
     super();
   }
 
   getRepository(): Repository<Vehicle> {
-    return this.fuelHolderRepository;
+    return this.vehicleRepository;
   }
 }

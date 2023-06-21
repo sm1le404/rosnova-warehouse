@@ -22,7 +22,7 @@ export class ShiftController {
 
   @Get()
   @ApiOperation({
-    description: 'Get fuel-holder list',
+    description: 'Get shift list',
   })
   @ApiResponse({ type: Shift, isArray: true })
   async findAll(): Promise<Shift[]> {
@@ -31,7 +31,7 @@ export class ShiftController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get fuel-holder by id',
+    description: 'Get shift by id',
   })
   @ApiResponse({ type: Shift })
   async findOne(@Param('id') id: number): Promise<Shift> {
@@ -44,7 +44,7 @@ export class ShiftController {
 
   @Post()
   @ApiOperation({
-    summary: 'Add fuel-holder',
+    summary: 'Add shift',
   })
   @ApiResponse({ type: Shift })
   async create(@Body() createShiftDto: CreateShiftDto): Promise<Shift> {
@@ -53,7 +53,7 @@ export class ShiftController {
 
   @Put(':id')
   @ApiOperation({
-    summary: 'Update fuel-holder by id',
+    summary: 'Update shift by id',
   })
   @ApiResponse({ type: Shift })
   async update(
@@ -72,7 +72,7 @@ export class ShiftController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete fuel holder by id',
+    summary: 'Delete shift by id',
   })
   @ApiResponse({ type: Shift })
   async delete(@Param('id') id: number): Promise<Shift> {

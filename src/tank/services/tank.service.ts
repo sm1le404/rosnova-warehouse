@@ -8,12 +8,12 @@ import { Tank } from '../entities/tank.entity';
 export class TankService extends CommonService<Tank> {
   constructor(
     @InjectRepository(Tank)
-    private fuelHolderRepository: Repository<Tank>,
+    private tankRepository: Repository<Tank>,
   ) {
     super();
   }
 
   getRepository(): Repository<Tank> {
-    return this.fuelHolderRepository;
+    return this.tankRepository;
   }
 }

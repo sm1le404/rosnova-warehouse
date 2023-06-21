@@ -8,12 +8,12 @@ import { Shift } from '../entities/shift.entity';
 export class ShiftService extends CommonService<Shift> {
   constructor(
     @InjectRepository(Shift)
-    private fuelHolderRepository: Repository<Shift>,
+    private shiftRepository: Repository<Shift>,
   ) {
     super();
   }
 
   getRepository(): Repository<Shift> {
-    return this.fuelHolderRepository;
+    return this.shiftRepository;
   }
 }
