@@ -16,5 +16,5 @@ export class Shift extends CommonEntity {
 
   @ApiProperty()
   @OneToMany(() => Event, (event) => event.shift)
-  event: Event;
+  event: Event[];
 }
