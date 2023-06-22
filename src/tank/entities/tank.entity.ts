@@ -57,5 +57,5 @@ export class Tank extends CommonEntity {
 
   @ApiProperty()
   @OneToMany(() => Measurement, (measurement) => measurement.tank)
-  measurement: Measurement;
+  measurement: Measurement[];
 }
