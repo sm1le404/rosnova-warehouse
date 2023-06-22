@@ -15,8 +15,6 @@ export function swagger(app: INestApplication) {
     extraModels: [ResponseDto, ErrorDto],
   });
 
-  app.use('/api/docs');
-
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       defaultModelsExpandDepth: -1,

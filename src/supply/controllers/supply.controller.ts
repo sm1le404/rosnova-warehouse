@@ -22,7 +22,7 @@ export class SupplyController {
 
   @Get()
   @ApiOperation({
-    description: 'Get supply list',
+    summary: 'Get supply list',
   })
   @ApiResponse({ type: Supply, isArray: true })
   async findAll(): Promise<Supply[]> {
@@ -31,7 +31,7 @@ export class SupplyController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get supply by id',
+    summary: 'Get supply by id',
   })
   @ApiResponse({ type: Supply })
   async findOne(@Param('id') id: number): Promise<Supply> {

@@ -23,7 +23,7 @@ export class DispenserController {
 
   @Get()
   @ApiOperation({
-    description: 'Get dispenser list',
+    summary: 'Get dispenser list',
   })
   @ApiResponse({ type: Dispenser, isArray: true })
   async findAll(): Promise<Dispenser[]> {
@@ -32,7 +32,7 @@ export class DispenserController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get dispenser by id',
+    summary: 'Get dispenser by id',
   })
   @ApiResponse({ type: Dispenser })
   async findOne(@Param('id') id: number): Promise<Dispenser> {

@@ -35,7 +35,7 @@ export class Event extends CommonEntity {
   @Column({ type: 'varchar', nullable: false })
   dataAfter: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Shift })
   @ManyToOne(() => Shift, (shift) => shift.event)
   shift: Shift;
 }

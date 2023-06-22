@@ -23,7 +23,7 @@ export class FuelHolderController {
 
   @Get()
   @ApiOperation({
-    description: 'Get fuel-holder list',
+    summary: 'Get fuel-holder list',
   })
   @ApiResponse({ type: FuelHolder, isArray: true })
   async findAll(): Promise<FuelHolder[]> {
@@ -32,7 +32,7 @@ export class FuelHolderController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get fuel-holder by id',
+    summary: 'Get fuel-holder by id',
   })
   @ApiResponse({ type: FuelHolder })
   async findOne(@Param('id') id: number): Promise<FuelHolder> {

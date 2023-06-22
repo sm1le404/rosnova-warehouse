@@ -22,7 +22,7 @@ export class VehicleController {
 
   @Get()
   @ApiOperation({
-    description: 'Get vehicle list',
+    summary: 'Get vehicle list',
   })
   @ApiResponse({ type: Vehicle, isArray: true })
   async findAll(): Promise<Vehicle[]> {
@@ -31,7 +31,7 @@ export class VehicleController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get vehicle by id',
+    summary: 'Get vehicle by id',
   })
   @ApiResponse({ type: Vehicle })
   async findOne(@Param('id') id: number): Promise<Vehicle> {

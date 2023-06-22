@@ -23,7 +23,7 @@ export class DriverController {
 
   @Get()
   @ApiOperation({
-    description: 'Get drivers list',
+    summary: 'Get drivers list',
   })
   @ApiResponse({ type: Driver, isArray: true })
   async findAll(): Promise<Driver[]> {
@@ -32,7 +32,7 @@ export class DriverController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get driver by id',
+    summary: 'Get driver by id',
   })
   @ApiResponse({ type: Driver })
   async findOne(@Param('id') id: number): Promise<Driver> {

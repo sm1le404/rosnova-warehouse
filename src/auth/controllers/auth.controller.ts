@@ -35,7 +35,7 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({
-    description: 'Authorize user',
+    summary: 'Authorize user',
   })
   @ApiBody({ type: AuthLoginRequestDto })
   @ApiOkResponse('User authentification success', User)
@@ -85,7 +85,7 @@ export class AuthController {
   @UseGuards(JwtRefreshAuthGuard)
   @Get('refresh')
   @ApiOperation({
-    description: 'Refresh auth token',
+    summary: 'Refresh auth token',
   })
   async refresh(@Req() request: Request, @Res() response: Response) {
     const host: string = request?.headers?.host ?? '';
@@ -129,7 +129,7 @@ export class AuthController {
   @UseGuards(JwtRefreshAuthGuard)
   @Post('logout')
   @ApiOperation({
-    description: 'Logout',
+    summary: 'Logout',
   })
   async logout(@Req() request: Request, @Res() response: Response) {
     const token = request.cookies.Refresh;

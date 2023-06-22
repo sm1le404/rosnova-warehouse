@@ -41,3 +41,5 @@ junit.xml
 
 #db
 *.db
+
+openapi.json

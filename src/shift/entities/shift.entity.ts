@@ -14,7 +14,7 @@ export class Shift extends CommonEntity {
   @Column({ type: 'int', nullable: false })
   closedAt: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Event, isArray: true })
   @OneToMany(() => Event, (event) => event.shift)
   event: Event[];
 }

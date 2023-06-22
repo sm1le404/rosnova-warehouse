@@ -17,7 +17,7 @@ export class EventController {
   //@TODO pagination with filter
   @Get()
   @ApiOperation({
-    description: 'Get events list',
+    summary: 'Get events list',
   })
   @ApiResponse({ type: Event, isArray: true })
   async findAll(): Promise<Event[]> {

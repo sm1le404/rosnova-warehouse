@@ -1,4 +1,4 @@
-//import { swagger } from './common/docs/swagger';
+import { swagger } from './common/docs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -21,7 +21,7 @@ async function bootstrap() {
   const { httpAdapter } = adapterHost;
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter, winstonLogger));
 
-  //swagger(app);
+  swagger(app);
 
   app.enableShutdownHooks();
 

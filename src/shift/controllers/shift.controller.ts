@@ -22,7 +22,7 @@ export class ShiftController {
 
   @Get()
   @ApiOperation({
-    description: 'Get shift list',
+    summary: 'Get shift list',
   })
   @ApiResponse({ type: Shift, isArray: true })
   async findAll(): Promise<Shift[]> {
@@ -31,7 +31,7 @@ export class ShiftController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get shift by id',
+    summary: 'Get shift by id',
   })
   @ApiResponse({ type: Shift })
   async findOne(@Param('id') id: number): Promise<Shift> {

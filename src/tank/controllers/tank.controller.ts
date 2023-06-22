@@ -22,7 +22,7 @@ export class TankController {
 
   @Get()
   @ApiOperation({
-    description: 'Get tank list',
+    summary: 'Get tank list',
   })
   @ApiResponse({ type: Tank, isArray: true })
   async findAll(): Promise<Tank[]> {
@@ -31,7 +31,7 @@ export class TankController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get tank by id',
+    summary: 'Get tank by id',
   })
   @ApiResponse({ type: Tank })
   async findOne(@Param('id') id: number): Promise<Tank> {
