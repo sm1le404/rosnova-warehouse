@@ -1,8 +1,13 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { StatusType } from '../enums';
+import { Dispenser } from '../../dispenser/entities/dispenser.entity';
+import { Driver } from '../../driver/entities/driver.entity';
+import { Vehicle } from '../../vehicle/entities/vehicle.entity';
+import { Shift } from '../../shift/entities/shift.entity';
+import { Tank } from '../../tank/entities/tank.entity';
 
 @Entity()
 export class Outcome extends CommonEntity {
@@ -61,4 +66,24 @@ export class Outcome extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'float', nullable: false })
   volumeAfter: number;
+
+  @ApiProperty({ type: () => Dispenser })
+  @ManyToOne(() => Dispenser, (dispenser) => dispenser.outcome)
+  dispenser: Dispenser;
+
+  @ApiProperty({ type: () => Driver })
+  @ManyToOne(() => Driver, (driver) => driver.outcome)
+  driver: Driver;
+
+  @ApiProperty({ type: () => Vehicle })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.outcome)
+  vehicle: Vehicle;
+
+  @ApiProperty({ type: () => Tank })
+  @ManyToOne(() => Tank, (tank) => tank.outcome)
+  tank: Tank;
+
+  @ApiProperty({ type: () => Shift })
+  @ManyToOne(() => Shift, (shift) => shift.outcome)
+  shift: Shift;
 }

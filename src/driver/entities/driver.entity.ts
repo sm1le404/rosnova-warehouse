@@ -1,7 +1,8 @@
-import { AfterLoad, Column, Entity } from 'typeorm';
+import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
+import { Outcome } from '../../outcome/entities/outcome.entity';
 
 @Entity()
 export class Driver extends CommonEntity {
@@ -20,6 +21,10 @@ export class Driver extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
+
+  @ApiProperty({ type: () => Outcome, isArray: true })
+  @OneToMany(() => Outcome, (outcome) => outcome.driver)
+  outcome: Outcome[];
 
   @Column()
   protected fullName: string;

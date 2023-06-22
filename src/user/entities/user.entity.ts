@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
+import { Shift } from '../../shift/entities/shift.entity';
 
 @Entity()
 export class User extends CommonEntity {
@@ -29,4 +30,8 @@ export class User extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
+
+  @ApiProperty({ type: () => Shift, isArray: true })
+  @OneToMany(() => Shift, (shift) => shift.user)
+  shift: Shift[];
 }

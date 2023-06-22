@@ -1,8 +1,11 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { SupplyType } from '../enums';
+import { Vehicle } from '../../vehicle/entities/vehicle.entity';
+import { Tank } from '../../tank/entities/tank.entity';
+import { Shift } from '../../shift/entities/shift.entity';
 
 @Entity()
 export class Supply extends CommonEntity {
@@ -73,4 +76,16 @@ export class Supply extends CommonEntity {
   @ApiProperty()
   @Column({ type: 'float', nullable: false })
   levelAfter: number;
+
+  @ApiProperty({ type: () => Vehicle })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.supply)
+  vehicle: Vehicle;
+
+  @ApiProperty({ type: () => Tank })
+  @ManyToOne(() => Tank, (tank) => tank.supply)
+  tank: Tank;
+
+  @ApiProperty({ type: () => Shift })
+  @ManyToOne(() => Shift, (shift) => shift.supply)
+  shift: Shift;
 }
