@@ -22,7 +22,7 @@ export class MeasurementController {
 
   @Get()
   @ApiOperation({
-    description: 'Get measurement list',
+    summary: 'Get measurement list',
   })
   @ApiResponse({ type: Measurement, isArray: true })
   async findAll(): Promise<Measurement[]> {
@@ -31,7 +31,7 @@ export class MeasurementController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get measurement by id',
+    summary: 'Get measurement by id',
   })
   @ApiResponse({ type: Measurement })
   async findOne(@Param('id') id: number): Promise<Measurement> {

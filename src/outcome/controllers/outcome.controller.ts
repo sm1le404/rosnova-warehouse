@@ -22,7 +22,7 @@ export class OutcomeController {
 
   @Get()
   @ApiOperation({
-    description: 'Get outcome list',
+    summary: 'Get outcome list',
   })
   @ApiResponse({ type: Outcome, isArray: true })
   async findAll(): Promise<Outcome[]> {
@@ -31,7 +31,7 @@ export class OutcomeController {
 
   @Get(':id')
   @ApiOperation({
-    description: 'Get outcome by id',
+    summary: 'Get outcome by id',
   })
   @ApiResponse({ type: Outcome })
   async findOne(@Param('id') id: number): Promise<Outcome> {
