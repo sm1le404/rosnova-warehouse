@@ -18,7 +18,6 @@ export class Dispenser extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Outcome, isArray: true })
   @OneToMany(() => Outcome, (outcome) => outcome.dispenser)
   outcome: Outcome[];
 }

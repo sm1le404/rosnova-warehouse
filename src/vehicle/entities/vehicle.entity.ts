@@ -40,11 +40,9 @@ export class Vehicle extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Outcome, isArray: true })
   @OneToMany(() => Outcome, (outcome) => outcome.vehicle)
   outcome: Outcome[];
 
-  @ApiProperty({ type: () => Supply, isArray: true })
   @OneToMany(() => Supply, (supply) => supply.vehicle)
   supply: Supply[];
 }

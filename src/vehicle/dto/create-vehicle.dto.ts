@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsPositive } from 'class-validator';
+import { IsBoolean, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { CarModelType, VehicleType } from '../enums';
 

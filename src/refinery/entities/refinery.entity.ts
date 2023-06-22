@@ -19,11 +19,9 @@ export class Refinery extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Tank })
   @ManyToOne(() => Tank, (tank) => tank.refinery)
   tank: Tank;
 
-  @ApiProperty({ type: () => Supply })
   @ManyToOne(() => Supply, (supply) => supply.refinery)
   supply: Supply;
 }

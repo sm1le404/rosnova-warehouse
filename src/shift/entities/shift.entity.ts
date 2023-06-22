@@ -21,11 +21,9 @@ export class Shift extends CommonEntity {
   @OneToMany(() => Event, (event) => event.shift)
   event: Event[];
 
-  @ApiProperty({ type: () => Outcome, isArray: true })
   @OneToMany(() => Outcome, (outcome) => outcome.shift)
   outcome: Outcome[];
 
-  @ApiProperty({ type: () => Supply, isArray: true })
   @OneToMany(() => Supply, (supply) => supply.shift)
   supply: Supply[];
 

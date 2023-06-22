@@ -23,7 +23,7 @@ export class Measurement extends CommonEntity {
   @Column({ type: 'int', nullable: false })
   level: number;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Shift })
   @OneToOne(() => Shift)
   @JoinColumn()
   shift: Shift;

@@ -1,6 +1,12 @@
 import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
+import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Vehicle } from '../../vehicle/entities/vehicle.entity';
+import { Tank } from '../../tank/entities/tank.entity';
+import { Shift } from '../../shift/entities/shift.entity';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 
 export class CreateSupplyDto {
   @ApiProperty({ required: true, description: 'Имя водителя' })
@@ -67,4 +73,41 @@ export class CreateSupplyDto {
   @ApiProperty({ required: true, description: 'Уровень после' })
   @IsPositive()
   levelAfter: number;
+
+  @ApiProperty({
+    required: true,
+    description: 'Транспорт',
+    type: () => PickType(Vehicle, ['id']),
+  })
+  vehicle: Pick<Vehicle, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Резервуар',
+    type: () => PickType(Tank, ['id']),
+  })
+  tank: Pick<Tank, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Топливо',
+    type: () => PickType(Fuel, ['id']),
+  })
+  fuel: Pick<Fuel, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Владелец топлива',
+    type: () => PickType(FuelHolder, ['id']),
+  })
+  fuelHolder: Pick<FuelHolder, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Завод',
+    type: () => PickType(Refinery, ['id']),
+  })
+  refinery: Pick<Refinery, 'id'>;
+
+  shift: Pick<Shift, 'id'>;
 }

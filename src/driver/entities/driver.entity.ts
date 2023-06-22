@@ -22,7 +22,6 @@ export class Driver extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Outcome, isArray: true })
   @OneToMany(() => Outcome, (outcome) => outcome.driver)
   outcome: Outcome[];
 

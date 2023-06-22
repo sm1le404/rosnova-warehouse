@@ -20,15 +20,12 @@ export class FuelHolder extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Tank })
   @ManyToOne(() => Tank, (tank) => tank.fuelHolder)
   tank: Tank;
 
-  @ApiProperty({ type: () => Outcome })
   @ManyToOne(() => Outcome, (outcome) => outcome.fuelHolder)
   outcome: Outcome;
 
-  @ApiProperty({ type: () => Supply })
   @ManyToOne(() => Supply, (supply) => supply.fuelHolder)
   supply: Supply;
 }

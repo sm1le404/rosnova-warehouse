@@ -1,7 +1,10 @@
 import { IsBoolean, IsEnum, IsPositive } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Measurement } from '../../measurement/entities/measurement.entity';
 import { ActiveFuelType } from '../enum';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Refinery } from '../../refinery/entities/refinery.entity';
 
 export class CreateTankDto {
   @ApiProperty({ required: true, description: 'Тип топлива' })
@@ -48,6 +51,27 @@ export class CreateTankDto {
   @IsBoolean()
   isEnabled: boolean;
 
-  @ApiProperty({ required: true, description: 'Замеры' })
-  measurement: Pick<Measurement, 'id'>[];
+  @ApiProperty({
+    required: true,
+    description: 'Вид топлива',
+    isArray: true,
+    type: () => PickType(Fuel, ['id']),
+  })
+  fuel: Pick<Fuel, 'id'>[];
+
+  @ApiProperty({
+    required: true,
+    description: 'Владелец топлива',
+    isArray: true,
+    type: () => PickType(FuelHolder, ['id']),
+  })
+  fuelHolder: Pick<FuelHolder, 'id'>[];
+
+  @ApiProperty({
+    required: true,
+    description: 'Завод',
+    isArray: true,
+    type: () => PickType(Refinery, ['id']),
+  })
+  refinery: Pick<Refinery, 'id'>[];
 }
