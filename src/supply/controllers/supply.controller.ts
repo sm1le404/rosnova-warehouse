@@ -12,7 +12,13 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SupplyService } from '../services/supply.service';
 import { Supply } from '../entities/supply.entity';
-import { CreateSupplyDto, UpdateSupplyDto } from '../dto';
+import { CreateSupplyDto, ResponseSupplyDto, UpdateSupplyDto } from '../dto';
+import { CommonPagination } from '../../common/decorators';
+import {
+  PaginationSupply,
+  PaginationSupplyParams,
+} from '../classes/pagination-supply.params';
+import { Paginate } from 'nestjs-paginate';
 
 @ApiTags('Supply')
 @Controller('supply')
@@ -24,9 +30,16 @@ export class SupplyController {
   @ApiOperation({
     summary: 'Get supply list',
   })
-  @ApiResponse({ type: Supply, isArray: true })
-  async findAll(): Promise<Supply[]> {
-    return this.supplyService.find({});
+  @CommonPagination(
+    PaginationSupplyParams.filterableColumns,
+    PaginationSupplyParams.searchableColumns,
+    PaginationSupplyParams.sortableColumns,
+  )
+  @ApiResponse({ type: ResponseSupplyDto })
+  async findAll(
+    @Paginate() paginationPayload: PaginationSupply,
+  ): Promise<ResponseSupplyDto> {
+    return this.supplyService.findPagination(paginationPayload);
   }
 
   @Get(':id')
