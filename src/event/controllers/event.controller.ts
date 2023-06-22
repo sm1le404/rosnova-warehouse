@@ -7,6 +7,13 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventService } from '../services/event.service';
 import { Event } from '../entities/event.entity';
+import { CommonPagination } from '../../common/decorators';
+import {
+  PaginationEvent,
+  PaginationEventParams,
+} from '../classes/pagination-event.params';
+import { ResponseEventDto } from '../dto/response-event.dto';
+import { Paginate } from 'nestjs-paginate';
 
 @ApiTags('Event')
 @Controller('event')
@@ -14,13 +21,19 @@ import { Event } from '../entities/event.entity';
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 
-  //@TODO pagination with filter
   @Get()
   @ApiOperation({
     summary: 'Get events list',
   })
-  @ApiResponse({ type: Event, isArray: true })
-  async findAll(): Promise<Event[]> {
-    return this.eventService.find({});
+  @CommonPagination(
+    PaginationEventParams.filterableColumns,
+    PaginationEventParams.searchableColumns,
+    PaginationEventParams.sortableColumns,
+  )
+  @ApiResponse({ type: ResponseEventDto })
+  async findAll(
+    @Paginate() paginationEventPayload: PaginationEvent,
+  ): Promise<ResponseEventDto> {
+    return this.eventService.findPagination(paginationEventPayload);
   }
 }
