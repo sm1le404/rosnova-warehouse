@@ -72,7 +72,7 @@ export class Tank extends CommonEntity {
   @OneToMany(() => Supply, (supply) => supply.tank)
   supply: Supply[];
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Fuel, isArray: true })
   @OneToMany(() => Fuel, (fuel) => fuel.tank)
   fuel: Fuel[];
 

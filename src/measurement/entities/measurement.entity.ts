@@ -28,7 +28,7 @@ export class Measurement extends CommonEntity {
   @JoinColumn()
   shift: Shift;
 
-  @ApiProperty()
+  @ApiProperty({ type: () => Tank, isArray: true })
   @ManyToOne(() => Tank, (tank) => tank.measurement)
   tank: Tank;
 }
