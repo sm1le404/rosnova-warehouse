@@ -6,6 +6,9 @@ import { SupplyType } from '../enums';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Shift } from '../../shift/entities/shift.entity';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Refinery } from '../../refinery/entities/refinery.entity';
 
 @Entity()
 export class Supply extends CommonEntity {
@@ -88,4 +91,16 @@ export class Supply extends CommonEntity {
   @ApiProperty({ type: () => Shift })
   @ManyToOne(() => Shift, (shift) => shift.supply)
   shift: Shift;
+
+  @ApiProperty({ type: () => Fuel })
+  @ManyToOne(() => Fuel, (fuel) => fuel.supply)
+  fuel: Fuel;
+
+  @ApiProperty({ type: () => FuelHolder })
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.supply)
+  fuelHolder: FuelHolder;
+
+  @ApiProperty({ type: () => Refinery })
+  @ManyToOne(() => Refinery, (refinery) => refinery.supply)
+  refinery: Refinery;
 }

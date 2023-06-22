@@ -8,6 +8,8 @@ import { Driver } from '../../driver/entities/driver.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 
 @Entity()
 export class Outcome extends CommonEntity {
@@ -86,4 +88,12 @@ export class Outcome extends CommonEntity {
   @ApiProperty({ type: () => Shift })
   @ManyToOne(() => Shift, (shift) => shift.outcome)
   shift: Shift;
+
+  @ApiProperty({ type: () => Fuel })
+  @ManyToOne(() => Fuel, (fuel) => fuel.outcome)
+  fuel: Fuel;
+
+  @ApiProperty({ type: () => FuelHolder })
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.outcome)
+  fuelHolder: FuelHolder;
 }
