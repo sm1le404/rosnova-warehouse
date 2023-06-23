@@ -6,17 +6,17 @@ import { Outcome } from '../../outcome/entities/outcome.entity';
 
 @Entity()
 export class Dispenser extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Сортировка' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Текущее значение счётчика' })
   @Column({ type: 'float', nullable: false })
   currentCounter: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
   @OneToMany(() => Outcome, (outcome) => outcome.dispenser)
   outcome: Outcome[];

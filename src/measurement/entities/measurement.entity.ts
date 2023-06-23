@@ -7,28 +7,28 @@ import { Tank } from '../../tank/entities/tank.entity';
 
 @Entity()
 export class Measurement extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Объём' })
   @Column({ type: 'float', nullable: false })
   volume: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Вес' })
   @Column({ type: 'float', nullable: false })
   weight: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Плотность' })
   @Column({ type: 'float', nullable: false })
   density: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Уровень' })
   @Column({ type: 'int', nullable: false })
   level: number;
 
-  @ApiProperty({ type: () => Shift })
+  @ApiProperty({ type: () => Shift, required: true, description: 'Связная смена' })
   @OneToOne(() => Shift)
   @JoinColumn()
   shift: Shift;
 
-  @ApiProperty({ type: () => Tank, isArray: true })
+  @ApiProperty({ type: () => Tank, isArray: true, required: true, description: 'Связные резервуары' })
   @ManyToOne(() => Tank, (tank) => tank.measurement)
   tank: Tank;
 }

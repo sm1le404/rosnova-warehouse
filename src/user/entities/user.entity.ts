@@ -7,7 +7,7 @@ import { Shift } from '../../shift/entities/shift.entity';
 
 @Entity()
 export class User extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ description: 'Роль пользователя' })
   @Column({
     type: 'text',
     enum: RoleType,

@@ -6,21 +6,21 @@ import { Outcome } from '../../outcome/entities/outcome.entity';
 
 @Entity()
 export class Driver extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Имя' })
   @Column({ type: 'varchar', nullable: false })
   firstName: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ required: false, description: 'Отчество' })
   @Column({ type: 'varchar', nullable: true })
-  middleName: string;
+  middleName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Фамилия' })
   @Column({ type: 'varchar', nullable: false })
   lastName: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
   @OneToMany(() => Outcome, (outcome) => outcome.driver)
   outcome: Outcome[];
