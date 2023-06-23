@@ -9,15 +9,20 @@ import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Shift extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Открытие' })
   @Column({ type: 'int', nullable: false })
   startedAt: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Закрытие' })
   @Column({ type: 'int', nullable: false })
   closedAt: number;
 
-  @ApiProperty({ type: () => Event, isArray: true })
+  @ApiProperty({
+    type: () => Event,
+    isArray: true,
+    required: true,
+    description: 'Связное событие',
+  })
   @OneToMany(() => Event, (event) => event.shift)
   event: Event[];
 
@@ -27,7 +32,11 @@ export class Shift extends CommonEntity {
   @OneToMany(() => Supply, (supply) => supply.shift)
   supply: Supply[];
 
-  @ApiProperty({ type: () => User })
+  @ApiProperty({
+    type: () => User,
+    required: true,
+    description: 'Связный пользователь',
+  })
   @ManyToOne(() => User, (user) => user.shift)
   user: User;
 }

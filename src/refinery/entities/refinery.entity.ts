@@ -7,17 +7,17 @@ import { Supply } from '../../supply/entities/supply.entity';
 
 @Entity()
 export class Refinery extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Полное наименование' })
   @Column({ type: 'varchar', nullable: false })
   fullName: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Краткое наименование' })
   @Column({ type: 'varchar', nullable: true })
-  shortName: string;
+  shortName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
   @ManyToOne(() => Tank, (tank) => tank.refinery)
   tank: Tank;

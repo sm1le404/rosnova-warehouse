@@ -1,5 +1,5 @@
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Outcome } from '../../outcome/entities/outcome.entity';
 import { Supply } from '../../supply/entities/supply.entity';
 import { Tank } from '../../tank/entities/tank.entity';
@@ -15,23 +15,23 @@ export class CreateFuelDto {
   isEnabled?: boolean;
 
   @ApiProperty({
-    type: Array,
+    type: () => PickType(Tank, ['id']),
     required: true,
     description: 'Связный резервуар',
   })
-  tank: Tank;
+  tank: Pick<Tank, 'id'>;
 
   @ApiProperty({
-    type: Array,
+    type: () => PickType(Outcome, ['id']),
     required: true,
     description: 'Связная выдача',
   })
-  outcome: Pick<Outcome, 'id'>[];
+  outcome: Pick<Outcome, 'id'>;
 
   @ApiProperty({
-    type: Array,
+    type: () => PickType(Supply, ['id']),
     required: true,
     description: 'Связный приход',
   })
-  supply: Pick<Supply, 'id'>[];
+  supply: Pick<Supply, 'id'>;
 }

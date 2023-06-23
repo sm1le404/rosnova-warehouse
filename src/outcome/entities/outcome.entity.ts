@@ -13,7 +13,7 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 
 @Entity()
 export class Outcome extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Тип топлива' })
   @Column({
     type: 'text',
     enum: StatusType,
@@ -21,79 +21,91 @@ export class Outcome extends CommonEntity {
   })
   status: StatusType;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })
   numberTTN: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Объём по документам' })
   @Column({ type: 'float', nullable: false })
   docVolume: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Вес по документам' })
   @Column({ type: 'float', nullable: false })
   docWeight: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Плотность по документам' })
   @Column({ type: 'float', nullable: false })
   docDensity: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Температура по документам' })
   @Column({ type: 'float', nullable: false })
   docTemperature: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Фактический объём' })
   @Column({ type: 'float', nullable: false })
   factVolume: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Фактический вес' })
   @Column({ type: 'float', nullable: false })
   factWeight: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Фактическая плотность' })
   @Column({ type: 'float', nullable: false })
   factDensity: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Счётчик до' })
   @Column({ type: 'float', nullable: false })
   counterBefore: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Счётчик после' })
   @Column({ type: 'float', nullable: false })
   counterAfter: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Объём до' })
   @Column({ type: 'float', nullable: false })
   volumeBefore: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Объём после' })
   @Column({ type: 'float', nullable: false })
   volumeAfter: number;
 
-  @ApiProperty({ type: () => Dispenser })
+  @ApiProperty({
+    type: () => Dispenser,
+    required: true,
+    description: 'Колонка',
+  })
   @ManyToOne(() => Dispenser, (dispenser) => dispenser.outcome)
   dispenser: Dispenser;
 
-  @ApiProperty({ type: () => Driver })
+  @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
   @ManyToOne(() => Driver, (driver) => driver.outcome)
   driver: Driver;
 
-  @ApiProperty({ type: () => Vehicle })
+  @ApiProperty({
+    type: () => Vehicle,
+    required: true,
+    description: 'Траспортное средство',
+  })
   @ManyToOne(() => Vehicle, (vehicle) => vehicle.outcome)
   vehicle: Vehicle;
 
-  @ApiProperty({ type: () => Tank })
+  @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
   @ManyToOne(() => Tank, (tank) => tank.outcome)
   tank: Tank;
 
-  @ApiProperty({ type: () => Shift })
+  @ApiProperty({ type: () => Shift, required: true, description: 'Смена' })
   @ManyToOne(() => Shift, (shift) => shift.outcome)
   shift: Shift;
 
-  @ApiProperty({ type: () => Fuel })
+  @ApiProperty({ type: () => Fuel, required: true, description: 'Топливо' })
   @ManyToOne(() => Fuel, (fuel) => fuel.outcome)
   fuel: Fuel;
 
-  @ApiProperty({ type: () => FuelHolder })
+  @ApiProperty({
+    type: () => FuelHolder,
+    required: true,
+    description: 'Топливодержатель',
+  })
   @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.outcome)
   fuelHolder: FuelHolder;
 }
