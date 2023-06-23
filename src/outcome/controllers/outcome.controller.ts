@@ -12,7 +12,10 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OutcomeService } from '../services/outcome.service';
 import { Outcome } from '../entities/outcome.entity';
-import { CreateOutcomeDto, UpdateOutcomeDto } from '../dto';
+import { CreateOutcomeDto, ResponseOutcomeDto, UpdateOutcomeDto } from '../dto';
+import { PaginationOutcome, PaginationOutcomeParams } from '../classes/pagination-outcome.params';
+import { CommonPagination } from '../../common/decorators';
+import { Paginate } from 'nestjs-paginate';
 
 @ApiTags('Outcome')
 @Controller('outcome')
@@ -24,9 +27,16 @@ export class OutcomeController {
   @ApiOperation({
     summary: 'Get outcome list',
   })
-  @ApiResponse({ type: Outcome, isArray: true })
-  async findAll(): Promise<Outcome[]> {
-    return this.outcomeService.find({});
+  @CommonPagination(
+    PaginationOutcomeParams.filterableColumns,
+    PaginationOutcomeParams.searchableColumns,
+    PaginationOutcomeParams.sortableColumns,
+  )
+  @ApiResponse({ type: ResponseOutcomeDto })
+  async findAll(
+    @Paginate() paginationPayload: PaginationOutcome,
+  ): Promise<ResponseOutcomeDto> {
+    return this.outcomeService.findPagination(paginationPayload);
   }
 
   @Get(':id')
