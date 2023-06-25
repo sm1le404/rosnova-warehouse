@@ -9,15 +9,15 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CommonEntity extends BaseEntity {
-  @ApiProperty()
+  @ApiProperty({ description: 'Идентификатор' })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Дата создания' })
   @CreateDateColumn({ type: 'int' })
   createdAt: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Дата удаления' })
   @UpdateDateColumn({ type: 'int' })
   updatedAt: number;
 
