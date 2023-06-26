@@ -15,7 +15,7 @@ export class Event extends CommonEntity {
   @Column({
     type: 'text',
     enum: EventType,
-    default: EventType.PROCESS,
+    default: EventType.DEFAULT,
   })
   type: EventType;
 
@@ -23,7 +23,7 @@ export class Event extends CommonEntity {
   @Column({
     type: 'text',
     enum: EventCollectionType,
-    default: EventCollectionType.PROCESS,
+    default: EventCollectionType.DEFAULT,
   })
   collection: EventCollectionType;
 

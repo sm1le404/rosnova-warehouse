@@ -13,12 +13,19 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ShiftService } from '../services/shift.service';
 import { Shift } from '../entities/shift.entity';
 import { CreateShiftDto, UpdateShiftDto } from '../dto';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { User } from '../../user/entities/user.entity';
+import { EventService } from '../../event/services/event.service';
+import { EventCollectionType, EventType } from '../../event/enums';
 
 @ApiTags('Shift')
 @Controller('shift')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ShiftController {
-  constructor(private readonly shiftService: ShiftService) {}
+  constructor(
+    private readonly shiftService: ShiftService,
+    private readonly eventService: EventService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -47,8 +54,22 @@ export class ShiftController {
     summary: 'Add shift',
   })
   @ApiResponse({ type: Shift })
-  async create(@Body() createShiftDto: CreateShiftDto): Promise<Shift> {
-    return this.shiftService.create(createShiftDto);
+  async create(
+    @Body() createShiftDto: CreateShiftDto,
+    @CurrentUser() user: User,
+  ): Promise<Shift> {
+    const response = await this.shiftService.create(createShiftDto);
+
+    await this.eventService.create({
+      collection: EventCollectionType.SHIFT,
+      type: EventType.CREATE,
+      dataBefore: '',
+      dataAfter: JSON.stringify(createShiftDto),
+      name: '',
+      shift: user.shift.at(-1),
+    });
+
+    return response;
   }
 
   @Put(':id')
@@ -59,8 +80,11 @@ export class ShiftController {
   async update(
     @Param('id') id: number,
     @Body() updateShiftDto: UpdateShiftDto,
+    @CurrentUser() user: User,
   ): Promise<Shift> {
-    return this.shiftService.update(
+    const dataBefore = await this.findOne(id);
+
+    const updated = await this.shiftService.update(
       {
         where: {
           id,
@@ -68,6 +92,17 @@ export class ShiftController {
       },
       updateShiftDto,
     );
+
+    await this.eventService.create({
+      collection: EventCollectionType.OUTCOME,
+      type: EventType.UPDATE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: JSON.stringify(updateShiftDto),
+      name: '',
+      shift: user.shift.at(-1),
+    });
+
+    return updated;
   }
 
   @Delete(':id')
@@ -75,7 +110,21 @@ export class ShiftController {
     summary: 'Delete shift by id',
   })
   @ApiResponse({ type: Shift })
-  async delete(@Param('id') id: number): Promise<Shift> {
+  async delete(
+    @Param('id') id: number,
+    @CurrentUser() user: User,
+  ): Promise<Shift> {
+    const dataBefore = await this.findOne(id);
+
+    await this.eventService.create({
+      collection: EventCollectionType.SHIFT,
+      type: EventType.DELETE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: '',
+      name: '',
+      shift: user.shift.at(-1),
+    });
+
     return this.shiftService.delete({ where: { id } });
   }
 }
