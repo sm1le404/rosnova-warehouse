@@ -1,6 +1,7 @@
-import { IsBoolean, IsEnum } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { CarModelType, VehicleType } from '../enums';
+import { Transform } from 'class-transformer';
 
 export class CreateVehicleDto {
   @ApiProperty({ required: true, description: 'Тип ТС' })
@@ -14,11 +15,23 @@ export class CreateVehicleDto {
   @ApiProperty({ required: true, description: 'Регистрационный номер ТС' })
   regNumber: string;
 
-  @ApiProperty({ required: true, description: 'Объём резервуара' })
-  tanksVolume: number;
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и объём резервуара',
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  tanksVolume: string;
 
-  @ApiProperty({ required: true, description: 'Калибр резервуара' })
-  tanksCalibration: number;
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и калибр резервуара',
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  tanksCalibration: string;
 
   @ApiProperty({ required: true, description: 'Доступность' })
   @IsBoolean()

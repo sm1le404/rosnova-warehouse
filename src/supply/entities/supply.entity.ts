@@ -60,9 +60,12 @@ export class Supply extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   factByTank: number;
 
-  @ApiProperty({ required: true, description: 'Разница' })
+  @ApiProperty({
+    required: true,
+    description: 'Разница документарного и фактического веса',
+  })
   @Column({ type: 'float', nullable: false })
-  difference: number;
+  differenceWeight: number;
 
   @ApiProperty({ required: true, description: 'Объём до' })
   @Column({ type: 'float', nullable: false })

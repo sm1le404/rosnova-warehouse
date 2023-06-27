@@ -19,6 +19,10 @@ export class Measurement extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   density: number;
 
+  @ApiProperty({ required: true, description: 'Температура' })
+  @Column({ type: 'float', nullable: false })
+  temperature: number;
+
   @ApiProperty({ required: true, description: 'Уровень' })
   @Column({ type: 'int', nullable: false })
   level: number;
