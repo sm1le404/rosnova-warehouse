@@ -1,4 +1,4 @@
-import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -28,9 +28,17 @@ export class Driver extends CommonEntity {
   @Column()
   protected fullName: string;
 
-  @AfterLoad()
+  @BeforeInsert()
   getFullName() {
-    this.fullName =
-      `${this.lastName} ${this.firstName} ${this.middleName}`.trim();
+    this.fullName = this.middleName
+      ? `${this.lastName} ${this.firstName} ${this.middleName}`.trim()
+      : `${this.lastName} ${this.firstName}`;
+  }
+
+  @BeforeUpdate()
+  updateFullName() {
+    this.fullName = this.middleName
+      ? `${this.lastName} ${this.firstName} ${this.middleName}`.trim()
+      : `${this.lastName} ${this.firstName}`;
   }
 }
