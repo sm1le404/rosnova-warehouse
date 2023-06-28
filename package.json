@@ -119,7 +119,7 @@
   },
   "pkg": {
     "scripts": "dist/**/*.js",
-    "targets": ["node18-macos-arm64","node18-win-x64"],
+    "targets": ["node18-win-x64"],
     "assets": ["node_modules/sqlite3/**/*", "/node_modules/bcrypt/**/*"],
     "outputPath": "release"
   },
