@@ -24,11 +24,14 @@ import { OutcomeModule } from './outcome/outcome.module';
 import { ShiftModule } from './shift/shift.module';
 import { EventModule } from './event/event.module';
 import { AuthModule } from './auth/auth.module';
+import path from 'path';
+import { rootpath } from './common/utility/rootpath';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', path.join(rootpath(), '.env')],
     }),
     CacheModule.register({
       isGlobal: true,
