@@ -17,7 +17,7 @@ export class CommonEntity extends BaseEntity {
   @CreateDateColumn({ type: 'int' })
   createdAt: number;
 
-  @ApiProperty({ description: 'Дата удаления' })
+  @ApiProperty({ description: 'Дата обновления' })
   @UpdateDateColumn({ type: 'int' })
   updatedAt: number;
 

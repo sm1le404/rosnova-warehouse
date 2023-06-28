@@ -54,9 +54,12 @@ export class CreateSupplyDto {
   @IsPositive()
   factByTank: number;
 
-  @ApiProperty({ required: true, description: 'Разница' })
+  @ApiProperty({
+    required: true,
+    description: 'Разница документарного и фактического веса',
+  })
   @IsPositive()
-  difference: number;
+  differenceWeight: number;
 
   @ApiProperty({ required: true, description: 'Объём до' })
   @IsPositive()
