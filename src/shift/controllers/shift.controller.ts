@@ -14,9 +14,9 @@ import { ShiftService } from '../services/shift.service';
 import { Shift } from '../entities/shift.entity';
 import { CreateShiftDto, UpdateShiftDto } from '../dto';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { User } from '../../user/entities/user.entity';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @ApiTags('Shift')
 @Controller('shift')
@@ -56,7 +56,7 @@ export class ShiftController {
   @ApiResponse({ type: Shift })
   async create(
     @Body() createShiftDto: CreateShiftDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Shift> {
     const response = await this.shiftService.create(createShiftDto);
 
@@ -66,7 +66,7 @@ export class ShiftController {
       dataBefore: '',
       dataAfter: JSON.stringify(createShiftDto),
       name: '',
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return response;
@@ -80,7 +80,7 @@ export class ShiftController {
   async update(
     @Param('id') id: number,
     @Body() updateShiftDto: UpdateShiftDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Shift> {
     const dataBefore = await this.findOne(id);
 
@@ -99,7 +99,7 @@ export class ShiftController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateShiftDto),
       name: '',
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return updated;
@@ -112,7 +112,7 @@ export class ShiftController {
   @ApiResponse({ type: Shift })
   async delete(
     @Param('id') id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Shift> {
     const dataBefore = await this.findOne(id);
 
@@ -122,7 +122,7 @@ export class ShiftController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
       name: '',
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return this.shiftService.delete({ where: { id } });

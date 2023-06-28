@@ -20,9 +20,9 @@ import {
 import { CommonPagination } from '../../common/decorators';
 import { Paginate } from 'nestjs-paginate';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { User } from '../../user/entities/user.entity';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @ApiTags('Outcome')
 @Controller('outcome')
@@ -69,7 +69,7 @@ export class OutcomeController {
   @ApiResponse({ type: Outcome })
   async create(
     @Body() createOutcomeDto: CreateOutcomeDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Outcome> {
     const response = await this.outcomeService.create(createOutcomeDto);
 
@@ -79,7 +79,7 @@ export class OutcomeController {
       dataBefore: '',
       dataAfter: JSON.stringify(createOutcomeDto),
       name: String(createOutcomeDto.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return response;
@@ -93,7 +93,7 @@ export class OutcomeController {
   async update(
     @Param('id') id: number,
     @Body() updateOutcomeDto: UpdateOutcomeDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Outcome> {
     const dataBefore = await this.findOne(id);
 
@@ -112,7 +112,7 @@ export class OutcomeController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateOutcomeDto),
       name: String(updateOutcomeDto.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return updated;
@@ -125,7 +125,7 @@ export class OutcomeController {
   @ApiResponse({ type: Outcome })
   async delete(
     @Param('id') id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Outcome> {
     const dataBefore = await this.findOne(id);
 
@@ -135,7 +135,7 @@ export class OutcomeController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
       name: String(dataBefore.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
     return this.outcomeService.delete({ where: { id } });
   }

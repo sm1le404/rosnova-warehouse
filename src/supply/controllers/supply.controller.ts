@@ -20,9 +20,9 @@ import {
 } from '../classes/pagination-supply.params';
 import { Paginate } from 'nestjs-paginate';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
-import { User } from '../../user/entities/user.entity';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @ApiTags('Supply')
 @Controller('supply')
@@ -69,7 +69,7 @@ export class SupplyController {
   @ApiResponse({ type: Supply })
   async create(
     @Body() createSupplyDto: CreateSupplyDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Supply> {
     const response = await this.supplyService.create(createSupplyDto);
 
@@ -79,7 +79,7 @@ export class SupplyController {
       dataBefore: '',
       dataAfter: JSON.stringify(createSupplyDto),
       name: String(createSupplyDto.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return response;
@@ -93,7 +93,7 @@ export class SupplyController {
   async update(
     @Param('id') id: number,
     @Body() updateSupplyDto: UpdateSupplyDto,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Supply> {
     const dataBefore = await this.findOne(id);
 
@@ -112,7 +112,7 @@ export class SupplyController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateSupplyDto),
       name: String(updateSupplyDto.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return updated;
@@ -125,7 +125,7 @@ export class SupplyController {
   @ApiResponse({ type: Supply })
   async delete(
     @Param('id') id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Supply> {
     const dataBefore = await this.findOne(id);
 
@@ -135,7 +135,7 @@ export class SupplyController {
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
       name: String(dataBefore.numberTTN),
-      shift: user.shift.at(-1),
+      shift: user.lastShift,
     });
 
     return this.supplyService.delete({ where: { id } });
