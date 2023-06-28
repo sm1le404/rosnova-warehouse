@@ -19,12 +19,19 @@ import {
   PaginationSupplyParams,
 } from '../classes/pagination-supply.params';
 import { Paginate } from 'nestjs-paginate';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { EventService } from '../../event/services/event.service';
+import { EventCollectionType, EventType } from '../../event/enums';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @ApiTags('Supply')
 @Controller('supply')
 @UseInterceptors(ClassSerializerInterceptor)
 export class SupplyController {
-  constructor(private readonly supplyService: SupplyService) {}
+  constructor(
+    private readonly supplyService: SupplyService,
+    private readonly eventService: EventService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -60,8 +67,22 @@ export class SupplyController {
     summary: 'Add supply',
   })
   @ApiResponse({ type: Supply })
-  async create(@Body() createSupplyDto: CreateSupplyDto): Promise<Supply> {
-    return this.supplyService.create(createSupplyDto);
+  async create(
+    @Body() createSupplyDto: CreateSupplyDto,
+    @CurrentUser() user: ICurrentUser,
+  ): Promise<Supply> {
+    const response = await this.supplyService.create(createSupplyDto);
+
+    await this.eventService.create({
+      collection: EventCollectionType.SUPPLY,
+      type: EventType.CREATE,
+      dataBefore: '',
+      dataAfter: JSON.stringify(createSupplyDto),
+      name: String(createSupplyDto.numberTTN),
+      shift: user.lastShift,
+    });
+
+    return response;
   }
 
   @Put(':id')
@@ -72,8 +93,11 @@ export class SupplyController {
   async update(
     @Param('id') id: number,
     @Body() updateSupplyDto: UpdateSupplyDto,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Supply> {
-    return this.supplyService.update(
+    const dataBefore = await this.findOne(id);
+
+    const updated = await this.supplyService.update(
       {
         where: {
           id,
@@ -81,6 +105,17 @@ export class SupplyController {
       },
       updateSupplyDto,
     );
+
+    await this.eventService.create({
+      collection: EventCollectionType.SUPPLY,
+      type: EventType.UPDATE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: JSON.stringify(updateSupplyDto),
+      name: String(updateSupplyDto.numberTTN),
+      shift: user.lastShift,
+    });
+
+    return updated;
   }
 
   @Delete(':id')
@@ -88,7 +123,21 @@ export class SupplyController {
     summary: 'Delete supply by id',
   })
   @ApiResponse({ type: Supply })
-  async delete(@Param('id') id: number): Promise<Supply> {
+  async delete(
+    @Param('id') id: number,
+    @CurrentUser() user: ICurrentUser,
+  ): Promise<Supply> {
+    const dataBefore = await this.findOne(id);
+
+    await this.eventService.create({
+      collection: EventCollectionType.SUPPLY,
+      type: EventType.DELETE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: '',
+      name: String(dataBefore.numberTTN),
+      shift: user.lastShift,
+    });
+
     return this.supplyService.delete({ where: { id } });
   }
 }

@@ -19,6 +19,9 @@ export class AuthService {
   async login(request: AuthLoginRequestDto): Promise<User> {
     const user = await this.userService.findOne({
       where: { login: request.login },
+      relations: {
+        shift: true,
+      },
     });
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');

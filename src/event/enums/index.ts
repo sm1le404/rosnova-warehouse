@@ -1,7 +1,15 @@
 export enum EventType {
-  PROCESS = 'PROCESS',
+  DEFAULT = 'DEFAULT',
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
 }
 
 export enum EventCollectionType {
-  PROCESS = 'PROCESS',
+  DEFAULT = 'DEFAULT',
+  OUTCOME = 'OUTCOME',
+  SUPPLY = 'SUPPLY',
+  FUEL = 'FUEL',
+  SHIFT = 'SHIFT',
+  SETTINGS = 'SETTINGS',
 }
