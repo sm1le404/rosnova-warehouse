@@ -5,10 +5,11 @@ import { CommonEntity } from '../../common/entities/common.entity';
 import { CarModelType, VehicleType } from '../enums';
 import { Outcome } from '../../outcome/entities/outcome.entity';
 import { Supply } from '../../supply/entities/supply.entity';
+import { ITanksCalibration, ITanksVolume } from '../types';
 
 @Entity()
 export class Vehicle extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Тип ТС' })
   @Column({
     type: 'text',
     enum: VehicleType,
@@ -16,7 +17,7 @@ export class Vehicle extends CommonEntity {
   })
   type: VehicleType;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Модель ТС' })
   @Column({
     type: 'text',
     enum: CarModelType,
@@ -24,19 +25,19 @@ export class Vehicle extends CommonEntity {
   })
   carModel: CarModelType;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Регистрационный номер ТС' })
   @Column({ type: 'varchar', nullable: false })
   regNumber: string;
 
-  @ApiProperty()
-  @Column({ type: 'float', nullable: false })
-  tanksVolume: number;
+  @ApiProperty({ required: true, description: 'Объект, содержащий номер и объём резервуара' })
+  @Column({ type: 'text', nullable: false })
+  tanksVolume: string;
 
-  @ApiProperty()
-  @Column({ type: 'float', nullable: false })
-  tanksCalibration: number;
+  @ApiProperty({ required: true, description: 'Объект, содержащий номер и калибр резервуара' })
+  @Column({ type: 'text', nullable: false })
+  tanksCalibration: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 

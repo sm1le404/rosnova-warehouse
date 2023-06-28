@@ -6,11 +6,11 @@ export class CreateDispenserDto {
   @IsInt()
   sortIndex: number;
 
-  @ApiProperty({ required: true, description: 'Отчество' })
+  @ApiProperty({ required: true, description: 'Текущее значение счётчика' })
   @IsNumber()
   currentCounter: number;
 
-  @ApiProperty({ required: false, description: 'Включено' })
+  @ApiProperty({ required: false, description: 'Доступность' })
   @IsOptional()
   @IsBoolean()
   isEnabled?: boolean;

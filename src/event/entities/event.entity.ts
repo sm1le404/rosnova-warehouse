@@ -7,11 +7,11 @@ import { Shift } from '../../shift/entities/shift.entity';
 
 @Entity()
 export class Event extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ description: 'Название' })
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Тип события' })
   @Column({
     type: 'text',
     enum: EventType,
@@ -19,7 +19,7 @@ export class Event extends CommonEntity {
   })
   type: EventType;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Название коллекции события' })
   @Column({
     type: 'text',
     enum: EventCollectionType,
@@ -27,15 +27,15 @@ export class Event extends CommonEntity {
   })
   collection: EventCollectionType;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Дата до' })
   @Column({ type: 'varchar', nullable: false })
   dataBefore: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Дата после' })
   @Column({ type: 'varchar', nullable: false })
   dataAfter: string;
 
-  @ApiProperty({ type: () => Shift })
+  @ApiProperty({ type: () => Shift, description: 'Связная смена' })
   @ManyToOne(() => Shift, (shift) => shift.event)
   shift: Shift;
 }

@@ -12,7 +12,7 @@ import { Refinery } from '../../refinery/entities/refinery.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Тип топлива' })
   @Column({
     type: 'text',
     enum: ActiveFuelType,
@@ -20,47 +20,52 @@ export class Tank extends CommonEntity {
   })
   activeFuel: ActiveFuelType;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Порядок сортировки' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Калибр по таблице' })
   @Column({ type: 'float', nullable: false })
   calibrationTable: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Общий объём' })
   @Column({ type: 'float', nullable: false })
   totalVolume: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Критический баланс' })
   @Column({ type: 'float', nullable: false })
   deathBalance: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Температура' })
   @Column({ type: 'float', nullable: false })
   temperature: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Объём' })
   @Column({ type: 'float', nullable: false })
   volume: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Вес' })
   @Column({ type: 'float', nullable: false })
   weight: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Плотность' })
   @Column({ type: 'float', nullable: false })
   density: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, description: 'Уровень' })
   @Column({ type: 'int', nullable: false })
   level: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
-  @ApiProperty({ type: () => Measurement, isArray: true })
+  @ApiProperty({
+    type: () => Measurement,
+    isArray: true,
+    required: true,
+    description: 'Замеры',
+  })
   @OneToMany(() => Measurement, (measurement) => measurement.tank)
   measurement: Measurement[];
 
@@ -70,15 +75,30 @@ export class Tank extends CommonEntity {
   @OneToMany(() => Supply, (supply) => supply.tank)
   supply: Supply[];
 
-  @ApiProperty({ type: () => Fuel, isArray: true })
+  @ApiProperty({
+    type: () => Fuel,
+    isArray: true,
+    required: true,
+    description: 'Вид топлива',
+  })
   @OneToMany(() => Fuel, (fuel) => fuel.tank)
   fuel: Fuel[];
 
-  @ApiProperty({ type: () => FuelHolder, isArray: true })
+  @ApiProperty({
+    type: () => FuelHolder,
+    isArray: true,
+    required: true,
+    description: 'Владелец топлива',
+  })
   @OneToMany(() => FuelHolder, (fuelHolder) => fuelHolder.tank)
   fuelHolder: FuelHolder[];
 
-  @ApiProperty({ type: () => Refinery, isArray: true })
+  @ApiProperty({
+    type: () => Refinery,
+    isArray: true,
+    required: true,
+    description: 'Завод',
+  })
   @OneToMany(() => Refinery, (refinery) => refinery.tank)
   refinery: Refinery[];
 }

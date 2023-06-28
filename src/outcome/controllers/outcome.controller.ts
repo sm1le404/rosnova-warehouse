@@ -13,7 +13,10 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { OutcomeService } from '../services/outcome.service';
 import { Outcome } from '../entities/outcome.entity';
 import { CreateOutcomeDto, ResponseOutcomeDto, UpdateOutcomeDto } from '../dto';
-import { PaginationOutcome, PaginationOutcomeParams } from '../classes/pagination-outcome.params';
+import {
+  PaginationOutcome,
+  PaginationOutcomeParams,
+} from '../classes/pagination-outcome.params';
 import { CommonPagination } from '../../common/decorators';
 import { Paginate } from 'nestjs-paginate';
 

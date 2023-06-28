@@ -11,11 +11,11 @@ export class CreateDriverDto {
   @IsString()
   middleName?: string;
 
-  @ApiProperty({ required: true, description: 'Отчество' })
+  @ApiProperty({ required: true, description: 'Фамилия' })
   @IsString()
   lastName: string;
 
-  @ApiProperty({ required: false, description: 'Включено' })
+  @ApiProperty({ required: false, description: 'Доступность' })
   @IsOptional()
   @IsBoolean()
   isEnabled?: boolean;

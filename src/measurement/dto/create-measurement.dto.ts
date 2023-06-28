@@ -4,7 +4,6 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 
 export class CreateMeasurementDto {
-
   @ApiProperty({ required: true, description: 'Объём' })
   @IsPositive()
   volume: number;
@@ -16,6 +15,10 @@ export class CreateMeasurementDto {
   @ApiProperty({ required: true, description: 'Плотность' })
   @IsPositive()
   density: number;
+
+  @ApiProperty({ required: true, description: 'Температура' })
+  @IsPositive()
+  temperature: number;
 
   @ApiProperty({ required: true, description: 'Уровень' })
   @IsPositive()
