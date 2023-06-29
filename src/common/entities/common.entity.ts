@@ -1,11 +1,9 @@
 import {
   BaseEntity,
-  CreateDateColumn,
+  Column,
   DeleteDateColumn,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CommonEntity extends BaseEntity {
@@ -14,15 +12,27 @@ export class CommonEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ description: 'Дата создания' })
-  @CreateDateColumn({ type: 'int' })
+  @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
   createdAt: number;
 
+  @ApiProperty({ description: 'Дата создания ISO' })
+  createdAtIso: string;
+
   @ApiProperty({ description: 'Дата обновления' })
-  @UpdateDateColumn({ type: 'int' })
+  @Column({
+    type: 'integer',
+    default: () => `strftime('%s', 'now')`,
+  })
   updatedAt: number;
 
-  @DeleteDateColumn({ type: 'int', nullable: true, select: false })
-  deletedAt: number;
+  @ApiProperty({ description: 'Дата обновления ISO' })
+  updatedAtIso: string;
+
+  @DeleteDateColumn({
+    nullable: true,
+    select: false,
+  })
+  deletedAt?: number;
 
   constructor(partial: Partial<CommonEntity>) {
     super();
