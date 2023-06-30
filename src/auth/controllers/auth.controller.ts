@@ -52,13 +52,13 @@ export class AuthController {
     const access = this.tokensService.getJwtAccessToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.at(-1).id,
+      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
     });
 
     const refresh = this.tokensService.getJwtRefreshToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.at(-1).id,
+      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
     });
 
     await this.authService.updateUserRefreshToken(refresh.token, user.id);
@@ -100,13 +100,13 @@ export class AuthController {
     const { token, expiredIn } = this.tokensService.getJwtAccessToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.at(-1).id,
+      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
     });
 
     const refresh = this.tokensService.getJwtRefreshToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.at(-1).id,
+      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
     });
 
     await this.authService.updateUserRefreshToken(refresh.token, user.id);

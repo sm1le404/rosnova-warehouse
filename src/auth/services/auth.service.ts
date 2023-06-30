@@ -23,6 +23,7 @@ export class AuthService {
         shift: true,
       },
     });
+
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');
     }
