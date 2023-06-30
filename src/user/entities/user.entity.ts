@@ -15,23 +15,23 @@ export class User extends CommonEntity {
   })
   role: RoleType;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Логин' })
   @Column({ type: 'varchar', nullable: false })
   login: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Пароль' })
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'jwt refresh токен' })
   @Column({ type: 'varchar', nullable: true, select: false })
   refreshToken?: string;
 
-  @ApiProperty()
+  @ApiProperty({ default: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
   isEnabled: boolean;
 
-  @ApiProperty({ type: () => Shift, isArray: true })
+  @ApiProperty({ type: () => Shift, isArray: true, description: 'Связные смены' })
   @OneToMany(() => Shift, (shift) => shift.user)
   shift: Shift[];
 }
