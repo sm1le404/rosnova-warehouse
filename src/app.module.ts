@@ -52,15 +52,37 @@ import { rootpath } from './common/utility/rootpath';
     WinstonModule.forRootAsync({
       useFactory: () => {
         const transportList = [];
-        transportList.push(
-          new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.timestamp(),
-              winston.format.ms(),
-              nestWinstonModuleUtilities.format.nestLike('Rosnova WH'),
-            ),
-          }),
-        );
+        if (!!process.env.DEV) {
+          transportList.push(
+            new winston.transports.Console({
+              format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.ms(),
+                nestWinstonModuleUtilities.format.nestLike('Rosnova WH'),
+              ),
+            }),
+          );
+        } else {
+          transportList.push(
+            new winston.transports.Console({
+              level: 'error',
+              format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.ms(),
+                nestWinstonModuleUtilities.format.nestLike('Rosnova WH'),
+              ),
+            }),
+            new winston.transports.File({
+              filename: path.join(rootpath(), `logs`, `errors.log`),
+              level: 'error',
+              format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.json(),
+              ),
+            }),
+          );
+        }
+
         return {
           transports: transportList,
         };
