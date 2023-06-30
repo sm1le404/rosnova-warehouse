@@ -1,0 +1,8 @@
+const AUTH = {
+  JWT_ACCESS_TOKEN_SECRET: 'secret',
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: 600,
+  JWT_REFRESH_TOKEN_SECRET: 'secret',
+  JWT_REFRESH_TOKEN_EXPIRATION_TIME: 6000,
+};
+
+export default Object.freeze(AUTH);
