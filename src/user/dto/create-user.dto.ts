@@ -17,7 +17,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  @ApiProperty({ default: true, description: 'Доступность' })
+  @ApiPropertyOptional({ default: true, description: 'Доступность' })
   @IsBoolean()
-  isEnabled: boolean;
+  isEnabled?: boolean;
 }

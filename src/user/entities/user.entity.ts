@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
 import { Shift } from '../../shift/entities/shift.entity';
@@ -27,9 +27,9 @@ export class User extends CommonEntity {
   @Column({ type: 'varchar', nullable: true, select: false })
   refreshToken?: string;
 
-  @ApiProperty({ default: true, description: 'Доступность' })
+  @ApiPropertyOptional({ default: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
   @ApiProperty({ type: () => Shift, isArray: true, description: 'Связные смены' })
   @OneToMany(() => Shift, (shift) => shift.user)
