@@ -79,8 +79,10 @@ export class AuthController {
       secure: !isLocalhost,
     });
 
+    const { password, ...result } = user;
+
     return response.send({
-      data: user,
+      data: result,
     });
   }
 
