@@ -56,18 +56,18 @@ export class ShiftController {
   @ApiResponse({ type: Shift })
   async create(
     @Body() createShiftDto: CreateShiftDto,
-    @CurrentUser() user: ICurrentUser,
+    // @CurrentUser() user: ICurrentUser,
   ): Promise<Shift> {
     const response = await this.shiftService.create(createShiftDto);
 
-    await this.eventService.create({
-      collection: EventCollectionType.SHIFT,
-      type: EventType.CREATE,
-      dataBefore: '',
-      dataAfter: JSON.stringify(createShiftDto),
-      name: '',
-      shift: user.lastShift,
-    });
+    // await this.eventService.create({
+    //   collection: EventCollectionType.SHIFT,
+    //   type: EventType.CREATE,
+    //   dataBefore: '',
+    //   dataAfter: JSON.stringify(createShiftDto),
+    //   name: '',
+    //   shift: user.lastShift,
+    // });
 
     return response;
   }

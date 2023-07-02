@@ -35,7 +35,7 @@ export class User extends CommonEntity {
   isEnabled: boolean;
 
   @ApiProperty({ type: () => Shift, isArray: true })
-  @OneToMany(() => Shift, (shift) => shift.user)
+  @OneToMany(() => Shift, (shift) => shift.user, { cascade: true })
   shift: Shift[];
 
   @BeforeInsert()

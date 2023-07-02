@@ -42,6 +42,17 @@ export class AuthService {
       throw new BadRequestException('Логин или пароль неверные');
     }
 
+    const res = await this.userService.update(
+      { where: { id: user.id } },
+      {
+        shift: [
+          {
+            startedAt: Math.floor(Date.now() / 1000),
+          },
+        ],
+      },
+    );
+
     return user;
   }
 
