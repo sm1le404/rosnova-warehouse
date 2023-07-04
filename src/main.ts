@@ -9,6 +9,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
+    cors: true,
   });
 
   const winstonLogger = app.get(WINSTON_MODULE_NEST_PROVIDER);
