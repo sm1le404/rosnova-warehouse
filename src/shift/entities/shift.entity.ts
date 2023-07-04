@@ -13,14 +13,13 @@ export class Shift extends CommonEntity {
   @Column({ type: 'int', nullable: false })
   startedAt: number;
 
-  @ApiProperty({ required: true, description: 'Закрытие' })
-  @Column({ type: 'int', nullable: false })
-  closedAt: number;
+  @ApiProperty({ required: false, description: 'Закрытие' })
+  @Column({ type: 'int', nullable: true })
+  closedAt?: number;
 
   @ApiProperty({
     type: () => Event,
     isArray: true,
-    required: true,
     description: 'Связное событие',
   })
   @OneToMany(() => Event, (event) => event.shift)

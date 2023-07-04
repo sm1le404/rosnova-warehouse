@@ -1,9 +1,12 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
 import { Shift } from '../../shift/entities/shift.entity';
+import { EncryptionService } from '../../auth/services/encryption.service';
+
+const crypto = new EncryptionService();
 
 @Entity()
 export class User extends CommonEntity {
@@ -34,4 +37,9 @@ export class User extends CommonEntity {
   @ApiProperty({ type: () => Shift, isArray: true, description: 'Связные смены' })
   @OneToMany(() => Shift, (shift) => shift.user)
   shift: Shift[];
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await crypto.hash(this.password);
+  }
 }

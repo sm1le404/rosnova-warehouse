@@ -23,6 +23,7 @@ export class AuthService {
         shift: true,
       },
     });
+
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');
     }
@@ -40,6 +41,17 @@ export class AuthService {
     if (!comparePass) {
       throw new BadRequestException('Логин или пароль неверные');
     }
+
+    const res = await this.userService.update(
+      { where: { id: user.id } },
+      {
+        shift: [
+          {
+            startedAt: Math.floor(Date.now() / 1000),
+          },
+        ],
+      },
+    );
 
     return user;
   }

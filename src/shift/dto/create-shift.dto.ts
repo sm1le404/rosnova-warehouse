@@ -7,10 +7,15 @@ export class CreateShiftDto {
   @IsPositive()
   startedAt: number;
 
-  @ApiProperty({ required: true, description: 'Закрытие' })
+  @ApiProperty({ required: false, description: 'Закрытие', nullable: true })
   @IsPositive()
-  closedAt: number;
+  closedAt?: number;
 
-  @ApiProperty({ type: Array, required: false, description: 'Событие' })
+  @ApiProperty({
+    type: Array,
+    required: false,
+    description: 'Событие',
+    nullable: true,
+  })
   event?: Pick<Event, 'id'>[];
 }
