@@ -8,20 +8,25 @@ import { AuthLoginRequestDto } from '../dto/auth-login-request.dto';
 import { EncryptionService } from './encryption.service';
 import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
+import { ShiftService } from '../../shift/services/shift.service';
+import { ICurrentUser } from '../interface/current-user.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
+    private readonly shiftService: ShiftService,
   ) {}
 
   async login(request: AuthLoginRequestDto): Promise<User> {
     const user = await this.userService.findOne({
       where: { login: request.login },
-      relations: {
-        shift: true,
-      },
+    });
+
+    const lastShift = await this.shiftService.findOne({
+      where: { user: { id: user.id } },
+      order: { id: 'DESC' },
     });
 
     if (!user) {
@@ -52,6 +57,8 @@ export class AuthService {
         ],
       },
     );
+
+    (user as ICurrentUser).lastShift = lastShift;
 
     return user;
   }
