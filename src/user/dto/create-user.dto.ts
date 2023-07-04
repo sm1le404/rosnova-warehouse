@@ -17,12 +17,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  @ApiPropertyOptional({ description: 'JWT рефреш токен' })
-  @IsOptional()
-  @IsString()
-  refreshToken?: string;
-
-  @ApiProperty({ default: true, description: 'Является ли активным' })
+  @ApiPropertyOptional({ default: true, description: 'Доступность' })
   @IsBoolean()
-  isEnabled: boolean;
+  isEnabled?: boolean;
 }

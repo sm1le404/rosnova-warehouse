@@ -1,6 +1,6 @@
 import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
 import { Shift } from '../../shift/entities/shift.entity';
@@ -18,24 +18,24 @@ export class User extends CommonEntity {
   })
   role: RoleType;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Логин' })
   @Column({ type: 'varchar', nullable: false })
   login: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Пароль' })
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'jwt refresh токен' })
   @Column({ type: 'varchar', nullable: true, select: false })
   refreshToken?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ default: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
-  @ApiProperty({ type: () => Shift, isArray: true })
-  @OneToMany(() => Shift, (shift) => shift.user, { cascade: true })
+  @ApiProperty({ type: () => Shift, isArray: true, description: 'Связные смены' })
+  @OneToMany(() => Shift, (shift) => shift.user)
   shift: Shift[];
 
   @BeforeInsert()
