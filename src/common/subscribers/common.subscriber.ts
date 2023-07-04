@@ -41,10 +41,10 @@ export class CommonSubscriber implements EntitySubscriberInterface {
     }
   }
 
-  /**
-   * Called before entity update.
-   */
-  beforeUpdate(event: UpdateEvent<any>) {
-    event.entity.updatedAt = Math.floor(Date.now() / 1000);
-  }
+  // /**
+  //  * Called before entity update.
+  //  */
+  // beforeUpdate(event: UpdateEvent<any>) {
+  //   event.entity.updatedAt = Math.floor(Date.now() / 1000);
+  // }
 }

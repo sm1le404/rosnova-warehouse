@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -77,28 +77,25 @@ export class Tank extends CommonEntity {
 
   @ApiProperty({
     type: () => Fuel,
-    isArray: true,
-    required: true,
+    required: false,
     description: 'Вид топлива',
   })
-  @OneToMany(() => Fuel, (fuel) => fuel.tank)
-  fuel: Fuel[];
+  @ManyToOne(() => Fuel, (fuel) => fuel.tank)
+  fuel?: Fuel;
 
   @ApiProperty({
     type: () => FuelHolder,
-    isArray: true,
-    required: true,
+    required: false,
     description: 'Владелец топлива',
   })
-  @OneToMany(() => FuelHolder, (fuelHolder) => fuelHolder.tank)
-  fuelHolder: FuelHolder[];
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.tank)
+  fuelHolder?: FuelHolder;
 
   @ApiProperty({
     type: () => Refinery,
-    isArray: true,
-    required: true,
+    required: false,
     description: 'Завод',
   })
-  @OneToMany(() => Refinery, (refinery) => refinery.tank)
-  refinery: Refinery[];
+  @ManyToOne(() => Refinery, (refinery) => refinery.tank)
+  refinery?: Refinery;
 }

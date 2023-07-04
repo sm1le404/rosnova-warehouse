@@ -53,26 +53,23 @@ export class CreateTankDto {
   isEnabled?: boolean;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Вид топлива',
-    isArray: true,
     type: () => PickType(Fuel, ['id']),
   })
-  fuel: Pick<Fuel, 'id'>[];
+  fuel?: Pick<Fuel, 'id'>;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Владелец топлива',
-    isArray: true,
     type: () => PickType(FuelHolder, ['id']),
   })
-  fuelHolder: Pick<FuelHolder, 'id'>[];
+  fuelHolder?: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Завод',
-    isArray: true,
     type: () => PickType(Refinery, ['id']),
   })
-  refinery: Pick<Refinery, 'id'>[];
+  refinery?: Pick<Refinery, 'id'>;
 }
