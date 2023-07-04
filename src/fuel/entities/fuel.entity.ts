@@ -23,15 +23,15 @@ export class Fuel extends CommonEntity {
     description: 'Связный резервуар',
   })
   @OneToMany(() => Tank, (tank) => tank.fuel)
-  tank: Tank[];
+  tank?: Tank[];
 
   @ApiProperty({
     type: () => Outcome,
-    required: true,
+    required: false,
     description: 'Связная выдача',
   })
   @ManyToOne(() => Outcome, (outcome) => outcome.fuel)
-  outcome: Outcome;
+  outcome?: Outcome;
 
   @ApiProperty({
     type: () => Supply,
@@ -39,5 +39,5 @@ export class Fuel extends CommonEntity {
     description: 'Связный приход',
   })
   @ManyToOne(() => Supply, (supply) => supply.fuel)
-  supply: Supply;
+  supply?: Supply;
 }
