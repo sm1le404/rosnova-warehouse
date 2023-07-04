@@ -9,7 +9,21 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
-    cors: true,
+  });
+
+  const corsList = ['http://localhost:3000'];
+  if (process.env.CLIENT_PORT) {
+    let clientPath = 'http://localhost:';
+    if (process.env.CLIENT_PATH) {
+      clientPath = `${process.env.CLIENT_PATH}:`;
+    }
+    clientPath = `${clientPath}${process.env.CLIENT_PORT}`;
+    corsList.push(clientPath);
+  }
+
+  app.enableCors({
+    origin: corsList,
+    credentials: true,
   });
 
   const winstonLogger = app.get(WINSTON_MODULE_NEST_PROVIDER);
