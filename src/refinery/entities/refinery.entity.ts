@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -19,8 +19,8 @@ export class Refinery extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @ManyToOne(() => Tank, (tank) => tank.refinery)
-  tank: Tank;
+  @OneToMany(() => Tank, (tank) => tank.refinery)
+  tank: Tank[];
 
   @ManyToOne(() => Supply, (supply) => supply.refinery)
   supply: Supply;
