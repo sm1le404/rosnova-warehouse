@@ -9,15 +9,14 @@ import { ITanksCalibration, ITanksVolume } from '../types';
 
 @Entity()
 export class Vehicle extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Тип ТС' })
+  @ApiProperty({ required: true, description: 'Тип ТС', type: 'string' })
   @Column({
     type: 'text',
     enum: VehicleType,
-    default: VehicleType.TRUCK,
   })
   type: VehicleType;
 
-  @ApiProperty({ required: true, description: 'Модель ТС' })
+  @ApiProperty({ required: true, description: 'Модель ТС', enum: CarModelType })
   @Column({
     type: 'text',
     enum: CarModelType,
@@ -29,11 +28,17 @@ export class Vehicle extends CommonEntity {
   @Column({ type: 'varchar', nullable: false })
   regNumber: string;
 
-  @ApiProperty({ required: true, description: 'Объект, содержащий номер и объём резервуара' })
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и объём резервуара',
+  })
   @Column({ type: 'text', nullable: false })
   tanksVolume: string;
 
-  @ApiProperty({ required: true, description: 'Объект, содержащий номер и калибр резервуара' })
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и калибр резервуара',
+  })
   @Column({ type: 'text', nullable: false })
   tanksCalibration: string;
 

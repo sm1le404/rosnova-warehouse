@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RoleType } from '../enums';
 
 export class CreateUserDto {
-  @ApiProperty({ description: 'Роль пользователя', type: RoleType })
+  @ApiProperty({ description: 'Роль пользователя', enum: RoleType })
   @IsEnum(RoleType)
   role: RoleType;
 

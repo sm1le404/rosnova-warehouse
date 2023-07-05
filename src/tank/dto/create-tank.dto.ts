@@ -9,7 +9,7 @@ export class CreateTankDto {
   @ApiProperty({
     required: true,
     description: 'Тип топлива',
-    type: ActiveFuelType,
+    enum: ActiveFuelType,
   })
   @IsEnum(ActiveFuelType)
   activeFuel: ActiveFuelType;
