@@ -14,7 +14,7 @@ export class User extends CommonEntity {
   @Column({
     type: 'text',
     enum: RoleType,
-    default: RoleType.USER,
+    default: RoleType.OPERATOR,
   })
   role: RoleType;
 
