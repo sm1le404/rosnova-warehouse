@@ -1,3 +1,4 @@
+import { CurrentUser } from './../decorators/current-user.decorator';
 import {
   Body,
   Controller,
@@ -24,6 +25,7 @@ import { ApiOkResponse } from '../../common/decorators/api-ok-response.decorator
 import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-response.decorator';
 import { ResponseDto } from '../../common/dto';
 import { ICurrentUser } from '../interface/current-user.interface';
+import { ShiftService } from '../../shift/services/shift.service';
 
 @ApiTags('Auth')
 @ApiExtraModels(User)
@@ -32,6 +34,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     protected readonly tokensService: TokensService,
+    protected readonly shiftService: ShiftService,
   ) {}
 
   @Post('login')
@@ -46,7 +49,9 @@ export class AuthController {
     @Res() response: Response,
     @Req() request: Request,
   ): Promise<Response<ResponseDto<User>>> {
-    const user: ICurrentUser = await this.authService.login(body) as ICurrentUser;
+    const user: ICurrentUser = (await this.authService.login(
+      body,
+    )) as ICurrentUser;
     const host: string = request?.headers?.host ?? '';
     const isLocalhost: boolean = host.includes('localhost');
 
@@ -143,6 +148,10 @@ export class AuthController {
     if (token) {
       const payload = this.tokensService.decode(token);
       await this.authService.updateUserRefreshToken(token, payload.id);
+      await this.shiftService.update(
+        { where: { id: payload.shift } },
+        { closedAt: Date.now() },
+      );
     }
 
     response.clearCookie('Authentication');
