@@ -1,13 +1,16 @@
 import { IsBoolean, IsEnum, IsOptional, IsPositive } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Measurement } from '../../measurement/entities/measurement.entity';
 import { ActiveFuelType } from '../enum';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 
 export class CreateTankDto {
-  @ApiProperty({ required: true, description: 'Тип топлива' })
+  @ApiProperty({
+    required: true,
+    description: 'Тип топлива',
+    type: ActiveFuelType,
+  })
   @IsEnum(ActiveFuelType)
   activeFuel: ActiveFuelType;
 

@@ -14,7 +14,11 @@ export class CreateSupplyDto {
   @IsString()
   driverName: string;
 
-  @ApiProperty({ required: true, description: 'Тип поставки' })
+  @ApiProperty({
+    required: true,
+    description: 'Тип поставки',
+    enum: SupplyType,
+  })
   @IsEnum(SupplyType)
   type: SupplyType;
 

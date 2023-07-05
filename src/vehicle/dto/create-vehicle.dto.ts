@@ -4,11 +4,11 @@ import { CarModelType, VehicleType } from '../enums';
 import { Transform } from 'class-transformer';
 
 export class CreateVehicleDto {
-  @ApiProperty({ required: true, description: 'Тип ТС' })
+  @ApiProperty({ required: true, description: 'Тип ТС', type: VehicleType })
   @IsEnum(VehicleType)
   type: VehicleType;
 
-  @ApiProperty({ required: true, description: 'Модель ТС' })
+  @ApiProperty({ required: true, description: 'Модель ТС', type: CarModelType })
   @IsEnum(CarModelType)
   carModel: CarModelType;
 
