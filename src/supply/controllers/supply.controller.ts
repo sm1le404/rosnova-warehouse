@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,10 +24,12 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { JwtAuthGuard } from '../../auth/guard';
 
 @ApiTags('Supply')
 @Controller('supply')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class SupplyController {
   constructor(
     private readonly supplyService: SupplyService,

@@ -7,16 +7,19 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TankService } from '../services/tank.service';
 import { Tank } from '../entities/tank.entity';
 import { CreateTankDto, UpdateTankDto } from '../dto';
+import { JwtAuthGuard } from '../../auth/guard';
 
 @ApiTags('Tank')
 @Controller('tank')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class TankController {
   constructor(private readonly tankService: TankService) {}
 

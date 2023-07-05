@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,10 +15,12 @@ import { RefineryService } from '../services/refinery.service';
 import { Refinery } from '../entities/refinery.entity';
 import { CreateRefineryDto } from '../dto/create-refinery.dto';
 import { UpdateRefineryDto } from '../dto/update-refinery.dto';
+import { JwtAuthGuard } from '../../auth/guard';
 
 @ApiTags('Refinery')
 @Controller('refinery')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class RefineryController {
   constructor(private readonly refineryService: RefineryService) {}
 

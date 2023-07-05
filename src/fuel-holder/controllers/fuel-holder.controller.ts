@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,10 +15,12 @@ import { FuelHolderService } from '../services/fuel-holder.service';
 import { FuelHolder } from '../entities/fuel-holder.entity';
 import { CreateFuelHolderDto } from '../dto/create-fuel-holder.dto';
 import { UpdateFuelHolderDto } from '../dto/update-fuel-holder.dto';
+import { JwtAuthGuard } from '../../auth/guard';
 
 @ApiTags('Fuel-holder')
 @Controller('fuel-holder')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard)
 export class FuelHolderController {
   constructor(private readonly fuelHolderService: FuelHolderService) {}
 
