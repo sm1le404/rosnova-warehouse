@@ -26,6 +26,7 @@ import { EventModule } from './event/event.module';
 import { AuthModule } from './auth/auth.module';
 import path from 'path';
 import { rootpath } from './common/utility/rootpath';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -102,6 +103,7 @@ import { rootpath } from './common/utility/rootpath';
     ShiftModule,
     EventModule,
     AuthModule,
+    DevicesModule,
   ],
   controllers: [],
   providers: [],

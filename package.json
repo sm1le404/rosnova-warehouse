@@ -26,7 +26,7 @@
     "migration:revert": "npm run typeorm:dev migration:revert",
     "migration:run:prod": "typeorm migration:run -d ./dist/ormconfig.js",
     "migration:revert:prod": "typeorm migration:revert -d ./dist/ormconfig.js",
-    "pack" : "pkg . --compress GZip"
+    "pack": "pkg . --compress GZip"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.0.0",
@@ -51,6 +51,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "serialport": "^11.0.0",
     "sqlite3": "^5.1.6",
     "swagger-ui-express": "^4.6.3",
     "typeorm": "^0.3.16",
@@ -119,8 +120,13 @@
   },
   "pkg": {
     "scripts": "dist/**/*.js",
-    "targets": ["node18-win-x64"],
-    "assets": ["node_modules/sqlite3/**/*", "/node_modules/bcrypt/**/*"],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "assets": [
+      "node_modules/sqlite3/**/*",
+      "/node_modules/bcrypt/**/*"
+    ],
     "outputPath": "release"
   },
   "bin": "./dist/main.js"
