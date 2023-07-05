@@ -34,8 +34,12 @@ export class User extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @ApiProperty({ type: () => Shift, isArray: true, description: 'Связные смены' })
-  @OneToMany(() => Shift, (shift) => shift.user)
+  @ApiProperty({
+    type: () => Shift,
+    isArray: true,
+    description: 'Связные смены',
+  })
+  @OneToMany(() => Shift, (shift) => shift.user, { cascade: true })
   shift: Shift[];
 
   @BeforeInsert()

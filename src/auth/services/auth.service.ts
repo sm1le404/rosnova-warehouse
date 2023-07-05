@@ -10,6 +10,7 @@ import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
 import { ShiftService } from '../../shift/services/shift.service';
 import { ICurrentUser } from '../interface/current-user.interface';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -24,10 +25,22 @@ export class AuthService {
       where: { login: request.login },
     });
 
-    const lastShift = await this.shiftService.findOne({
-      where: { user: { id: user.id } },
+    let [lastShift] = await this.shiftService.find({
+      where: { user: { id: user.id }, closedAt: IsNull() },
       order: { id: 'DESC' },
     });
+
+    if (!lastShift) {
+      await this.userService.create({
+        ...user,
+        shift: [{ startedAt: Math.floor(Date.now() / 1000) }],
+      });
+
+      [lastShift] = await this.shiftService.find({
+        where: { user: { id: user.id }, closedAt: IsNull() },
+        order: { id: 'DESC' },
+      });
+    }
 
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');
@@ -46,17 +59,6 @@ export class AuthService {
     if (!comparePass) {
       throw new BadRequestException('Логин или пароль неверные');
     }
-
-    const res = await this.userService.update(
-      { where: { id: user.id } },
-      {
-        shift: [
-          {
-            startedAt: Math.floor(Date.now() / 1000),
-          },
-        ],
-      },
-    );
 
     (user as ICurrentUser).lastShift = lastShift;
 
