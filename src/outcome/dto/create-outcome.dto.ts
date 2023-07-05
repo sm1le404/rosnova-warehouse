@@ -10,7 +10,7 @@ import { Driver } from '../../driver/entities/driver.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 
 export class CreateOutcomeDto {
-  @ApiProperty({ required: true, description: 'Тип топлива', type: StatusType })
+  @ApiProperty({ required: true, description: 'Тип топлива', enum: StatusType })
   @IsEnum(StatusType)
   status: StatusType;
 
