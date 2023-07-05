@@ -23,6 +23,7 @@ import { RoleType } from '../enums';
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -31,7 +32,6 @@ export class UserController {
     description: 'Get User list',
   })
   @ApiResponse({ type: User, isArray: true })
-  @SetRoles(RoleType.ADMIN)
   async findAll(): Promise<User[]> {
     return this.userService.find({});
   }
@@ -41,7 +41,6 @@ export class UserController {
     description: 'Get User by id',
   })
   @ApiResponse({ type: User })
-  @SetRoles(RoleType.ADMIN)
   async findOne(@Param('id') id: number): Promise<User> {
     return this.userService.findOne({
       where: {
@@ -55,7 +54,6 @@ export class UserController {
     summary: 'Add User',
   })
   @ApiResponse({ type: User })
-  @SetRoles(RoleType.ADMIN)
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.userService.create(createUserDto);
   }
@@ -65,7 +63,6 @@ export class UserController {
     summary: 'Update User by id',
   })
   @ApiResponse({ type: User })
-  @SetRoles(RoleType.ADMIN)
   async update(
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -85,7 +82,6 @@ export class UserController {
     summary: 'Delete User by id',
   })
   @ApiResponse({ type: User })
-  @SetRoles(RoleType.ADMIN)
   async delete(@Param('id') id: number): Promise<User> {
     return this.userService.delete({ where: { id } });
   }

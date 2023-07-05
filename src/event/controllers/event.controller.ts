@@ -16,11 +16,15 @@ import {
 import { ResponseEventDto } from '../dto/response-event.dto';
 import { Paginate } from 'nestjs-paginate';
 import { JwtAuthGuard } from '../../auth/guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Event')
 @Controller('event')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class EventController {
   constructor(private readonly eventService: EventService) {}
 

@@ -16,11 +16,15 @@ import { Fuel } from '../entities/fuel.entity';
 import { CreateFuelDto } from '../dto/create-fuel.dto';
 import { UpdateFuelDto } from '../dto/update-fuel.dto';
 import { JwtAuthGuard } from '../../auth/guard';
+import { RoleType } from '../../user/enums';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Fuel')
 @Controller('fuel')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class FuelController {
   constructor(private readonly fuelService: FuelService) {}
 
