@@ -29,6 +29,7 @@ export class Vehicle extends CommonEntity {
   regNumber: string;
 
   @ApiProperty({
+    type: () => ITanksVolume,
     required: true,
     description: 'Объект, содержащий номер и объём резервуара',
   })
@@ -36,6 +37,7 @@ export class Vehicle extends CommonEntity {
   tanksVolume: string;
 
   @ApiProperty({
+    type: () => ITanksCalibration,
     required: true,
     description: 'Объект, содержащий номер и калибр резервуара',
   })
