@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -14,10 +15,16 @@ import { DriverService } from '../services/driver.service';
 import { Driver } from '../entities/driver.entity';
 import { CreateDriverDto } from '../dto/create-driver.dto';
 import { UpdateDriverDto } from '../dto/update-driver.dto';
+import { JwtAuthGuard } from '../../auth/guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Driver')
 @Controller('driver')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 

@@ -1,3 +1,4 @@
+import { CurrentUser } from './../decorators/current-user.decorator';
 import {
   Body,
   Controller,
@@ -23,6 +24,8 @@ import { User } from '../../user/entities/user.entity';
 import { ApiOkResponse } from '../../common/decorators/api-ok-response.decorator';
 import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-response.decorator';
 import { ResponseDto } from '../../common/dto';
+import { ICurrentUser } from '../interface/current-user.interface';
+import { ShiftService } from '../../shift/services/shift.service';
 
 @ApiTags('Auth')
 @ApiExtraModels(User)
@@ -31,6 +34,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     protected readonly tokensService: TokensService,
+    protected readonly shiftService: ShiftService,
   ) {}
 
   @Post('login')
@@ -45,20 +49,22 @@ export class AuthController {
     @Res() response: Response,
     @Req() request: Request,
   ): Promise<Response<ResponseDto<User>>> {
-    const user = await this.authService.login(body);
+    const user: ICurrentUser = (await this.authService.login(
+      body,
+    )) as ICurrentUser;
     const host: string = request?.headers?.host ?? '';
     const isLocalhost: boolean = host.includes('localhost');
 
     const access = this.tokensService.getJwtAccessToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
+      shift: user.lastShift.id,
     });
 
     const refresh = this.tokensService.getJwtRefreshToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
+      shift: user.lastShift.id,
     });
 
     await this.authService.updateUserRefreshToken(refresh.token, user.id);
@@ -94,7 +100,7 @@ export class AuthController {
   async refresh(@Req() request: Request, @Res() response: Response) {
     const host: string = request?.headers?.host ?? '';
     const isLocalhost: boolean = host.includes('localhost');
-    const user: User | undefined = request.user as User;
+    const user: ICurrentUser | undefined = request.user as ICurrentUser;
     if (!user.id) {
       throw new BadRequestException('User not found');
     }
@@ -102,13 +108,13 @@ export class AuthController {
     const { token, expiredIn } = this.tokensService.getJwtAccessToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
+      shift: user.lastShift.id,
     });
 
     const refresh = this.tokensService.getJwtRefreshToken({
       id: user.id,
       role: user.role,
-      shift: user.shift.sort((a, b) => b.id - a.id)[0].id,
+      shift: user.lastShift.id,
     });
 
     await this.authService.updateUserRefreshToken(refresh.token, user.id);
@@ -142,6 +148,10 @@ export class AuthController {
     if (token) {
       const payload = this.tokensService.decode(token);
       await this.authService.updateUserRefreshToken(token, payload.id);
+      await this.shiftService.update(
+        { where: { id: payload.shift } },
+        { closedAt: Date.now() },
+      );
     }
 
     response.clearCookie('Authentication');

@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,10 +24,15 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { JwtAuthGuard } from '../../auth/guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Supply')
 @Controller('supply')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
 export class SupplyController {
   constructor(
     private readonly supplyService: SupplyService,
@@ -43,6 +49,7 @@ export class SupplyController {
     PaginationSupplyParams.sortableColumns,
   )
   @ApiResponse({ type: ResponseSupplyDto })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findAll(
     @Paginate() paginationPayload: PaginationSupply,
   ): Promise<ResponseSupplyDto> {
@@ -54,6 +61,7 @@ export class SupplyController {
     summary: 'Get supply by id',
   })
   @ApiResponse({ type: Supply })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findOne(@Param('id') id: number): Promise<Supply> {
     return this.supplyService.findOne({
       where: {
@@ -67,6 +75,7 @@ export class SupplyController {
     summary: 'Add supply',
   })
   @ApiResponse({ type: Supply })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async create(
     @Body() createSupplyDto: CreateSupplyDto,
     @CurrentUser() user: ICurrentUser,
@@ -90,6 +99,7 @@ export class SupplyController {
     summary: 'Update supply by id',
   })
   @ApiResponse({ type: Supply })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async update(
     @Param('id') id: number,
     @Body() updateSupplyDto: UpdateSupplyDto,
@@ -123,6 +133,7 @@ export class SupplyController {
     summary: 'Delete supply by id',
   })
   @ApiResponse({ type: Supply })
+  @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,
     @CurrentUser() user: ICurrentUser,

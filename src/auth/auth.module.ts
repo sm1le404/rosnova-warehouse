@@ -12,12 +12,14 @@ import { UserModule } from '../user/user.module';
 import { UserService } from '../user/services/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
+import { ShiftService } from '../shift/services/shift.service';
+import { Shift } from '../shift/entities/shift.entity';
 
 @Module({
   imports: [
     JwtModule.register({}),
     UserModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Shift]),
   ],
   controllers: [AuthController],
   providers: [
@@ -28,6 +30,7 @@ import { User } from '../user/entities/user.entity';
     AnonymousStrategy,
     JwtRefreshStrategy,
     UserService,
+    ShiftService,
   ],
   exports: [TokensService, EncryptionService],
 })
