@@ -36,6 +36,6 @@ export class Event extends CommonEntity {
   dataAfter: string;
 
   @ApiProperty({ type: () => Shift, description: 'Связная смена' })
-  @ManyToOne(() => Shift, (shift) => shift.event)
+  @ManyToOne(() => Shift, (shift) => shift.event, { eager: true })
   shift: Shift;
 }

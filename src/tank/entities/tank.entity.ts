@@ -80,7 +80,7 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'Вид топлива',
   })
-  @ManyToOne(() => Fuel, (fuel) => fuel.tank)
+  @ManyToOne(() => Fuel, (fuel) => fuel.tank, { eager: true })
   fuel?: Fuel;
 
   @ApiProperty({
@@ -88,7 +88,7 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'Владелец топлива',
   })
-  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.tank)
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.tank, { eager: true })
   fuelHolder?: FuelHolder;
 
   @ApiProperty({
@@ -96,6 +96,6 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'Завод',
   })
-  @ManyToOne(() => Refinery, (refinery) => refinery.tank)
+  @ManyToOne(() => Refinery, (refinery) => refinery.tank, { eager: true })
   refinery?: Refinery;
 }

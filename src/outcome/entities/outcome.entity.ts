@@ -74,11 +74,11 @@ export class Outcome extends CommonEntity {
     required: true,
     description: 'Колонка',
   })
-  @ManyToOne(() => Dispenser, (dispenser) => dispenser.outcome)
+  @ManyToOne(() => Dispenser, (dispenser) => dispenser.outcome, { eager: true })
   dispenser: Dispenser;
 
   @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
-  @ManyToOne(() => Driver, (driver) => driver.outcome)
+  @ManyToOne(() => Driver, (driver) => driver.outcome, { eager: true })
   driver: Driver;
 
   @ApiProperty({
@@ -86,19 +86,19 @@ export class Outcome extends CommonEntity {
     required: true,
     description: 'Траспортное средство',
   })
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.outcome)
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.outcome, { eager: true })
   vehicle: Vehicle;
 
   @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
-  @ManyToOne(() => Tank, (tank) => tank.outcome)
+  @ManyToOne(() => Tank, (tank) => tank.outcome, { eager: true })
   tank: Tank;
 
   @ApiProperty({ type: () => Shift, required: true, description: 'Смена' })
-  @ManyToOne(() => Shift, (shift) => shift.outcome)
+  @ManyToOne(() => Shift, (shift) => shift.outcome, { eager: true })
   shift: Shift;
 
   @ApiProperty({ type: () => Fuel, required: true, description: 'Топливо' })
-  @ManyToOne(() => Fuel, (fuel) => fuel.outcome)
+  @ManyToOne(() => Fuel, (fuel) => fuel.outcome, { eager: true })
   fuel: Fuel;
 
   @ApiProperty({
@@ -106,6 +106,8 @@ export class Outcome extends CommonEntity {
     required: true,
     description: 'Топливодержатель',
   })
-  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.outcome)
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.outcome, {
+    eager: true,
+  })
   fuelHolder: FuelHolder;
 }
