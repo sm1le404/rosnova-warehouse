@@ -16,4 +16,10 @@ export class TankService {
       autoOpen: true,
     });
   }
+
+  async readState() {
+    this.serialPort.on('data', (data) => {
+      console.log(data);
+    });
+  }
 }
