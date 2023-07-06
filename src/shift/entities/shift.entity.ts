@@ -36,6 +36,6 @@ export class Shift extends CommonEntity {
     required: true,
     description: 'Связный пользователь',
   })
-  @ManyToOne(() => User, (user) => user.shift)
+  @ManyToOne(() => User, (user) => user.shift, { eager: true })
   user: User;
 }
