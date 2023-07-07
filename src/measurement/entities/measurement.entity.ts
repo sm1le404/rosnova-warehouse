@@ -42,6 +42,6 @@ export class Measurement extends CommonEntity {
     required: true,
     description: 'Связные резервуары',
   })
-  @ManyToOne(() => Tank, (tank) => tank.measurement)
+  @ManyToOne(() => Tank, (tank) => tank.measurement, { eager: true })
   tank: Tank;
 }
