@@ -10,6 +10,7 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Refinery } from '../../refinery/entities/refinery.entity';
 
 @Entity()
 export class Outcome extends CommonEntity {
@@ -110,4 +111,14 @@ export class Outcome extends CommonEntity {
     eager: true,
   })
   fuelHolder: FuelHolder;
+
+  @ApiProperty({
+    type: () => Refinery,
+    required: true,
+    description: 'Завод',
+  })
+  @ManyToOne(() => Refinery, (refinerty) => refinerty.outcome, {
+    eager: true,
+  })
+  refinery: Refinery;
 }
