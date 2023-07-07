@@ -7,7 +7,7 @@ export class PaginationSupply extends PaginatedParams<Supply> {}
 export const PaginationSupplyParams = new PaginationSupply();
 
 PaginationSupplyParams.selectedColumns = [];
-PaginationSupplyParams.searchableColumns = ['driverName', 'numberTTN'];
+PaginationSupplyParams.searchableColumns = ['numberTTN', 'driver'];
 PaginationSupplyParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
 PaginationSupplyParams.relationList = [
   'fuel',

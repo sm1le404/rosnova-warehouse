@@ -7,13 +7,9 @@ import { Tank } from '../../tank/entities/tank.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Driver } from '../../driver/entities/driver.entity';
 
 export class CreateSupplyDto {
-  @ApiProperty({ required: true, description: 'Имя водителя' })
-  @IsNotEmpty()
-  @IsString()
-  driverName: string;
-
   @ApiProperty({
     required: true,
     description: 'Тип поставки',
@@ -97,23 +93,15 @@ export class CreateSupplyDto {
 
   @ApiProperty({
     required: true,
-    description: 'Топливо',
-    type: () => PickType(Fuel, ['id']),
+    description: 'Водитель',
+    type: () => PickType(Driver, ['id']),
   })
+  driver: Pick<Driver, 'id'>;
+
   fuel: Pick<Fuel, 'id'>;
 
-  @ApiProperty({
-    required: true,
-    description: 'Владелец топлива',
-    type: () => PickType(FuelHolder, ['id']),
-  })
   fuelHolder: Pick<FuelHolder, 'id'>;
 
-  @ApiProperty({
-    required: true,
-    description: 'Завод',
-    type: () => PickType(Refinery, ['id']),
-  })
   refinery: Pick<Refinery, 'id'>;
 
   shift: Pick<Shift, 'id'>;

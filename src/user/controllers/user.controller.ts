@@ -11,7 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, OmitType } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto';
 import { JwtAuthGuard } from '../../auth/guard';
@@ -53,9 +53,11 @@ export class UserController {
   @ApiOperation({
     summary: 'Add User',
   })
-  @ApiResponse({ type: User })
+  @ApiResponse({ type: OmitType(User, ['password']) })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.create(createUserDto);
+    const { password, ...user } = await this.userService.create(createUserDto);
+
+    return user as User;
   }
 
   @Put(':id')
