@@ -2,7 +2,6 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { ActiveFuelType } from '../enum';
 import { Measurement } from '../../measurement/entities/measurement.entity';
 import { Supply } from '../../supply/entities/supply.entity';
 import { Outcome } from '../../outcome/entities/outcome.entity';
@@ -12,49 +11,41 @@ import { Refinery } from '../../refinery/entities/refinery.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Тип топлива' })
-  @Column({
-    type: 'text',
-    enum: ActiveFuelType,
-    default: ActiveFuelType.PETROL,
-  })
-  activeFuel: ActiveFuelType;
-
   @ApiProperty({ required: true, description: 'Порядок сортировки' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 
   @ApiProperty({ required: true, description: 'Калибр по таблице' })
-  @Column({ type: 'float', nullable: false })
-  calibrationTable: number;
+  @Column({ type: 'float', nullable: true, default: 0 })
+  calibrationTable?: number;
 
   @ApiProperty({ required: true, description: 'Общий объём' })
   @Column({ type: 'float', nullable: false })
   totalVolume: number;
 
   @ApiProperty({ required: true, description: 'Критический баланс' })
-  @Column({ type: 'float', nullable: false })
-  deathBalance: number;
+  @Column({ type: 'float', nullable: false, default: 0 })
+  deathBalance?: number;
 
   @ApiProperty({ required: true, description: 'Температура' })
-  @Column({ type: 'float', nullable: false })
-  temperature: number;
+  @Column({ type: 'float', nullable: false, default: 0 })
+  temperature?: number;
 
   @ApiProperty({ required: true, description: 'Объём' })
-  @Column({ type: 'float', nullable: false })
-  volume: number;
+  @Column({ type: 'float', nullable: false, default: 0 })
+  volume?: number;
 
   @ApiProperty({ required: true, description: 'Вес' })
-  @Column({ type: 'float', nullable: false })
-  weight: number;
+  @Column({ type: 'float', nullable: false, default: 0 })
+  weight?: number;
 
   @ApiProperty({ required: true, description: 'Плотность' })
-  @Column({ type: 'float', nullable: false })
-  density: number;
+  @Column({ type: 'float', nullable: false, default: 0 })
+  density?: number;
 
   @ApiProperty({ required: true, description: 'Уровень' })
-  @Column({ type: 'int', nullable: false })
-  level: number;
+  @Column({ type: 'int', nullable: false, default: 0 })
+  level?: number;
 
   @ApiProperty({ required: false, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
@@ -66,7 +57,9 @@ export class Tank extends CommonEntity {
     required: true,
     description: 'Замеры',
   })
-  @OneToMany(() => Measurement, (measurement) => measurement.tank)
+  @OneToMany(() => Measurement, (measurement) => measurement.tank, {
+    eager: true,
+  })
   measurement: Measurement[];
 
   @OneToMany(() => Outcome, (outcome) => outcome.tank)

@@ -16,13 +16,11 @@ export class Vehicle extends CommonEntity {
   })
   type: VehicleType;
 
-  @ApiProperty({ required: true, description: 'Модель ТС', enum: CarModelType })
+  @ApiProperty({ required: true, description: 'Модель ТС' })
   @Column({
     type: 'text',
-    enum: CarModelType,
-    default: CarModelType.UNKNOWN,
   })
-  carModel: CarModelType;
+  carModel: string;
 
   @ApiProperty({ required: true, description: 'Регистрационный номер ТС' })
   @Column({ type: 'varchar', nullable: false })
@@ -46,7 +44,7 @@ export class Vehicle extends CommonEntity {
 
   @ApiProperty({ required: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
-  isEnabled: boolean;
+  isEnabled?: boolean;
 
   @OneToMany(() => Outcome, (outcome) => outcome.vehicle)
   outcome: Outcome[];

@@ -1,54 +1,18 @@
-import { IsBoolean, IsEnum, IsOptional, IsPositive } from 'class-validator';
+import { IsBoolean, IsOptional, IsPositive } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ActiveFuelType } from '../enum';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 
 export class CreateTankDto {
-  @ApiProperty({
-    required: true,
-    description: 'Тип топлива',
-    enum: ActiveFuelType,
-  })
-  @IsEnum(ActiveFuelType)
-  activeFuel: ActiveFuelType;
-
   @ApiProperty({ required: true, description: 'Порядок сортировки' })
   @IsPositive()
   sortIndex: number;
 
-  @ApiProperty({ required: true, description: 'Калибр по таблице' })
-  @IsPositive()
-  calibrationTable: number;
-
   @ApiProperty({ required: true, description: 'Общий объём' })
   @IsPositive()
+  @IsOptional()
   totalVolume: number;
-
-  @ApiProperty({ required: true, description: 'Критический баланс' })
-  @IsPositive()
-  deathBalance: number;
-
-  @ApiProperty({ required: true, description: 'Температура' })
-  @IsPositive()
-  temperature: number;
-
-  @ApiProperty({ required: true, description: 'Объём' })
-  @IsPositive()
-  volume: number;
-
-  @ApiProperty({ required: true, description: 'Вес' })
-  @IsPositive()
-  weight: number;
-
-  @ApiProperty({ required: true, description: 'Плотность' })
-  @IsPositive()
-  density: number;
-
-  @ApiProperty({ required: true, description: 'Уровень' })
-  @IsPositive()
-  level: number;
 
   @ApiProperty({ required: false, description: 'Доступность' })
   @IsOptional()
@@ -75,4 +39,43 @@ export class CreateTankDto {
     type: () => PickType(Refinery, ['id']),
   })
   refinery?: Pick<Refinery, 'id'>;
+
+  @ApiProperty({ required: false, description: 'Калибр по таблице' })
+  @IsPositive()
+  @IsOptional()
+  calibrationTable?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Критический баланс',
+    default: 0,
+  })
+  @IsPositive()
+  @IsOptional()
+  deathBalance?: number;
+
+  @ApiProperty({ required: false, description: 'Температура', default: 0 })
+  @IsPositive()
+  @IsOptional()
+  temperature?: number;
+
+  @ApiProperty({ required: false, description: 'Объём', default: 0 })
+  @IsPositive()
+  @IsOptional()
+  volume?: number;
+
+  @ApiProperty({ required: false, description: 'Вес', default: 0 })
+  @IsPositive()
+  @IsOptional()
+  weight?: number;
+
+  @ApiProperty({ required: false, description: 'Плотность', default: 0 })
+  @IsOptional()
+  @IsPositive()
+  density?: number;
+
+  @ApiProperty({ required: false, description: 'Уровень', default: 0 })
+  @IsPositive()
+  @IsOptional()
+  level?: number;
 }

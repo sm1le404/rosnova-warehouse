@@ -1,7 +1,14 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { CarModelType, VehicleType } from '../enums';
+import { VehicleType } from '../enums';
 import { Transform } from 'class-transformer';
+import { ITanksVolume } from '../types';
 
 export class CreateVehicleDto {
   @ApiProperty({
@@ -12,16 +19,20 @@ export class CreateVehicleDto {
   @IsEnum(VehicleType)
   type: VehicleType;
 
-  @ApiProperty({ required: true, description: 'Модель ТС', enum: CarModelType })
-  @IsEnum(CarModelType)
-  carModel: CarModelType;
+  @ApiProperty({ required: true, description: 'Модель ТС' })
+  @IsNotEmpty()
+  @IsString()
+  carModel: string;
 
   @ApiProperty({ required: true, description: 'Регистрационный номер ТС' })
+  @IsNotEmpty()
+  @IsString()
   regNumber: string;
 
   @ApiProperty({
     required: true,
     description: 'Объект, содержащий номер и объём резервуара',
+    type: () => ITanksVolume,
   })
   @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
@@ -37,7 +48,8 @@ export class CreateVehicleDto {
   @IsString()
   tanksCalibration: string;
 
-  @ApiProperty({ required: true, description: 'Доступность' })
+  @ApiProperty({ required: true, description: 'Доступность', default: true })
   @IsBoolean()
-  isEnabled: boolean;
+  @IsOptional()
+  isEnabled?: boolean;
 }
