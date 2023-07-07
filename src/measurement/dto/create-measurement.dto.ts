@@ -1,5 +1,5 @@
-import { IsPositive } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsPositive } from 'class-validator';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 
@@ -17,7 +17,7 @@ export class CreateMeasurementDto {
   density: number;
 
   @ApiProperty({ required: true, description: 'Температура' })
-  @IsPositive()
+  @IsNumber()
   temperature: number;
 
   @ApiProperty({ required: true, description: 'Уровень' })
@@ -25,13 +25,13 @@ export class CreateMeasurementDto {
   level: number;
 
   @ApiProperty({
-    type: 'int',
+    type: () => PickType(Shift, ['id']),
     description: 'id смена',
   })
   shift: Pick<Shift, 'id'>;
 
   @ApiProperty({
-    type: 'int',
+    type: () => PickType(Tank, ['id']),
     description: 'id резервуар',
   })
   tank: Pick<Tank, 'id'>;

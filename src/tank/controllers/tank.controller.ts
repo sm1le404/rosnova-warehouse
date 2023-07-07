@@ -7,16 +7,23 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TankService } from '../services/tank.service';
 import { Tank } from '../entities/tank.entity';
 import { CreateTankDto, UpdateTankDto } from '../dto';
+import { JwtAuthGuard } from '../../auth/guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { HasRole } from '../../auth/guard/has-role.guard';
+import { RoleType } from '../../user/enums';
 
 @ApiTags('Tank')
 @Controller('tank')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class TankController {
   constructor(private readonly tankService: TankService) {}
 

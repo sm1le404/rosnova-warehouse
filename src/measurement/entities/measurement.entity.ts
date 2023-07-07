@@ -27,12 +27,21 @@ export class Measurement extends CommonEntity {
   @Column({ type: 'int', nullable: false })
   level: number;
 
-  @ApiProperty({ type: () => Shift, required: true, description: 'Связная смена' })
+  @ApiProperty({
+    type: () => Shift,
+    required: true,
+    description: 'Связная смена',
+  })
   @OneToOne(() => Shift)
   @JoinColumn()
   shift: Shift;
 
-  @ApiProperty({ type: () => Tank, isArray: true, required: true, description: 'Связные резервуары' })
+  @ApiProperty({
+    type: () => Tank,
+    isArray: true,
+    required: true,
+    description: 'Связные резервуары',
+  })
   @ManyToOne(() => Tank, (tank) => tank.measurement)
   tank: Tank;
 }

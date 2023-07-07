@@ -27,15 +27,15 @@ export class Event extends CommonEntity {
   })
   collection: EventCollectionType;
 
-  @ApiProperty({ description: 'Дата до' })
+  @ApiProperty({ description: 'Данные до' })
   @Column({ type: 'varchar', nullable: false })
   dataBefore: string;
 
-  @ApiProperty({ description: 'Дата после' })
+  @ApiProperty({ description: 'Данные после' })
   @Column({ type: 'varchar', nullable: false })
   dataAfter: string;
 
   @ApiProperty({ type: () => Shift, description: 'Связная смена' })
-  @ManyToOne(() => Shift, (shift) => shift.event)
+  @ManyToOne(() => Shift, (shift) => shift.event, { eager: true })
   shift: Shift;
 }

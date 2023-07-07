@@ -12,32 +12,20 @@ export class Fuel extends CommonEntity {
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
+  @ApiProperty({ required: true, description: 'Полное название топлива' })
+  @Column({ type: 'varchar', nullable: false })
+  fullName: string;
+
   @ApiProperty({ required: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @ApiProperty({
-    type: () => Tank,
-    required: true,
-    isArray: true,
-    description: 'Связный резервуар',
-  })
   @OneToMany(() => Tank, (tank) => tank.fuel)
   tank?: Tank[];
 
-  @ApiProperty({
-    type: () => Outcome,
-    required: false,
-    description: 'Связная выдача',
-  })
-  @ManyToOne(() => Outcome, (outcome) => outcome.fuel)
+  @ManyToOne(() => Outcome, (outcome) => outcome.fuel, { eager: false })
   outcome?: Outcome;
 
-  @ApiProperty({
-    type: () => Supply,
-    required: true,
-    description: 'Связный приход',
-  })
-  @ManyToOne(() => Supply, (supply) => supply.fuel)
+  @ManyToOne(() => Supply, (supply) => supply.fuel, { eager: false })
   supply?: Supply;
 }

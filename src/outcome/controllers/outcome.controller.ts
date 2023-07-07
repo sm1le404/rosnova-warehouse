@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,10 +24,15 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { EventService } from '../../event/services/event.service';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { JwtAuthGuard } from '../../auth/guard';
+import { HasRole } from '../../auth/guard/has-role.guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
 
 @ApiTags('Outcome')
 @Controller('outcome')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
 export class OutcomeController {
   constructor(
     private readonly outcomeService: OutcomeService,
@@ -43,6 +49,7 @@ export class OutcomeController {
     PaginationOutcomeParams.sortableColumns,
   )
   @ApiResponse({ type: ResponseOutcomeDto })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findAll(
     @Paginate() paginationPayload: PaginationOutcome,
   ): Promise<ResponseOutcomeDto> {
@@ -54,6 +61,7 @@ export class OutcomeController {
     summary: 'Get outcome by id',
   })
   @ApiResponse({ type: Outcome })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findOne(@Param('id') id: number): Promise<Outcome> {
     return this.outcomeService.findOne({
       where: {
@@ -67,6 +75,7 @@ export class OutcomeController {
     summary: 'Add outcome',
   })
   @ApiResponse({ type: Outcome })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async create(
     @Body() createOutcomeDto: CreateOutcomeDto,
     @CurrentUser() user: ICurrentUser,
@@ -90,6 +99,7 @@ export class OutcomeController {
     summary: 'Update outcome by id',
   })
   @ApiResponse({ type: Outcome })
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async update(
     @Param('id') id: number,
     @Body() updateOutcomeDto: UpdateOutcomeDto,
@@ -123,6 +133,7 @@ export class OutcomeController {
     summary: 'Delete outcome by id',
   })
   @ApiResponse({ type: Outcome })
+  @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,
     @CurrentUser() user: ICurrentUser,

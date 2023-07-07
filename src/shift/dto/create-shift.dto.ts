@@ -3,8 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '../../event/entities/event.entity';
 
 export class CreateShiftDto {
-  @ApiProperty({ required: true, description: 'Открытие' })
-  @IsPositive()
   startedAt: number;
 
   @ApiProperty({ required: false, description: 'Закрытие', nullable: true })

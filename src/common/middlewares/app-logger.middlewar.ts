@@ -1,5 +1,6 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Request, Response, NextFunction } from 'express';
 
 @Injectable()

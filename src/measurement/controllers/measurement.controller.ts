@@ -7,16 +7,23 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { MeasurementService } from '../services/measurement.service';
 import { Measurement } from '../entities/measurement.entity';
 import { CreateMeasurementDto, UpdateMeasurementDto } from '../dto';
+import { JwtAuthGuard } from '../../auth/guard';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Measurement')
 @Controller('measurement')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 

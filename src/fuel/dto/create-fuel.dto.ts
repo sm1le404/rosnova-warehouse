@@ -6,6 +6,10 @@ export class CreateFuelDto {
   @IsString()
   name: string;
 
+  @ApiProperty({ required: true, description: 'Полное название' })
+  @IsString()
+  fullName: string;
+
   @ApiProperty({ required: false, description: 'Доступность' })
   @IsOptional()
   @IsBoolean()

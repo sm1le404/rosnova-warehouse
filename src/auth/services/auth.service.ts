@@ -8,21 +8,39 @@ import { AuthLoginRequestDto } from '../dto/auth-login-request.dto';
 import { EncryptionService } from './encryption.service';
 import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
+import { ShiftService } from '../../shift/services/shift.service';
+import { ICurrentUser } from '../interface/current-user.interface';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
+    private readonly shiftService: ShiftService,
   ) {}
 
   async login(request: AuthLoginRequestDto): Promise<User> {
     const user = await this.userService.findOne({
       where: { login: request.login },
-      relations: {
-        shift: true,
-      },
     });
+
+    let [lastShift] = await this.shiftService.find({
+      where: { user: { id: user.id }, closedAt: IsNull() },
+      order: { id: 'DESC' },
+    });
+
+    if (!lastShift) {
+      await this.userService.create({
+        ...user,
+        shift: [{ startedAt: Math.floor(Date.now() / 1000) }],
+      });
+
+      [lastShift] = await this.shiftService.find({
+        where: { user: { id: user.id }, closedAt: IsNull() },
+        order: { id: 'DESC' },
+      });
+    }
 
     if (!user) {
       throw new NotFoundException('Пользователь с таким логином не найден');
@@ -42,16 +60,7 @@ export class AuthService {
       throw new BadRequestException('Логин или пароль неверные');
     }
 
-    const res = await this.userService.update(
-      { where: { id: user.id } },
-      {
-        shift: [
-          {
-            startedAt: Math.floor(Date.now() / 1000),
-          },
-        ],
-      },
-    );
+    (user as ICurrentUser).lastShift = lastShift;
 
     return user;
   }
