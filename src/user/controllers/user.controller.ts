@@ -22,7 +22,6 @@ import { RoleType } from '../enums';
 @ApiTags('User')
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard, HasRole)
 @SetRoles(RoleType.ADMIN)
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -37,6 +36,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, HasRole)
   @ApiOperation({
     description: 'Get User by id',
   })
@@ -50,6 +50,7 @@ export class UserController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, HasRole)
   @ApiOperation({
     summary: 'Add User',
   })
@@ -61,6 +62,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, HasRole)
   @ApiOperation({
     summary: 'Update User by id',
   })
@@ -80,6 +82,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, HasRole)
   @ApiOperation({
     summary: 'Delete User by id',
   })
