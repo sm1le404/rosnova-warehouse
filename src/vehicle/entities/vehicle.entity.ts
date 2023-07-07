@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { CarModelType, VehicleType } from '../enums';
+import { VehicleType } from '../enums';
 import { Outcome } from '../../outcome/entities/outcome.entity';
 import { Supply } from '../../supply/entities/supply.entity';
 import { ITanksCalibration, ITanksVolume } from '../types';

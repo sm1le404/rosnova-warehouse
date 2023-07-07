@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import { IsEnum, IsPositive } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
 import { Refinery } from '../../refinery/entities/refinery.entity';
