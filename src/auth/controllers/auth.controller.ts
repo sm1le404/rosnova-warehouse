@@ -1,4 +1,3 @@
-import { CurrentUser } from './../decorators/current-user.decorator';
 import {
   Body,
   Controller,
@@ -17,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { AuthLoginRequestDto } from '../dto';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Response, Request } from 'express';
 import { JwtRefreshAuthGuard } from '../guard';
 import { TokensService } from '../services/token.service';

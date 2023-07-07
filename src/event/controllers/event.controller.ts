@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EventService } from '../services/event.service';
-import { Event } from '../entities/event.entity';
 import { CommonPagination } from '../../common/decorators';
 import {
   PaginationEvent,
