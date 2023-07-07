@@ -27,11 +27,11 @@ export class Event extends CommonEntity {
   })
   collection: EventCollectionType;
 
-  @ApiProperty({ description: 'Дата до' })
+  @ApiProperty({ description: 'Данные до' })
   @Column({ type: 'varchar', nullable: false })
   dataBefore: string;
 
-  @ApiProperty({ description: 'Дата после' })
+  @ApiProperty({ description: 'Данные после' })
   @Column({ type: 'varchar', nullable: false })
   dataAfter: string;
 
