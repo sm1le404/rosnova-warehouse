@@ -27,6 +27,9 @@ import { AuthModule } from './auth/auth.module';
 import path from 'path';
 import { rootpath } from './common/utility/rootpath';
 import { DevicesModule } from './devices/devices.module';
+import { CronModule } from './cron/cron.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './cron/services/cron.service';
 
 @Module({
   imports: [
@@ -104,9 +107,11 @@ import { DevicesModule } from './devices/devices.module';
     EventModule,
     AuthModule,
     DevicesModule,
+    ScheduleModule.forRoot(),
+    CronModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [CronService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

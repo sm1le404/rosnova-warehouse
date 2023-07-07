@@ -3,7 +3,7 @@ import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class TankService {
+export class DeviceTankService {
   private serialPort: SerialPort;
 
   constructor(private readonly configService: ConfigService) {
@@ -13,13 +13,25 @@ export class TankService {
       dataBits: 8,
       parity: 'none',
       stopBits: 2,
-      autoOpen: true,
+      autoOpen: false,
+    });
+    this.serialPort.on('data', (data) => {
+      this.readState(data);
     });
   }
 
-  async readState() {
-    this.serialPort.on('data', (data) => {
-      console.log(data);
+  readState(data: any) {
+    console.log('read data', data);
+  }
+
+  async writeCommand(command: string) {
+    console.log('write cmd', command);
+    this.serialPort.write(command);
+  }
+
+  async start() {
+    this.serialPort.open((data) => {
+      console.log('x', data);
     });
   }
 }
