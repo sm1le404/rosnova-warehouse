@@ -30,7 +30,7 @@ export class Fuel extends CommonEntity {
     required: false,
     description: 'Связная выдача',
   })
-  @ManyToOne(() => Outcome, (outcome) => outcome.fuel, { eager: true })
+  @ManyToOne(() => Outcome, (outcome) => outcome.fuel, { eager: false })
   outcome?: Outcome;
 
   @ApiProperty({
@@ -38,6 +38,6 @@ export class Fuel extends CommonEntity {
     required: true,
     description: 'Связный приход',
   })
-  @ManyToOne(() => Supply, (supply) => supply.fuel, { eager: true })
+  @ManyToOne(() => Supply, (supply) => supply.fuel, { eager: false })
   supply?: Supply;
 }
