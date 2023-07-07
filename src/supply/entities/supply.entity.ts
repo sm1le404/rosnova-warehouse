@@ -9,13 +9,10 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Driver } from '../../driver/entities/driver.entity';
 
 @Entity()
 export class Supply extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Имя водителя' })
-  @Column({ type: 'varchar', nullable: false })
-  driverName: string;
-
   @ApiProperty({ required: true, description: 'Тип поставки' })
   @Column({
     type: 'text',
@@ -116,4 +113,8 @@ export class Supply extends CommonEntity {
   @ApiProperty({ type: () => Refinery, required: true, description: 'Завод' })
   @ManyToOne(() => Refinery, (refinery) => refinery.supply, { eager: true })
   refinery: Refinery;
+
+  @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
+  @ManyToOne(() => Driver, (driver) => driver.id, { eager: true })
+  driver: Driver;
 }
