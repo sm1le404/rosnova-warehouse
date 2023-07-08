@@ -126,7 +126,8 @@
     "assets": [
       "node_modules/sqlite3/**/*",
       "node_modules/bcrypt/**/*",
-      "node_modules/serialport/**/*"
+      "node_modules/serialport/**/*",
+      "node_modules/@serialport/**/*"
     ],
     "outputPath": "release"
   },
