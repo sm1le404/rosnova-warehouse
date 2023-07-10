@@ -14,6 +14,6 @@ export const TANK_FIRST_BYTE = 0xb5;
 export enum TankHelperParams {
   ADDRESS_LINE = 0x0a,
   DATA_LENGTH = 0x01,
-  COMMAND = 0x01,
+  COMMAND_READ = 0x01,
   DATA = 0x00,
 }

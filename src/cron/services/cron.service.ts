@@ -18,7 +18,7 @@ export class CronService {
   async clearOtpRecords() {
     try {
       await this.deviceTankService.start();
-      await this.deviceTankService.writeCommand('test');
+      await this.deviceTankService.readCommand();
     } catch (e) {
       this.logger.error(e);
     }
