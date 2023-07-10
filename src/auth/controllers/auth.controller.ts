@@ -54,7 +54,9 @@ export class AuthController {
     const user: ICurrentUser = (await this.authService.login(
       body,
     )) as ICurrentUser;
-    const host: string = request?.headers?.host ?? '';
+
+    const host: string =
+      request?.headers?.origin ?? request?.headers?.host ?? '';
     const isLocalhost: boolean = host.includes(
       `localhost:${this.configService.get('APP_PORT')}`,
     );
@@ -102,7 +104,8 @@ export class AuthController {
     summary: 'Refresh auth token',
   })
   async refresh(@Req() request: Request, @Res() response: Response) {
-    const host: string = request?.headers?.host ?? '';
+    const host: string =
+      request?.headers?.origin ?? request?.headers?.host ?? '';
     const isLocalhost: boolean = host.includes(
       `localhost:${this.configService.get('APP_PORT')}`,
     );
