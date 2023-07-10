@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { VehicleType } from '../enums';
 import { Transform } from 'class-transformer';
-import { ITanksVolume } from '../types';
+import { IVehicleTank } from '../types';
 
 export class CreateVehicleDto {
   @ApiProperty({
@@ -32,7 +32,7 @@ export class CreateVehicleDto {
   @ApiProperty({
     required: true,
     description: 'Объект, содержащий номер и объём резервуара',
-    type: () => ITanksVolume,
+    type: () => IVehicleTank,
   })
   @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
@@ -42,6 +42,7 @@ export class CreateVehicleDto {
   @ApiProperty({
     required: true,
     description: 'Объект, содержащий номер и калибр резервуара',
+    type: () => IVehicleTank,
   })
   @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()

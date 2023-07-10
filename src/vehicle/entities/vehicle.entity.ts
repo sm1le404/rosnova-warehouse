@@ -5,7 +5,7 @@ import { CommonEntity } from '../../common/entities/common.entity';
 import { VehicleType } from '../enums';
 import { Outcome } from '../../outcome/entities/outcome.entity';
 import { Supply } from '../../supply/entities/supply.entity';
-import { ITanksCalibration, ITanksVolume } from '../types';
+import { IVehicleTank } from '../types';
 
 @Entity()
 export class Vehicle extends CommonEntity {
@@ -27,7 +27,7 @@ export class Vehicle extends CommonEntity {
   regNumber: string;
 
   @ApiProperty({
-    type: () => ITanksVolume,
+    type: () => IVehicleTank,
     required: true,
     description: 'Объект, содержащий номер и объём резервуара',
   })
@@ -35,7 +35,7 @@ export class Vehicle extends CommonEntity {
   tanksVolume: string;
 
   @ApiProperty({
-    type: () => ITanksCalibration,
+    type: () => IVehicleTank,
     required: true,
     description: 'Объект, содержащий номер и калибр резервуара',
   })

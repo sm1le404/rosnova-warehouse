@@ -9,7 +9,12 @@ import {
   Put,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ShiftService } from '../services/shift.service';
 import { Shift } from '../entities/shift.entity';
 import { CreateShiftDto, UpdateShiftDto } from '../dto';
@@ -50,29 +55,31 @@ export class ShiftController {
   }
 
   @Post()
+  @ApiExcludeEndpoint()
   @ApiOperation({
     summary: 'Add shift',
   })
   @ApiResponse({ type: Shift })
   async create(
     @Body() createShiftDto: CreateShiftDto,
-    // @CurrentUser() user: ICurrentUser,
+    @CurrentUser() user: ICurrentUser,
   ): Promise<Shift> {
     const response = await this.shiftService.create(createShiftDto);
 
-    // await this.eventService.create({
-    //   collection: EventCollectionType.SHIFT,
-    //   type: EventType.CREATE,
-    //   dataBefore: '',
-    //   dataAfter: JSON.stringify(createShiftDto),
-    //   name: '',
-    //   shift: user.lastShift,
-    // });
+    await this.eventService.create({
+      collection: EventCollectionType.SHIFT,
+      type: EventType.CREATE,
+      dataBefore: '',
+      dataAfter: JSON.stringify(createShiftDto),
+      name: '',
+      shift: user.lastShift,
+    });
 
     return response;
   }
 
   @Put(':id')
+  @ApiExcludeEndpoint()
   @ApiOperation({
     summary: 'Update shift by id',
   })
@@ -106,6 +113,7 @@ export class ShiftController {
   }
 
   @Delete(':id')
+  @ApiExcludeEndpoint()
   @ApiOperation({
     summary: 'Delete shift by id',
   })

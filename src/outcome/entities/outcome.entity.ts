@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { StatusType } from '../enums';
+import { OutcomeType } from '../enums';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
@@ -17,10 +17,10 @@ export class Outcome extends CommonEntity {
   @ApiProperty({ required: true, description: 'Тип топлива' })
   @Column({
     type: 'text',
-    enum: StatusType,
-    default: StatusType.PROCESS,
+    enum: OutcomeType,
+    default: OutcomeType.CREATE,
   })
-  status: StatusType;
+  type: OutcomeType;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })

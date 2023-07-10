@@ -12,6 +12,35 @@ import { Driver } from '../../driver/entities/driver.entity';
 export class CreateSupplyDto {
   @ApiProperty({
     required: true,
+    description: 'Транспорт',
+    type: () => PickType(Vehicle, ['id']),
+  })
+  vehicle: Pick<Vehicle, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Резервуар',
+    type: () => PickType(Tank, ['id']),
+  })
+  tank: Pick<Tank, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Водитель',
+    type: () => PickType(Driver, ['id']),
+  })
+  driver: Pick<Driver, 'id'>;
+
+  fuel: Pick<Fuel, 'id'>;
+
+  fuelHolder: Pick<FuelHolder, 'id'>;
+
+  refinery: Pick<Refinery, 'id'>;
+
+  shift: Pick<Shift, 'id'>;
+
+  @ApiProperty({
+    required: true,
     description: 'Тип поставки',
     enum: SupplyType,
   })
@@ -61,48 +90,15 @@ export class CreateSupplyDto {
   @IsPositive()
   differenceWeight: number;
 
-  @ApiProperty({ required: true, description: 'Объём до' })
   @IsPositive()
   volumeBefore: number;
 
-  @ApiProperty({ required: true, description: 'Объём после' })
   @IsPositive()
   volumeAfter: number;
 
-  @ApiProperty({ required: true, description: 'Уровень до' })
   @IsPositive()
   levelBefore: number;
 
-  @ApiProperty({ required: true, description: 'Уровень после' })
   @IsPositive()
   levelAfter: number;
-
-  @ApiProperty({
-    required: true,
-    description: 'Транспорт',
-    type: () => PickType(Vehicle, ['id']),
-  })
-  vehicle: Pick<Vehicle, 'id'>;
-
-  @ApiProperty({
-    required: true,
-    description: 'Резервуар',
-    type: () => PickType(Tank, ['id']),
-  })
-  tank: Pick<Tank, 'id'>;
-
-  @ApiProperty({
-    required: true,
-    description: 'Водитель',
-    type: () => PickType(Driver, ['id']),
-  })
-  driver: Pick<Driver, 'id'>;
-
-  fuel: Pick<Fuel, 'id'>;
-
-  fuelHolder: Pick<FuelHolder, 'id'>;
-
-  refinery: Pick<Refinery, 'id'>;
-
-  shift: Pick<Shift, 'id'>;
 }
