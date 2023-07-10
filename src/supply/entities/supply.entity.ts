@@ -10,6 +10,7 @@ import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Driver } from '../../driver/entities/driver.entity';
+import { IVehicleTank } from '../../vehicle/types';
 
 @Entity()
 export class Supply extends CommonEntity {
@@ -20,6 +21,14 @@ export class Supply extends CommonEntity {
     default: SupplyType.PROCESS,
   })
   type: SupplyType;
+
+  @ApiProperty({
+    type: () => IVehicleTank,
+    required: true,
+    description: 'Состояние резервуаров ТС',
+  })
+  @Column({ type: 'text', nullable: false })
+  vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })

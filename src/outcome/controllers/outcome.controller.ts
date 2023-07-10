@@ -33,6 +33,7 @@ import { RoleType } from '../../user/enums';
 @Controller('outcome')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
 export class OutcomeController {
   constructor(
     private readonly outcomeService: OutcomeService,
@@ -49,7 +50,6 @@ export class OutcomeController {
     PaginationOutcomeParams.sortableColumns,
   )
   @ApiResponse({ type: ResponseOutcomeDto })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findAll(
     @Paginate() paginationPayload: PaginationOutcome,
   ): Promise<ResponseOutcomeDto> {
@@ -61,7 +61,6 @@ export class OutcomeController {
     summary: 'Get outcome by id',
   })
   @ApiResponse({ type: Outcome })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findOne(@Param('id') id: number): Promise<Outcome> {
     return this.outcomeService.findOne({
       where: {
@@ -75,7 +74,6 @@ export class OutcomeController {
     summary: 'Add outcome',
   })
   @ApiResponse({ type: Outcome })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async create(
     @Body() createOutcomeDto: CreateOutcomeDto,
     @CurrentUser() user: ICurrentUser,
@@ -99,7 +97,6 @@ export class OutcomeController {
     summary: 'Update outcome by id',
   })
   @ApiResponse({ type: Outcome })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async update(
     @Param('id') id: number,
     @Body() updateOutcomeDto: UpdateOutcomeDto,

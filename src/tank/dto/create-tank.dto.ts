@@ -5,20 +5,6 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 
 export class CreateTankDto {
-  @ApiProperty({ required: true, description: 'Порядок сортировки' })
-  @IsPositive()
-  sortIndex: number;
-
-  @ApiProperty({ required: true, description: 'Общий объём' })
-  @IsPositive()
-  @IsOptional()
-  totalVolume: number;
-
-  @ApiProperty({ required: false, description: 'Доступность' })
-  @IsOptional()
-  @IsBoolean()
-  isEnabled?: boolean;
-
   @ApiProperty({
     required: false,
     description: 'Вид топлива',
@@ -39,6 +25,20 @@ export class CreateTankDto {
     type: () => PickType(Refinery, ['id']),
   })
   refinery?: Pick<Refinery, 'id'>;
+
+  @ApiProperty({ required: true, description: 'Порядок сортировки' })
+  @IsPositive()
+  sortIndex: number;
+
+  @ApiProperty({ required: true, description: 'Общий объём' })
+  @IsPositive()
+  @IsOptional()
+  totalVolume: number;
+
+  @ApiProperty({ required: false, description: 'Доступность' })
+  @IsOptional()
+  @IsBoolean()
+  isEnabled?: boolean;
 
   @ApiProperty({ required: false, description: 'Калибр по таблице' })
   @IsPositive()

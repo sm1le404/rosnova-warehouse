@@ -18,6 +18,13 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
 import { HasRole } from '../../auth/guard/has-role.guard';
+import { Paginate } from 'nestjs-paginate';
+import { CommonPagination } from '../../common/decorators';
+import {
+  PaginationMeasurement,
+  PaginationMeasurementParams,
+} from '../classes/pagination-measurement.params';
+import { ResponseMeasurementDto } from '../dto/response-measurement.dto';
 
 @ApiTags('Measurement')
 @Controller('measurement')
@@ -31,9 +38,16 @@ export class MeasurementController {
   @ApiOperation({
     summary: 'Get measurement list',
   })
-  @ApiResponse({ type: Measurement, isArray: true })
-  async findAll(): Promise<Measurement[]> {
-    return this.measurementService.find({});
+  @ApiResponse({ type: ResponseMeasurementDto })
+  @CommonPagination(
+    PaginationMeasurementParams.filterableColumns,
+    PaginationMeasurementParams.searchableColumns,
+    PaginationMeasurementParams.sortableColumns,
+  )
+  async findAll(
+    @Paginate() paginationPayload: PaginationMeasurement,
+  ): Promise<ResponseMeasurementDto> {
+    return this.measurementService.findPagination(paginationPayload);
   }
 
   @Get(':id')
