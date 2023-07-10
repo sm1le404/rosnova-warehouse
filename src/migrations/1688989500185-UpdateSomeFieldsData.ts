@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/*eslint-disable*/
 export class UpdateSomeFieldsData1688989500185 implements MigrationInterface {
   name = 'UpdateSomeFieldsData1688989500185';
 
