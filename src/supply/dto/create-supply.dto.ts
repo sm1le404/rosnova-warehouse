@@ -1,4 +1,4 @@
-import { IsEnum, IsPositive } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
 import { Refinery } from '../../refinery/entities/refinery.entity';
@@ -8,8 +8,39 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Driver } from '../../driver/entities/driver.entity';
+import { IVehicleTank } from '../../vehicle/types';
+import { Transform } from 'class-transformer';
 
 export class CreateSupplyDto {
+  @ApiProperty({
+    required: true,
+    description: 'Транспорт',
+    type: () => PickType(Vehicle, ['id']),
+  })
+  vehicle: Pick<Vehicle, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Резервуар',
+    type: () => PickType(Tank, ['id']),
+  })
+  tank: Pick<Tank, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Водитель',
+    type: () => PickType(Driver, ['id']),
+  })
+  driver: Pick<Driver, 'id'>;
+
+  fuel: Pick<Fuel, 'id'>;
+
+  fuelHolder: Pick<FuelHolder, 'id'>;
+
+  refinery: Pick<Refinery, 'id'>;
+
+  shift: Pick<Shift, 'id'>;
+
   @ApiProperty({
     required: true,
     description: 'Тип поставки',
@@ -17,6 +48,16 @@ export class CreateSupplyDto {
   })
   @IsEnum(SupplyType)
   type: SupplyType;
+
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и состояние резервуара',
+    type: () => IVehicleTank,
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @IsPositive()
@@ -61,48 +102,15 @@ export class CreateSupplyDto {
   @IsPositive()
   differenceWeight: number;
 
-  @ApiProperty({ required: true, description: 'Объём до' })
   @IsPositive()
   volumeBefore: number;
 
-  @ApiProperty({ required: true, description: 'Объём после' })
   @IsPositive()
   volumeAfter: number;
 
-  @ApiProperty({ required: true, description: 'Уровень до' })
   @IsPositive()
   levelBefore: number;
 
-  @ApiProperty({ required: true, description: 'Уровень после' })
   @IsPositive()
   levelAfter: number;
-
-  @ApiProperty({
-    required: true,
-    description: 'Транспорт',
-    type: () => PickType(Vehicle, ['id']),
-  })
-  vehicle: Pick<Vehicle, 'id'>;
-
-  @ApiProperty({
-    required: true,
-    description: 'Резервуар',
-    type: () => PickType(Tank, ['id']),
-  })
-  tank: Pick<Tank, 'id'>;
-
-  @ApiProperty({
-    required: true,
-    description: 'Водитель',
-    type: () => PickType(Driver, ['id']),
-  })
-  driver: Pick<Driver, 'id'>;
-
-  fuel: Pick<Fuel, 'id'>;
-
-  fuelHolder: Pick<FuelHolder, 'id'>;
-
-  refinery: Pick<Refinery, 'id'>;
-
-  shift: Pick<Shift, 'id'>;
 }

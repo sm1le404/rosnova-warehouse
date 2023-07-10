@@ -1,5 +1,6 @@
-export enum StatusType {
-  PROCESS = 'PROCESS',
-  STRAIT = 'STRAIT',
-  SUPPLY = 'SUPPLY',
+export enum OutcomeType {
+  CREATE = 'создано',
+  LAUNCH = 'запущено',
+  BREAK = 'прервано',
+  FINISHED = 'завершено',
 }

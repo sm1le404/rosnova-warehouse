@@ -26,6 +26,7 @@ import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-r
 import { ResponseDto } from '../../common/dto';
 import { ICurrentUser } from '../interface/current-user.interface';
 import { ShiftService } from '../../shift/services/shift.service';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Auth')
 @ApiExtraModels(User)
@@ -33,6 +34,7 @@ import { ShiftService } from '../../shift/services/shift.service';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly configService: ConfigService,
     protected readonly tokensService: TokensService,
     protected readonly shiftService: ShiftService,
   ) {}
@@ -52,8 +54,12 @@ export class AuthController {
     const user: ICurrentUser = (await this.authService.login(
       body,
     )) as ICurrentUser;
-    const host: string = request?.headers?.host ?? '';
-    const isLocalhost: boolean = host.includes('localhost');
+
+    const host: string =
+      request?.headers?.origin ?? request?.headers?.host ?? '';
+    const isLocalhost: boolean = host.includes(
+      `localhost:${this.configService.get('APP_PORT')}`,
+    );
 
     const access = this.tokensService.getJwtAccessToken({
       id: user.id,
@@ -98,8 +104,11 @@ export class AuthController {
     summary: 'Refresh auth token',
   })
   async refresh(@Req() request: Request, @Res() response: Response) {
-    const host: string = request?.headers?.host ?? '';
-    const isLocalhost: boolean = host.includes('localhost');
+    const host: string =
+      request?.headers?.origin ?? request?.headers?.host ?? '';
+    const isLocalhost: boolean = host.includes(
+      `localhost:${this.configService.get('APP_PORT')}`,
+    );
     const user: ICurrentUser | undefined = request.user as ICurrentUser;
     if (!user.id) {
       throw new BadRequestException('User not found');

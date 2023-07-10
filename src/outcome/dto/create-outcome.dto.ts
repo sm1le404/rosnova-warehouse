@@ -1,6 +1,6 @@
-import { IsEnum, IsPositive } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { StatusType } from '../enums';
+import { OutcomeType } from '../enums';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
@@ -8,64 +8,10 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Shift } from '../../shift/entities/shift.entity';
+import { Transform } from 'class-transformer';
+import { IVehicleTank } from '../../vehicle/types';
 
 export class CreateOutcomeDto {
-  @ApiProperty({
-    required: true,
-    description: 'Состояние отпуска',
-    enum: StatusType,
-  })
-  @IsEnum(StatusType)
-  status: StatusType;
-
-  @ApiProperty({ required: true, description: 'Номер накладной' })
-  @IsPositive()
-  numberTTN: number;
-
-  @ApiProperty({ required: true, description: 'Объём по документам' })
-  @IsPositive()
-  docVolume: number;
-
-  @ApiProperty({ required: true, description: 'Вес по документам' })
-  @IsPositive()
-  docWeight: number;
-
-  @ApiProperty({ required: true, description: 'Плотность по документам' })
-  @IsPositive()
-  docDensity: number;
-
-  @ApiProperty({ required: true, description: 'Температура по документам' })
-  @IsPositive()
-  docTemperature: number;
-
-  @ApiProperty({ required: true, description: 'Фактический объём' })
-  @IsPositive()
-  factVolume: number;
-
-  @ApiProperty({ required: true, description: 'Фактический вес' })
-  @IsPositive()
-  factWeight: number;
-
-  @ApiProperty({ required: true, description: 'Фактическая плотность' })
-  @IsPositive()
-  factDensity: number;
-
-  @ApiProperty({ required: true, description: 'Счётчик до' })
-  @IsPositive()
-  counterBefore: number;
-
-  @ApiProperty({ required: true, description: 'Счётчик после' })
-  @IsPositive()
-  counterAfter: number;
-
-  @ApiProperty({ required: true, description: 'Объём до' })
-  @IsPositive()
-  volumeBefore: number;
-
-  @ApiProperty({ required: true, description: 'Объём после' })
-  @IsPositive()
-  volumeAfter: number;
-
   @ApiProperty({
     required: true,
     description: 'Водитель',
@@ -109,4 +55,66 @@ export class CreateOutcomeDto {
   refinery: Pick<Refinery, 'id'>;
 
   shift: Pick<Shift, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Состояние отпуска',
+    enum: OutcomeType,
+  })
+  @IsEnum(OutcomeType)
+  type: OutcomeType;
+
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и состояние резервуара',
+    type: () => IVehicleTank,
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  vehicleState: string;
+
+  @ApiProperty({ required: true, description: 'Номер накладной' })
+  @IsPositive()
+  numberTTN: number;
+
+  @ApiProperty({ required: true, description: 'Объём по документам' })
+  @IsPositive()
+  docVolume: number;
+
+  @ApiProperty({ required: true, description: 'Вес по документам' })
+  @IsPositive()
+  docWeight: number;
+
+  @ApiProperty({ required: true, description: 'Плотность по документам' })
+  @IsPositive()
+  docDensity: number;
+
+  @ApiProperty({ required: true, description: 'Температура по документам' })
+  @IsPositive()
+  docTemperature: number;
+
+  @ApiProperty({ required: true, description: 'Фактический объём' })
+  @IsPositive()
+  factVolume: number;
+
+  @ApiProperty({ required: true, description: 'Фактический вес' })
+  @IsPositive()
+  factWeight: number;
+
+  @ApiProperty({ required: true, description: 'Фактическая плотность' })
+  @IsPositive()
+  factDensity: number;
+
+  @IsPositive()
+  counterBefore: number;
+
+  @IsPositive()
+  counterAfter: number;
+
+  @IsPositive()
+  volumeBefore: number;
+
+  @IsPositive()
+  volumeAfter: number;
 }

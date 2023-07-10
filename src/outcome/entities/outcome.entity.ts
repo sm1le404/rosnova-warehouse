@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { StatusType } from '../enums';
+import { OutcomeType } from '../enums';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
@@ -11,16 +11,25 @@ import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { IVehicleTank } from '../../vehicle/types';
 
 @Entity()
 export class Outcome extends CommonEntity {
   @ApiProperty({ required: true, description: 'Тип топлива' })
   @Column({
     type: 'text',
-    enum: StatusType,
-    default: StatusType.PROCESS,
+    enum: OutcomeType,
+    default: OutcomeType.CREATE,
   })
-  status: StatusType;
+  type: OutcomeType;
+
+  @ApiProperty({
+    type: () => IVehicleTank,
+    required: true,
+    description: 'Состояние резервуаров ТС',
+  })
+  @Column({ type: 'text', nullable: false })
+  vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })

@@ -23,7 +23,7 @@ export class User extends CommonEntity {
   login: string;
 
   @ApiProperty({ description: 'Пароль' })
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, select: false })
   password: string;
 
   @ApiProperty({ description: 'jwt refresh токен' })
