@@ -33,6 +33,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
     const { refreshToken, ...user } = await this.userService.findOne({
       where: { id: payload.id },
+      select: {
+        refreshToken: true,
+      },
     });
 
     if (!user || !token || !refreshToken) {

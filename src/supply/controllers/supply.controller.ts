@@ -33,6 +33,7 @@ import { HasRole } from '../../auth/guard/has-role.guard';
 @Controller('supply')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
 export class SupplyController {
   constructor(
     private readonly supplyService: SupplyService,
@@ -49,7 +50,6 @@ export class SupplyController {
     PaginationSupplyParams.sortableColumns,
   )
   @ApiResponse({ type: ResponseSupplyDto })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findAll(
     @Paginate() paginationPayload: PaginationSupply,
   ): Promise<ResponseSupplyDto> {
@@ -61,7 +61,6 @@ export class SupplyController {
     summary: 'Get supply by id',
   })
   @ApiResponse({ type: Supply })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async findOne(@Param('id') id: number): Promise<Supply> {
     return this.supplyService.findOne({
       where: {
@@ -75,7 +74,6 @@ export class SupplyController {
     summary: 'Add supply',
   })
   @ApiResponse({ type: Supply })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async create(
     @Body() createSupplyDto: CreateSupplyDto,
     @CurrentUser() user: ICurrentUser,
@@ -99,7 +97,6 @@ export class SupplyController {
     summary: 'Update supply by id',
   })
   @ApiResponse({ type: Supply })
-  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   async update(
     @Param('id') id: number,
     @Body() updateSupplyDto: UpdateSupplyDto,
