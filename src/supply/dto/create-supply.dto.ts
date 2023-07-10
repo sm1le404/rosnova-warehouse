@@ -1,4 +1,4 @@
-import { IsEnum, IsPositive } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
 import { Refinery } from '../../refinery/entities/refinery.entity';
@@ -8,6 +8,8 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Driver } from '../../driver/entities/driver.entity';
+import { IVehicleTank } from '../../vehicle/types';
+import { Transform } from 'class-transformer';
 
 export class CreateSupplyDto {
   @ApiProperty({
@@ -46,6 +48,16 @@ export class CreateSupplyDto {
   })
   @IsEnum(SupplyType)
   type: SupplyType;
+
+  @ApiProperty({
+    required: true,
+    description: 'Объект, содержащий номер и состояние резервуара',
+    type: () => IVehicleTank,
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @IsPositive()

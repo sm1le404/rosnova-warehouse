@@ -11,6 +11,7 @@ import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { IVehicleTank } from '../../vehicle/types';
 
 @Entity()
 export class Outcome extends CommonEntity {
@@ -21,6 +22,14 @@ export class Outcome extends CommonEntity {
     default: OutcomeType.CREATE,
   })
   type: OutcomeType;
+
+  @ApiProperty({
+    type: () => IVehicleTank,
+    required: true,
+    description: 'Состояние резервуаров ТС',
+  })
+  @Column({ type: 'text', nullable: false })
+  vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })

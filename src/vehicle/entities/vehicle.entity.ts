@@ -29,6 +29,14 @@ export class Vehicle extends CommonEntity {
   @ApiProperty({
     type: () => IVehicleTank,
     required: true,
+    description: 'Состояние резервуаров ТС',
+  })
+  @Column({ type: 'text', nullable: false })
+  vehicleState: string;
+
+  @ApiProperty({
+    type: () => IVehicleTank,
+    required: true,
     description: 'Объект, содержащий номер и объём резервуара',
   })
   @Column({ type: 'text', nullable: false })

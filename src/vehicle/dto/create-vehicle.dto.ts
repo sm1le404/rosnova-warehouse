@@ -31,6 +31,16 @@ export class CreateVehicleDto {
 
   @ApiProperty({
     required: true,
+    description: 'Объект, содержащий номер и состояние резервуара',
+    type: () => IVehicleTank,
+  })
+  @Transform(({ value }) => JSON.stringify(value))
+  @IsNotEmpty()
+  @IsString()
+  vehicleState: string;
+
+  @ApiProperty({
+    required: true,
     description: 'Объект, содержащий номер и объём резервуара',
     type: () => IVehicleTank,
   })
