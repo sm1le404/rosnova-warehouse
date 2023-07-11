@@ -1,9 +1,10 @@
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateFuelHolderDto {
   @ApiProperty({ required: true, description: 'Полное наименование' })
   @IsString()
+  @IsNotEmpty()
   fullName: string;
 
   @ApiProperty({ required: false, description: 'Краткое наименование' })

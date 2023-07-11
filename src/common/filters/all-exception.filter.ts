@@ -25,11 +25,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    const exMessage: any =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : { message: String(exception) };
+
     const responseBody = {
       statusCode: httpStatus,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message: `Произошла внутреняя ошибка сервера, повторите попытку позднее`,
+      expMessage:
+        typeof exMessage === 'string' ? exMessage : exMessage?.message,
     };
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);

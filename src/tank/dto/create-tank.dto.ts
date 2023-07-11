@@ -1,4 +1,11 @@
-import { IsBoolean, IsOptional, IsPositive } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  Min,
+} from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
@@ -27,12 +34,14 @@ export class CreateTankDto {
   refinery?: Pick<Refinery, 'id'>;
 
   @ApiProperty({ required: true, description: 'Порядок сортировки' })
-  @IsPositive()
+  @IsInt()
+  @Min(0)
   sortIndex: number;
 
   @ApiProperty({ required: true, description: 'Общий объём' })
-  @IsPositive()
   @IsOptional()
+  @IsNumber()
+  @Min(0)
   totalVolume: number;
 
   @ApiProperty({ required: false, description: 'Доступность' })
@@ -41,7 +50,8 @@ export class CreateTankDto {
   isEnabled?: boolean;
 
   @ApiProperty({ required: false, description: 'Калибр по таблице' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   @IsOptional()
   calibrationTable?: number;
 
@@ -50,32 +60,37 @@ export class CreateTankDto {
     description: 'Критический баланс',
     default: 0,
   })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   @IsOptional()
   deathBalance?: number;
 
   @ApiProperty({ required: false, description: 'Температура', default: 0 })
-  @IsPositive()
+  @IsNumber()
   @IsOptional()
   temperature?: number;
 
   @ApiProperty({ required: false, description: 'Объём', default: 0 })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   @IsOptional()
   volume?: number;
 
   @ApiProperty({ required: false, description: 'Вес', default: 0 })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   @IsOptional()
   weight?: number;
 
   @ApiProperty({ required: false, description: 'Плотность', default: 0 })
+  @IsNumber()
+  @Min(0)
   @IsOptional()
-  @IsPositive()
   density?: number;
 
   @ApiProperty({ required: false, description: 'Уровень', default: 0 })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   @IsOptional()
   level?: number;
 }
