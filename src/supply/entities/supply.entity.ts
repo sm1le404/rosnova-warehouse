@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { AfterLoad, Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -126,4 +126,11 @@ export class Supply extends CommonEntity {
   @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
   @ManyToOne(() => Driver, (driver) => driver.id, { eager: true })
   driver: Driver;
+
+  @AfterLoad()
+  afterLoad() {
+    if (this?.vehicleState) {
+      this.vehicleState = JSON.parse(this.vehicleState);
+    }
+  }
 }

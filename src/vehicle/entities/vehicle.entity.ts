@@ -1,6 +1,6 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { VehicleType } from '../enums';
 import { Outcome } from '../../outcome/entities/outcome.entity';
@@ -27,25 +27,28 @@ export class Vehicle extends CommonEntity {
   regNumber: string;
 
   @ApiProperty({
-    type: () => IVehicleTank,
+    type: () => PickType(IVehicleTank, ['index', 'volume']),
     required: true,
     description: 'Состояние резервуаров ТС',
+    isArray: true,
   })
   @Column({ type: 'text', nullable: false })
   vehicleState: string;
 
   @ApiProperty({
-    type: () => IVehicleTank,
+    type: () => PickType(IVehicleTank, ['index', 'volume']),
     required: true,
     description: 'Объект, содержащий номер и объём резервуара',
+    isArray: true,
   })
   @Column({ type: 'text', nullable: false })
   tanksVolume: string;
 
   @ApiProperty({
-    type: () => IVehicleTank,
+    type: () => PickType(IVehicleTank, ['index', 'volume']),
     required: true,
     description: 'Объект, содержащий номер и калибр резервуара',
+    isArray: true,
   })
   @Column({ type: 'text', nullable: false })
   tanksCalibration: string;
@@ -59,4 +62,17 @@ export class Vehicle extends CommonEntity {
 
   @OneToMany(() => Supply, (supply) => supply.vehicle)
   supply: Supply[];
+
+  @AfterLoad()
+  afterLoad() {
+    if (this?.vehicleState) {
+      this.vehicleState = JSON.parse(this.vehicleState);
+    }
+    if (this?.tanksVolume) {
+      this.tanksVolume = JSON.parse(this.tanksVolume);
+    }
+    if (this?.tanksCalibration) {
+      this.tanksCalibration = JSON.parse(this.tanksCalibration);
+    }
+  }
 }
