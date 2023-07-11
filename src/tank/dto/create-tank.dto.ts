@@ -1,11 +1,4 @@
-import {
-  IsBoolean,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  IsPositive,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
