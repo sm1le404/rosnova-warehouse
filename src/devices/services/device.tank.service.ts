@@ -1,46 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
-import { TANK_FIRST_BYTE, TankHelperParams } from '../enums/tank.enums';
-
-function devices(param) {
-  return {
-    0x01: {
-      sensor: 'Уровень основного поплавка, м',
-      sensor_name: 'layer_float',
-      value: '',
-    },
-    0x02: {
-      sensor: 'Средняя температура, °C',
-      sensor_name: 'temperature',
-      value: '',
-    },
-    0x03: { sensor: 'Заполнение, %', sensor_name: 'volume_percent', value: '' },
-    0x04: {
-      sensor: 'Общий объем, м3',
-      sensor_name: 'general_volume',
-      value: '',
-    },
-    0x05: { sensor: 'Масса T', sensor_name: 'weight', value: '' },
-    0x06: { sensor: 'Плотность', sensor_name: 'density', value: '' },
-    0x07: {
-      sensor: 'Объем основного продукта, м3',
-      sensor_name: 'volume',
-      value: '',
-    },
-    0x08: {
-      sensor: 'Уровень подтоварной жидкости, м',
-      sensor_name: 'layer_liquid',
-      value: '',
-    },
-  }[param];
-}
+import {
+  TANK_FIRST_BYTE,
+  TankDeviceParams,
+  TankHelperParams,
+} from '../enums/tank.enums';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { DeviceNames } from '../enums';
+import { DeviceInfoType } from '../types/device.info.type';
 
 @Injectable()
 export class DeviceTankService {
   private serialPort: SerialPort;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    protected readonly logger: LoggerService,
+  ) {
     this.serialPort = new SerialPort({
       path: this.configService.get('TANK_PORT') ?? 'COM1',
       baudRate: 19200,
@@ -50,14 +28,17 @@ export class DeviceTankService {
       autoOpen: false,
     });
     this.serialPort.on('data', (data) => {
-      this.readState(data);
+      console.log('port data', data);
+      console.log('read result', this.readState(data));
     });
-    this.serialPort.on('error', (err) => {
-      throw new Error(err.message);
+    this.serialPort.on('error', (data) => {
+      if (data instanceof Error) {
+        this.logger.error(data);
+      }
     });
   }
 
-  readState(data: any) {
+  readState(data: any): DeviceInfoType | null {
     const message: Array<any> = [];
     if (Array.isArray(data)) {
       if (data[0] == TANK_FIRST_BYTE && data[2] > 1) {
@@ -71,29 +52,42 @@ export class DeviceTankService {
           i++;
         }
       }
-
+      console.log('compiled message', message);
       if (message.length > 0) {
+        return DeviceTankService.prepareMessageResult(message);
       }
     }
   }
 
-  private prepareMessageResult(bufferMessage: Array<any>) {
-    let response = {};
+  private static prepareMessageResult(
+    bufferMessage: Array<any>,
+  ): DeviceInfoType | null {
+    let response: DeviceInfoType;
     for (let i = 0; i < bufferMessage.length; i++) {
-      let device;
-      if ((device = devices(bufferMessage[i])) != undefined) {
-        const param = Buffer.from([
-          0x00,
-          bufferMessage[i + 1],
-          bufferMessage[i + 2],
-          bufferMessage[i + 3],
-        ]);
-        // console.log(device, param.readFloatLE(0));
-        // device.value = param.readFloatLE(0);
-        response[device.sensor_name] = {
-          value: param.readFloatLE(0),
-          description: device.sensor,
-        };
+      const param = Buffer.from([
+        0x00,
+        bufferMessage[i + 1],
+        bufferMessage[i + 2],
+        bufferMessage[i + 3],
+      ]);
+      switch (bufferMessage[i]) {
+        case TankDeviceParams.TEMP:
+          response[DeviceNames.TEMP] = param.readFloatLE(0);
+        case TankDeviceParams.LAYER_FLOAT:
+          response[DeviceNames.LAYER_FLOAT] = param.readFloatLE(0);
+        case TankDeviceParams.LAYER_LIQUID:
+          response[DeviceNames.LAYER_LIQUID] = param.readFloatLE(0);
+        case TankDeviceParams.VOLUME_PERCENT:
+          response[DeviceNames.VOLUME_PERCENT] = param.readFloatLE(0);
+        case TankDeviceParams.TOTAL_VOLUME:
+          response[DeviceNames.TOTAL_VOLUME] = param.readFloatLE(0);
+        case TankDeviceParams.WEIGHT:
+          response[DeviceNames.WEIGHT] = param.readFloatLE(0);
+        case TankDeviceParams.DENSITY:
+          response[DeviceNames.DENSITY] = param.readFloatLE(0);
+        case TankDeviceParams.VOLUME:
+          response[DeviceNames.VOLUME] = param.readFloatLE(0);
+          break;
       }
     }
     return response;
@@ -108,16 +102,20 @@ export class DeviceTankService {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
-
-    this.serialPort.write(buffData, (err) => {
-      throw new Error(err.message);
+    console.log('call read command', buffData);
+    this.serialPort.write(buffData, (data) => {
+      if (data instanceof Error) {
+        this.logger.error(data);
+      }
     });
   }
 
   async start() {
     if (!this.serialPort.isOpen) {
       this.serialPort.open((data) => {
-        throw new Error(data.toString());
+        if (data instanceof Error) {
+          this.logger.error(data);
+        }
       });
     }
   }
