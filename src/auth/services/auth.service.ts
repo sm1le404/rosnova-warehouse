@@ -23,7 +23,7 @@ export class AuthService {
   async login(request: AuthLoginRequestDto): Promise<User> {
     const user = await this.userService.findOne({
       where: { login: request.login },
-      select: { password: true, isEnabled: true },
+      select: { password: true, isEnabled: true, id: true, role: true },
     });
 
     let [lastShift] = await this.shiftService.find({

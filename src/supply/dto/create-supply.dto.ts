@@ -1,4 +1,11 @@
-import { IsEnum, IsNotEmpty, IsPositive, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+  Min,
+} from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
 import { Refinery } from '../../refinery/entities/refinery.entity';
@@ -64,53 +71,64 @@ export class CreateSupplyDto {
   numberTTN: number;
 
   @ApiProperty({ required: true, description: 'Объём по документам' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   docVolume: number;
 
   @ApiProperty({ required: true, description: 'Вес по документам' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   docWeight: number;
 
   @ApiProperty({ required: true, description: 'Плотность по документам' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   docDensity: number;
 
   @ApiProperty({ required: true, description: 'Температура по документам' })
-  @IsPositive()
+  @IsNumber()
   docTemperature: number;
 
   @ApiProperty({ required: true, description: 'Фактический объём' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   factVolume: number;
 
   @ApiProperty({ required: true, description: 'Фактический вес' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   factWeight: number;
 
   @ApiProperty({ required: true, description: 'Фактическая плотность' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   factDensity: number;
 
   @ApiProperty({ required: true, description: 'Фактически в резервуаре' })
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   factByTank: number;
 
   @ApiProperty({
     required: true,
     description: 'Разница документарного и фактического веса',
   })
-  @IsPositive()
+  @IsNumber()
   differenceWeight: number;
 
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   volumeBefore: number;
 
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   volumeAfter: number;
 
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   levelBefore: number;
 
-  @IsPositive()
+  @IsNumber()
+  @Min(0)
   levelAfter: number;
 }
