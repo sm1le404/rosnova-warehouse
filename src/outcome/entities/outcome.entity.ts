@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { AfterLoad, Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -130,4 +130,11 @@ export class Outcome extends CommonEntity {
     eager: true,
   })
   refinery: Refinery;
+
+  @AfterLoad()
+  afterLoad() {
+    if (this?.vehicleState) {
+      this.vehicleState = JSON.parse(this.vehicleState);
+    }
+  }
 }
