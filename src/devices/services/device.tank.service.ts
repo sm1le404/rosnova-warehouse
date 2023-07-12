@@ -38,24 +38,22 @@ export class DeviceTankService {
     });
   }
 
-  readState(data: any): DeviceInfoType | null {
+  readState(data: Buffer): DeviceInfoType | null {
     const message: Array<any> = [];
-    if (Array.isArray(data)) {
-      if (data[0] == TANK_FIRST_BYTE && data[2] > 1) {
-        let startReadPosition = 4;
-        let i = 0;
-        while (
-          Buffer.byteLength(Buffer.from(message)) < startReadPosition ||
-          data[startReadPosition + i] == undefined
-        ) {
-          message.push(data[startReadPosition + i]);
-          i++;
-        }
+    if (data[0] == TANK_FIRST_BYTE && data[2] > 1) {
+      let startReadPosition = 4;
+      let i = 0;
+      while (
+        Buffer.byteLength(Buffer.from(message)) < startReadPosition ||
+        data[startReadPosition + i] == undefined
+      ) {
+        message.push(data[startReadPosition + i]);
+        i++;
       }
-      console.log('compiled message', message);
-      if (message.length > 0) {
-        return DeviceTankService.prepareMessageResult(message);
-      }
+    }
+    console.log('compiled message', message);
+    if (message.length > 0) {
+      return DeviceTankService.prepareMessageResult(message);
     }
   }
 
