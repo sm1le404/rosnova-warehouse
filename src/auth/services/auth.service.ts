@@ -28,9 +28,9 @@ export class AuthService {
     let lastShift = await this.shiftService.getLastShift(user.id);
 
     if (!lastShift) {
-      await this.userService.create({
-        ...user,
-        shift: [{ startedAt: Math.floor(Date.now() / 1000) }],
+      await this.shiftService.create({
+        startedAt: Math.floor(Date.now() / 1000),
+        user,
       });
 
       lastShift = await this.shiftService.getLastShift(user.id);

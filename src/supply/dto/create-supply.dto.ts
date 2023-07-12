@@ -2,6 +2,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Min,
@@ -116,19 +117,23 @@ export class CreateSupplyDto {
   @IsNumber()
   differenceWeight: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeBefore: number;
+  volumeBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeAfter: number;
+  volumeAfter?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  levelBefore: number;
+  levelBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  levelAfter: number;
+  levelAfter?: number;
 }

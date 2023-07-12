@@ -2,6 +2,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Min,
@@ -119,19 +120,23 @@ export class CreateOutcomeDto {
   @Min(0)
   factDensity: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  counterBefore: number;
+  counterBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  counterAfter: number;
+  counterAfter?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeBefore: number;
+  volumeBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeAfter: number;
+  volumeAfter?: number;
 }

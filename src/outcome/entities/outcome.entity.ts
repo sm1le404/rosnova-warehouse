@@ -64,19 +64,19 @@ export class Outcome extends CommonEntity {
   factDensity: number;
 
   @ApiProperty({ required: true, description: 'Счётчик до' })
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: true, default: 0 })
   counterBefore: number;
 
   @ApiProperty({ required: true, description: 'Счётчик после' })
-  @Column({ type: 'float', nullable: false })
+  @Column({ type: 'float', nullable: true, default: 0 })
   counterAfter: number;
 
-  @ApiProperty({ required: true, description: 'Объём до' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Объём до', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   volumeBefore: number;
 
-  @ApiProperty({ required: true, description: 'Объём после' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Объём после', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   volumeAfter: number;
 
   @ApiProperty({

@@ -10,8 +10,6 @@ export const CurrentUser = createParamDecorator(
       return request.user[data];
     }
 
-    request.user.lastShift = request.user.shift.sort((a, b) => b.id - a.id)[0];
-
     return request.user;
   },
 );
