@@ -30,17 +30,18 @@ export class UserController {
   @ApiOperation({
     description: 'Get User list',
   })
-  @ApiResponse({ type: User, isArray: true })
+  @ApiResponse({ type: () => User, isArray: true })
   async findAll(): Promise<User[]> {
     return this.userService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @UseGuards(JwtAuthGuard, HasRole)
   @ApiOperation({
     description: 'Get User by id',
   })
-  @ApiResponse({ type: User })
+  @ApiResponse({ type: () => User })
   async findOne(@Param('id') id: number): Promise<User> {
     return this.userService.findOne({
       where: {
@@ -54,7 +55,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Add User',
   })
-  @ApiResponse({ type: OmitType(User, ['password']) })
+  @ApiResponse({ type: () => OmitType(User, ['password']) })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const { password, ...user } = await this.userService.create(createUserDto);
 
@@ -66,7 +67,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Update User by id',
   })
-  @ApiResponse({ type: User })
+  @ApiResponse({ type: () => User })
   async update(
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -86,7 +87,7 @@ export class UserController {
   @ApiOperation({
     summary: 'Delete User by id',
   })
-  @ApiResponse({ type: User })
+  @ApiResponse({ type: () => User })
   async delete(@Param('id') id: number): Promise<User> {
     return this.userService.delete({ where: { id } });
   }

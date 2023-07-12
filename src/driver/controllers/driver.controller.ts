@@ -29,19 +29,21 @@ export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get drivers list',
   })
-  @ApiResponse({ type: Driver, isArray: true })
+  @ApiResponse({ type: () => Driver, isArray: true })
   async findAll(): Promise<Driver[]> {
     return this.driverService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get driver by id',
   })
-  @ApiResponse({ type: Driver })
+  @ApiResponse({ type: () => Driver })
   async findOne(@Param('id') id: number): Promise<Driver> {
     return this.driverService.findOne({
       where: {
@@ -54,7 +56,7 @@ export class DriverController {
   @ApiOperation({
     summary: 'Add driver',
   })
-  @ApiResponse({ type: Driver })
+  @ApiResponse({ type: () => Driver })
   async create(@Body() createDriverDto: CreateDriverDto): Promise<Driver> {
     return this.driverService.create(createDriverDto);
   }
@@ -63,7 +65,7 @@ export class DriverController {
   @ApiOperation({
     summary: 'Update driver by id',
   })
-  @ApiResponse({ type: Driver })
+  @ApiResponse({ type: () => Driver })
   async update(
     @Param('id') id: number,
     @Body() updateDriverDto: UpdateDriverDto,
@@ -82,7 +84,7 @@ export class DriverController {
   @ApiOperation({
     summary: 'Delete driver by id',
   })
-  @ApiResponse({ type: Driver })
+  @ApiResponse({ type: () => Driver })
   async delete(@Param('id') id: number): Promise<Driver> {
     return this.driverService.delete({ where: { id } });
   }
