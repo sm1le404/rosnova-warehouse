@@ -43,7 +43,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Authorize user',
   })
-  @ApiBody({ type: AuthLoginRequestDto })
+  @ApiBody({ type: () => AuthLoginRequestDto })
   @ApiOkResponse('User authentification success', User)
   @ApiBadRequestResponse(['Login is not valid', 'Password is incorrect'])
   async login(

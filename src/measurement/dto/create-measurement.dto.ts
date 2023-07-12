@@ -1,17 +1,18 @@
 import { IsNumber, Min } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
+import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateMeasurementDto {
   @ApiProperty({
-    type: () => PickType(Shift, ['id']),
+    type: () => CommonId,
     description: 'id смена',
   })
   shift: Pick<Shift, 'id'>;
 
   @ApiProperty({
-    type: () => PickType(Tank, ['id']),
+    type: () => CommonId,
     description: 'id резервуар',
   })
   tank: Pick<Tank, 'id'>;

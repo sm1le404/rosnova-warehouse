@@ -47,10 +47,11 @@ export class ShiftController {
   ) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get shift list',
   })
-  @ApiResponse({ type: ResponseShiftDto })
+  @ApiResponse({ type: () => ResponseShiftDto })
   @CommonPagination(
     PaginationShiftParams.filterableColumns,
     PaginationShiftParams.searchableColumns,
@@ -63,10 +64,11 @@ export class ShiftController {
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get shift by id',
   })
-  @ApiResponse({ type: Shift })
+  @ApiResponse({ type: () => Shift })
   async findOne(@Param('id') id: number): Promise<Shift> {
     return this.shiftService.findOne({
       where: {
@@ -80,7 +82,7 @@ export class ShiftController {
   @ApiOperation({
     summary: 'Add shift',
   })
-  @ApiResponse({ type: Shift })
+  @ApiResponse({ type: () => Shift })
   async create(
     @Body() createShiftDto: CreateShiftDto,
     @CurrentUser() user: ICurrentUser,
@@ -104,7 +106,7 @@ export class ShiftController {
   @ApiOperation({
     summary: 'Update shift by id',
   })
-  @ApiResponse({ type: Shift })
+  @ApiResponse({ type: () => Shift })
   async update(
     @Param('id') id: number,
     @Body() updateShiftDto: UpdateShiftDto,
@@ -138,7 +140,7 @@ export class ShiftController {
   @ApiOperation({
     summary: 'Delete shift by id',
   })
-  @ApiResponse({ type: Shift })
+  @ApiResponse({ type: () => Shift })
   async delete(
     @Param('id') id: number,
     @CurrentUser() user: ICurrentUser,

@@ -28,19 +28,21 @@ export class TankController {
   constructor(private readonly tankService: TankService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get tank list',
   })
-  @ApiResponse({ type: Tank, isArray: true })
+  @ApiResponse({ type: () => Tank, isArray: true })
   async findAll(): Promise<Tank[]> {
     return this.tankService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get tank by id',
   })
-  @ApiResponse({ type: Tank })
+  @ApiResponse({ type: () => Tank })
   async findOne(@Param('id') id: number): Promise<Tank> {
     return this.tankService.findOne({
       where: {
@@ -53,7 +55,7 @@ export class TankController {
   @ApiOperation({
     summary: 'Add tank',
   })
-  @ApiResponse({ type: Tank })
+  @ApiResponse({ type: () => Tank })
   async create(@Body() createTankDto: CreateTankDto): Promise<Tank> {
     return this.tankService.create(createTankDto);
   }
@@ -62,7 +64,7 @@ export class TankController {
   @ApiOperation({
     summary: 'Update tank by id',
   })
-  @ApiResponse({ type: Tank })
+  @ApiResponse({ type: () => Tank })
   async update(
     @Param('id') id: number,
     @Body() updateTankDto: UpdateTankDto,
@@ -81,7 +83,7 @@ export class TankController {
   @ApiOperation({
     summary: 'Delete tank by id',
   })
-  @ApiResponse({ type: Tank })
+  @ApiResponse({ type: () => Tank })
   async delete(@Param('id') id: number): Promise<Tank> {
     return this.tankService.delete({ where: { id } });
   }

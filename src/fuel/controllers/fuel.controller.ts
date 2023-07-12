@@ -29,19 +29,21 @@ export class FuelController {
   constructor(private readonly fuelService: FuelService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get fuel list',
   })
-  @ApiResponse({ type: Fuel, isArray: true })
+  @ApiResponse({ type: () => Fuel, isArray: true })
   async findAll(): Promise<Fuel[]> {
     return this.fuelService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get fuel by id',
   })
-  @ApiResponse({ type: Fuel })
+  @ApiResponse({ type: () => Fuel })
   async findOne(@Param('id') id: number): Promise<Fuel> {
     return this.fuelService.findOne({
       where: {
@@ -54,7 +56,7 @@ export class FuelController {
   @ApiOperation({
     summary: 'Add fuel type',
   })
-  @ApiResponse({ type: Fuel })
+  @ApiResponse({ type: () => Fuel })
   async create(@Body() createFuelDto: CreateFuelDto): Promise<Fuel> {
     return this.fuelService.create(createFuelDto);
   }
@@ -63,7 +65,7 @@ export class FuelController {
   @ApiOperation({
     summary: 'Update fuel by id',
   })
-  @ApiResponse({ type: Fuel })
+  @ApiResponse({ type: () => Fuel })
   async update(
     @Param('id') id: number,
     @Body() updateFuelDto: UpdateFuelDto,
@@ -82,7 +84,7 @@ export class FuelController {
   @ApiOperation({
     summary: 'Delete fuel by id',
   })
-  @ApiResponse({ type: Fuel })
+  @ApiResponse({ type: () => Fuel })
   async delete(@Param('id') id: number): Promise<Fuel> {
     return this.fuelService.delete({ where: { id } });
   }

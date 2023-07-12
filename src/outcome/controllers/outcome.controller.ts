@@ -41,6 +41,7 @@ export class OutcomeController {
   ) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get outcome list',
   })
@@ -49,7 +50,7 @@ export class OutcomeController {
     PaginationOutcomeParams.searchableColumns,
     PaginationOutcomeParams.sortableColumns,
   )
-  @ApiResponse({ type: ResponseOutcomeDto })
+  @ApiResponse({ type: () => ResponseOutcomeDto })
   async findAll(
     @Paginate() paginationPayload: PaginationOutcome,
   ): Promise<ResponseOutcomeDto> {
@@ -57,10 +58,11 @@ export class OutcomeController {
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get outcome by id',
   })
-  @ApiResponse({ type: Outcome })
+  @ApiResponse({ type: () => Outcome })
   async findOne(@Param('id') id: number): Promise<Outcome> {
     return this.outcomeService.findOne({
       where: {
@@ -73,7 +75,7 @@ export class OutcomeController {
   @ApiOperation({
     summary: 'Add outcome',
   })
-  @ApiResponse({ type: Outcome })
+  @ApiResponse({ type: () => Outcome })
   async create(
     @Body() createOutcomeDto: CreateOutcomeDto,
     @CurrentUser() user: ICurrentUser,
@@ -96,7 +98,7 @@ export class OutcomeController {
   @ApiOperation({
     summary: 'Update outcome by id',
   })
-  @ApiResponse({ type: Outcome })
+  @ApiResponse({ type: () => Outcome })
   async update(
     @Param('id') id: number,
     @Body() updateOutcomeDto: UpdateOutcomeDto,
@@ -129,7 +131,7 @@ export class OutcomeController {
   @ApiOperation({
     summary: 'Delete outcome by id',
   })
-  @ApiResponse({ type: Outcome })
+  @ApiResponse({ type: () => Outcome })
   @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,

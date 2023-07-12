@@ -41,6 +41,7 @@ export class SupplyController {
   ) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get supply list',
   })
@@ -49,7 +50,7 @@ export class SupplyController {
     PaginationSupplyParams.searchableColumns,
     PaginationSupplyParams.sortableColumns,
   )
-  @ApiResponse({ type: ResponseSupplyDto })
+  @ApiResponse({ type: () => ResponseSupplyDto })
   async findAll(
     @Paginate() paginationPayload: PaginationSupply,
   ): Promise<ResponseSupplyDto> {
@@ -57,10 +58,11 @@ export class SupplyController {
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get supply by id',
   })
-  @ApiResponse({ type: Supply })
+  @ApiResponse({ type: () => Supply })
   async findOne(@Param('id') id: number): Promise<Supply> {
     return this.supplyService.findOne({
       where: {
@@ -73,7 +75,7 @@ export class SupplyController {
   @ApiOperation({
     summary: 'Add supply',
   })
-  @ApiResponse({ type: Supply })
+  @ApiResponse({ type: () => Supply })
   async create(
     @Body() createSupplyDto: CreateSupplyDto,
     @CurrentUser() user: ICurrentUser,
@@ -96,7 +98,7 @@ export class SupplyController {
   @ApiOperation({
     summary: 'Update supply by id',
   })
-  @ApiResponse({ type: Supply })
+  @ApiResponse({ type: () => Supply })
   async update(
     @Param('id') id: number,
     @Body() updateSupplyDto: UpdateSupplyDto,
@@ -129,7 +131,7 @@ export class SupplyController {
   @ApiOperation({
     summary: 'Delete supply by id',
   })
-  @ApiResponse({ type: Supply })
+  @ApiResponse({ type: () => Supply })
   @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,
