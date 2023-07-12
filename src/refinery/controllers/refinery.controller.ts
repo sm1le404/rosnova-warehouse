@@ -29,19 +29,21 @@ export class RefineryController {
   constructor(private readonly refineryService: RefineryService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get refinery list',
   })
-  @ApiResponse({ type: Refinery, isArray: true })
+  @ApiResponse({ type: () => Refinery, isArray: true })
   async findAll(): Promise<Refinery[]> {
     return this.refineryService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get refinery by id',
   })
-  @ApiResponse({ type: Refinery })
+  @ApiResponse({ type: () => Refinery })
   async findOne(@Param('id') id: number): Promise<Refinery> {
     return this.refineryService.findOne({
       where: {
@@ -54,7 +56,7 @@ export class RefineryController {
   @ApiOperation({
     summary: 'Add refinery',
   })
-  @ApiResponse({ type: Refinery })
+  @ApiResponse({ type: () => Refinery })
   async create(
     @Body() createRefineryDto: CreateRefineryDto,
   ): Promise<Refinery> {
@@ -65,7 +67,7 @@ export class RefineryController {
   @ApiOperation({
     summary: 'Update refinery by id',
   })
-  @ApiResponse({ type: Refinery })
+  @ApiResponse({ type: () => Refinery })
   async update(
     @Param('id') id: number,
     @Body() updateRefineryDto: UpdateRefineryDto,
@@ -84,7 +86,7 @@ export class RefineryController {
   @ApiOperation({
     summary: 'Delete refinery by id',
   })
-  @ApiResponse({ type: Refinery })
+  @ApiResponse({ type: () => Refinery })
   async delete(@Param('id') id: number): Promise<Refinery> {
     return this.refineryService.delete({ where: { id } });
   }

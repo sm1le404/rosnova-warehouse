@@ -43,7 +43,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Authorize user',
   })
-  @ApiBody({ type: AuthLoginRequestDto })
+  @ApiBody({ type: () => AuthLoginRequestDto })
   @ApiOkResponse('User authentification success', User)
   @ApiBadRequestResponse(['Login is not valid', 'Password is incorrect'])
   async login(
@@ -156,11 +156,11 @@ export class AuthController {
     const token = request.cookies.Refresh;
     if (token) {
       const payload = this.tokensService.decode(token);
-      await this.authService.updateUserRefreshToken(token, payload.id);
       await this.shiftService.update(
         { where: { id: payload.shift } },
-        { closedAt: Date.now() },
+        { closedAt: Math.floor(Date.now() / 1000) },
       );
+      await this.authService.updateUserRefreshToken(token, payload.id);
     }
 
     response.clearCookie('Authentication');

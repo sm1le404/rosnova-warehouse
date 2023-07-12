@@ -73,20 +73,20 @@ export class Supply extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   differenceWeight: number;
 
-  @ApiProperty({ required: true, description: 'Объём до' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Объём до', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   volumeBefore: number;
 
-  @ApiProperty({ required: true, description: 'Объём после' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Объём после', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   volumeAfter: number;
 
-  @ApiProperty({ required: true, description: 'Уровень до' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Уровень до', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   levelBefore: number;
 
-  @ApiProperty({ required: true, description: 'Уровень после' })
-  @Column({ type: 'float', nullable: false })
+  @ApiProperty({ required: true, description: 'Уровень после', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
   levelAfter: number;
 
   @ApiProperty({

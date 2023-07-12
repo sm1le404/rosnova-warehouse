@@ -1,28 +1,29 @@
 import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateTankDto {
   @ApiProperty({
     required: false,
     description: 'Вид топлива',
-    type: () => PickType(Fuel, ['id']),
+    type: () => CommonId,
   })
   fuel?: Pick<Fuel, 'id'>;
 
   @ApiProperty({
     required: false,
     description: 'Владелец топлива',
-    type: () => PickType(FuelHolder, ['id']),
+    type: () => CommonId,
   })
   fuelHolder?: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
     required: false,
     description: 'Завод',
-    type: () => PickType(Refinery, ['id']),
+    type: () => CommonId,
   })
   refinery?: Pick<Refinery, 'id'>;
 

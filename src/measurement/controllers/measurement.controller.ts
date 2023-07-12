@@ -35,10 +35,11 @@ export class MeasurementController {
   constructor(private readonly measurementService: MeasurementService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get measurement list',
   })
-  @ApiResponse({ type: ResponseMeasurementDto })
+  @ApiResponse({ type: () => ResponseMeasurementDto })
   @CommonPagination(
     PaginationMeasurementParams.filterableColumns,
     PaginationMeasurementParams.searchableColumns,
@@ -51,10 +52,11 @@ export class MeasurementController {
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get measurement by id',
   })
-  @ApiResponse({ type: Measurement })
+  @ApiResponse({ type: () => Measurement })
   async findOne(@Param('id') id: number): Promise<Measurement> {
     return this.measurementService.findOne({
       where: {
@@ -67,7 +69,7 @@ export class MeasurementController {
   @ApiOperation({
     summary: 'Add measurement',
   })
-  @ApiResponse({ type: Measurement })
+  @ApiResponse({ type: () => Measurement })
   async create(
     @Body() createMeasurementDto: CreateMeasurementDto,
   ): Promise<Measurement> {
@@ -78,7 +80,7 @@ export class MeasurementController {
   @ApiOperation({
     summary: 'Update measurement by id',
   })
-  @ApiResponse({ type: Measurement })
+  @ApiResponse({ type: () => Measurement })
   async update(
     @Param('id') id: number,
     @Body() updateMeasurementDto: UpdateMeasurementDto,
@@ -97,7 +99,7 @@ export class MeasurementController {
   @ApiOperation({
     summary: 'Delete measurement by id',
   })
-  @ApiResponse({ type: Measurement })
+  @ApiResponse({ type: () => Measurement })
   async delete(@Param('id') id: number): Promise<Measurement> {
     return this.measurementService.delete({ where: { id } });
   }

@@ -7,33 +7,42 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { VehicleService } from '../services/vehicle.service';
 import { Vehicle } from '../entities/vehicle.entity';
 import { CreateVehicleDto, UpdateVehicleDto } from '../dto';
+import { SetRoles } from '../../auth/decorators/roles.decorator';
+import { RoleType } from '../../user/enums';
+import { JwtAuthGuard } from '../../auth/guard';
+import { HasRole } from '../../auth/guard/has-role.guard';
 
 @ApiTags('Vehicle')
 @Controller('vehicle')
 @UseInterceptors(ClassSerializerInterceptor)
+@UseGuards(JwtAuthGuard, HasRole)
+@SetRoles(RoleType.ADMIN)
 export class VehicleController {
   constructor(private readonly vehicleService: VehicleService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get vehicle list',
   })
-  @ApiResponse({ type: Vehicle, isArray: true })
+  @ApiResponse({ type: () => Vehicle, isArray: true })
   async findAll(): Promise<Vehicle[]> {
     return this.vehicleService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get vehicle by id',
   })
-  @ApiResponse({ type: Vehicle })
+  @ApiResponse({ type: () => Vehicle })
   async findOne(@Param('id') id: number): Promise<Vehicle> {
     return this.vehicleService.findOne({
       where: {
@@ -46,7 +55,7 @@ export class VehicleController {
   @ApiOperation({
     summary: 'Add vehicle',
   })
-  @ApiResponse({ type: Vehicle })
+  @ApiResponse({ type: () => Vehicle })
   async create(@Body() createVehicleDto: CreateVehicleDto): Promise<Vehicle> {
     return this.vehicleService.create(createVehicleDto);
   }
@@ -55,7 +64,7 @@ export class VehicleController {
   @ApiOperation({
     summary: 'Update vehicle by id',
   })
-  @ApiResponse({ type: Vehicle })
+  @ApiResponse({ type: () => Vehicle })
   async update(
     @Param('id') id: number,
     @Body() updateVehicleDto: UpdateVehicleDto,
@@ -74,7 +83,7 @@ export class VehicleController {
   @ApiOperation({
     summary: 'Delete vehicle by id',
   })
-  @ApiResponse({ type: Vehicle })
+  @ApiResponse({ type: () => Vehicle })
   async delete(@Param('id') id: number): Promise<Vehicle> {
     return this.vehicleService.delete({ where: { id } });
   }

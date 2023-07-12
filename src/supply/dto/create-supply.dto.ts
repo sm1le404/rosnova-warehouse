@@ -2,11 +2,12 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { SupplyType } from '../enums';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
@@ -17,26 +18,27 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { IVehicleTank } from '../../vehicle/types';
 import { Transform } from 'class-transformer';
+import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateSupplyDto {
   @ApiProperty({
     required: true,
     description: 'Транспорт',
-    type: () => PickType(Vehicle, ['id']),
+    type: () => CommonId,
   })
   vehicle: Pick<Vehicle, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Резервуар',
-    type: () => PickType(Tank, ['id']),
+    type: () => CommonId,
   })
   tank: Pick<Tank, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Водитель',
-    type: () => PickType(Driver, ['id']),
+    type: () => CommonId,
   })
   driver: Pick<Driver, 'id'>;
 
@@ -116,19 +118,23 @@ export class CreateSupplyDto {
   @IsNumber()
   differenceWeight: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeBefore: number;
+  volumeBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeAfter: number;
+  volumeAfter?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  levelBefore: number;
+  levelBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  levelAfter: number;
+  levelAfter?: number;
 }

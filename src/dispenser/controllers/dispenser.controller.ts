@@ -29,19 +29,21 @@ export class DispenserController {
   constructor(private readonly dispenserService: DispenserService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get dispenser list',
   })
-  @ApiResponse({ type: Dispenser, isArray: true })
+  @ApiResponse({ type: () => Dispenser, isArray: true })
   async findAll(): Promise<Dispenser[]> {
     return this.dispenserService.find({});
   }
 
   @Get(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get dispenser by id',
   })
-  @ApiResponse({ type: Dispenser })
+  @ApiResponse({ type: () => Dispenser })
   async findOne(@Param('id') id: number): Promise<Dispenser> {
     return this.dispenserService.findOne({
       where: {
@@ -54,7 +56,7 @@ export class DispenserController {
   @ApiOperation({
     summary: 'Add dispenser',
   })
-  @ApiResponse({ type: Dispenser })
+  @ApiResponse({ type: () => Dispenser })
   async create(
     @Body() createDispenserDto: CreateDispenserDto,
   ): Promise<Dispenser> {
@@ -65,7 +67,7 @@ export class DispenserController {
   @ApiOperation({
     summary: 'Update dispenser by id',
   })
-  @ApiResponse({ type: Dispenser })
+  @ApiResponse({ type: () => Dispenser })
   async update(
     @Param('id') id: number,
     @Body() updateDispenserDto: UpdateDispenserDto,
@@ -84,7 +86,7 @@ export class DispenserController {
   @ApiOperation({
     summary: 'Delete dispenser by id',
   })
-  @ApiResponse({ type: Dispenser })
+  @ApiResponse({ type: () => Dispenser })
   async delete(@Param('id') id: number): Promise<Dispenser> {
     return this.dispenserService.delete({ where: { id } });
   }

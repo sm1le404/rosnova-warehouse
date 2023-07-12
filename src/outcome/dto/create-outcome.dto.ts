@@ -2,11 +2,12 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { OutcomeType } from '../enums';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
@@ -17,47 +18,48 @@ import { Driver } from '../../driver/entities/driver.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../../vehicle/types';
+import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateOutcomeDto {
   @ApiProperty({
     required: true,
     description: 'Водитель',
-    type: () => PickType(Driver, ['id']),
+    type: () => CommonId,
   })
   driver: Pick<Driver, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Транспорт',
-    type: () => PickType(Vehicle, ['id']),
+    type: () => CommonId,
   })
   vehicle: Pick<Vehicle, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Резервуар',
-    type: () => PickType(Tank, ['id']),
+    type: () => CommonId,
   })
   tank: Pick<Tank, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Топливо',
-    type: () => PickType(Fuel, ['id']),
+    type: () => CommonId,
   })
   fuel: Pick<Fuel, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Владелец топлива',
-    type: () => PickType(FuelHolder, ['id']),
+    type: () => CommonId,
   })
   fuelHolder: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
     required: true,
     description: 'Завод',
-    type: () => PickType(Refinery, ['id']),
+    type: () => CommonId,
   })
   refinery: Pick<Refinery, 'id'>;
 
@@ -119,19 +121,23 @@ export class CreateOutcomeDto {
   @Min(0)
   factDensity: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  counterBefore: number;
+  counterBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  counterAfter: number;
+  counterAfter?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeBefore: number;
+  volumeBefore?: number;
 
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  volumeAfter: number;
+  volumeAfter?: number;
 }

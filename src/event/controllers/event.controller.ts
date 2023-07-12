@@ -28,6 +28,7 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get events list',
   })
@@ -36,7 +37,7 @@ export class EventController {
     PaginationEventParams.searchableColumns,
     PaginationEventParams.sortableColumns,
   )
-  @ApiResponse({ type: ResponseEventDto })
+  @ApiResponse({ type: () => ResponseEventDto })
   async findAll(
     @Paginate() paginationEventPayload: PaginationEvent,
   ): Promise<ResponseEventDto> {
