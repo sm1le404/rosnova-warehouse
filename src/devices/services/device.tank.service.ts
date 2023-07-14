@@ -1,4 +1,9 @@
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  LoggerService,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -11,8 +16,14 @@ import { DeviceNames } from '../enums';
 import { DeviceInfoType } from '../types/device.info.type';
 
 @Injectable()
-export class DeviceTankService {
+export class DeviceTankService implements OnModuleDestroy {
   private serialPort: SerialPort;
+
+  private message: Array<any> = [];
+
+  private messageLen: number;
+
+  private currentAddressId: number;
 
   constructor(
     private readonly configService: ConfigService,
@@ -30,6 +41,7 @@ export class DeviceTankService {
     this.serialPort.on('data', (data) => {
       console.log('port data', data);
       console.log('read result', this.readState(data));
+      console.log('address id', this.currentAddressId);
     });
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
@@ -39,28 +51,40 @@ export class DeviceTankService {
   }
 
   readState(data: Buffer): DeviceInfoType | null {
-    const message: Array<any> = [];
+    let startReadPosition = 0;
+    //Очищаем сообщение и сдвигаем позицию
     if (data[0] == TANK_FIRST_BYTE && data[2] > 1) {
-      let startReadPosition = 4;
-      let i = 0;
-      while (
-        Buffer.byteLength(Buffer.from(message)) < startReadPosition ||
-        data[startReadPosition + i] == undefined
-      ) {
-        message.push(data[startReadPosition + i]);
-        i++;
-      }
+      this.message = [];
+      this.currentAddressId = data[1];
+      this.messageLen = data[2];
+      startReadPosition = 4;
     }
-    console.log('compiled message', message);
-    if (message.length > 0) {
-      return DeviceTankService.prepareMessageResult(message);
+
+    let i = 0;
+    while (
+      Buffer.byteLength(Buffer.from(this.message)) < this.messageLen &&
+      data[startReadPosition + i] !== undefined
+    ) {
+      this.message.push(data[startReadPosition + i]);
+      i++;
+    }
+    const buffMessage = Buffer.from(this.message);
+    if (this.messageLen == Buffer.byteLength(buffMessage)) {
+      return DeviceTankService.prepareMessageResult(buffMessage);
     }
   }
 
-  private static prepareMessageResult(
-    bufferMessage: Array<any>,
-  ): DeviceInfoType | null {
-    let response: DeviceInfoType;
+  private static prepareMessageResult(bufferMessage: Buffer): DeviceInfoType {
+    let response: DeviceInfoType = {
+      DENSITY: 0,
+      LAYER_FLOAT: 0,
+      LAYER_LIQUID: 0,
+      TEMP: 0,
+      TOTAL_VOLUME: 0,
+      VOLUME: 0,
+      VOLUME_PERCENT: 0,
+      WEIGHT: 0,
+    };
     for (let i = 0; i < bufferMessage.length; i++) {
       const param = Buffer.from([
         0x00,
@@ -71,18 +95,25 @@ export class DeviceTankService {
       switch (bufferMessage[i]) {
         case TankDeviceParams.TEMP:
           response[DeviceNames.TEMP] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.LAYER_FLOAT:
           response[DeviceNames.LAYER_FLOAT] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.LAYER_LIQUID:
           response[DeviceNames.LAYER_LIQUID] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.VOLUME_PERCENT:
           response[DeviceNames.VOLUME_PERCENT] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.TOTAL_VOLUME:
           response[DeviceNames.TOTAL_VOLUME] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.WEIGHT:
           response[DeviceNames.WEIGHT] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.DENSITY:
           response[DeviceNames.DENSITY] = param.readFloatLE(0);
+          break;
         case TankDeviceParams.VOLUME:
           response[DeviceNames.VOLUME] = param.readFloatLE(0);
           break;
@@ -115,6 +146,12 @@ export class DeviceTankService {
           this.logger.error(data);
         }
       });
+    }
+  }
+
+  onModuleDestroy(): any {
+    if (this.serialPort.isOpen) {
+      this.serialPort.close();
     }
   }
 }
