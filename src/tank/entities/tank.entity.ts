@@ -51,6 +51,10 @@ export class Tank extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
+  @ApiProperty({ required: false, description: 'Блокировка' })
+  @Column({ type: 'boolean', default: false })
+  isBlocked?: boolean;
+
   @ApiProperty({
     type: () => Measurement,
     isArray: true,

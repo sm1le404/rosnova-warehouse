@@ -18,6 +18,10 @@ export class Dispenser extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
+  @ApiProperty({ required: false, description: 'Блокировка' })
+  @Column({ type: 'boolean', default: false })
+  isBlocked?: boolean;
+
   @OneToMany(() => Outcome, (outcome) => outcome.dispenser)
   outcome: Outcome[];
 }
