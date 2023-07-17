@@ -62,7 +62,7 @@ export class CreateVehicleDto {
   @IsString()
   tanksCalibration: string;
 
-  @ApiProperty({ required: true, description: 'Доступность', default: true })
+  @ApiProperty({ required: false, description: 'Доступность', default: true })
   @IsBoolean()
   @IsOptional()
   isEnabled?: boolean;
