@@ -12,8 +12,6 @@ PaginationOperationParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
 PaginationOperationParams.relationList = [
   'dispenser',
   'driver',
-  'fuel',
-  'fuelHolder',
   'shift',
   'tank',
   'vehicle',

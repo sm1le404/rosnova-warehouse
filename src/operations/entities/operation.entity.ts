@@ -8,9 +8,6 @@ import { Driver } from '../../driver/entities/driver.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
-import { Fuel } from '../../fuel/entities/fuel.entity';
-import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
-import { Refinery } from '../../refinery/entities/refinery.entity';
 import { IVehicleTank } from '../../vehicle/types';
 
 @Entity()
@@ -32,11 +29,33 @@ export class Operation extends CommonEntity {
 
   @ApiProperty({
     type: () => IVehicleTank,
+    isArray: true,
     required: true,
     description: 'Состояние резервуаров ТС',
   })
   @Column({ type: 'text', nullable: false })
   vehicleState: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'Полное наименование топлива',
+  })
+  @Column({ type: 'text', nullable: false })
+  fuel: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'Полное наименование владельца топлива',
+  })
+  @Column({ type: 'text', nullable: false })
+  fuelHolder: string;
+
+  @ApiProperty({
+    required: true,
+    description: 'Полное наименование завода',
+  })
+  @Column({ type: 'text', nullable: false })
+  refinery: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })
@@ -57,18 +76,6 @@ export class Operation extends CommonEntity {
   @ApiProperty({ required: true, description: 'Температура по документам' })
   @Column({ type: 'float', nullable: false })
   docTemperature: number;
-
-  @ApiProperty({ required: true, description: 'Фактический объём' })
-  @Column({ type: 'float', nullable: false })
-  factVolume: number;
-
-  @ApiProperty({ required: true, description: 'Фактический вес' })
-  @Column({ type: 'float', nullable: false })
-  factWeight: number;
-
-  @ApiProperty({ required: true, description: 'Фактическая плотность' })
-  @Column({ type: 'float', nullable: false })
-  factDensity: number;
 
   @ApiProperty({ required: true, description: 'Счётчик до' })
   @Column({ type: 'float', nullable: true, default: 0 })
@@ -134,30 +141,6 @@ export class Operation extends CommonEntity {
   @ApiProperty({ type: () => Shift, required: true, description: 'Смена' })
   @ManyToOne(() => Shift, (shift) => shift.operation, { eager: true })
   shift: Shift;
-
-  @ApiProperty({ type: () => Fuel, required: true, description: 'Топливо' })
-  @ManyToOne(() => Fuel, (fuel) => fuel.operation, { eager: true })
-  fuel: Fuel;
-
-  @ApiProperty({
-    type: () => FuelHolder,
-    required: true,
-    description: 'Топливодержатель',
-  })
-  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.operation, {
-    eager: true,
-  })
-  fuelHolder: FuelHolder;
-
-  @ApiProperty({
-    type: () => Refinery,
-    required: true,
-    description: 'Завод',
-  })
-  @ManyToOne(() => Refinery, (refinerty) => refinerty.operation, {
-    eager: true,
-  })
-  refinery: Refinery;
 
   @AfterLoad()
   afterLoad() {

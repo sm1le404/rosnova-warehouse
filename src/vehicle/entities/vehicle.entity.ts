@@ -28,15 +28,6 @@ export class Vehicle extends CommonEntity {
   @ApiProperty({
     type: () => PickType(IVehicleTank, ['index', 'volume']),
     required: true,
-    description: 'Состояние резервуаров ТС',
-    isArray: true,
-  })
-  @Column({ type: 'text', nullable: false })
-  vehicleState: string;
-
-  @ApiProperty({
-    type: () => PickType(IVehicleTank, ['index', 'volume']),
-    required: true,
     description: 'Объект, содержащий номер и объём резервуара',
     isArray: true,
   })
@@ -61,9 +52,6 @@ export class Vehicle extends CommonEntity {
 
   @AfterLoad()
   afterLoad() {
-    if (this?.vehicleState) {
-      this.vehicleState = JSON.parse(this.vehicleState);
-    }
     if (this?.tanksVolume) {
       this.tanksVolume = JSON.parse(this.tanksVolume);
     }

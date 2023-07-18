@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import { IsInt, IsNumber, Min } from 'class-validator';
 
 export class IVehicleTank {
   @ApiProperty({ required: true, description: 'Порядковый номер' })
@@ -7,14 +7,22 @@ export class IVehicleTank {
   index: number;
 
   @ApiProperty({ required: true, description: 'Объём' })
-  @IsInt()
+  @IsNumber()
+  @Min(0)
   volume: number;
 
   @ApiProperty({ required: true, description: 'Плотность' })
-  @IsInt()
+  @IsNumber()
+  @Min(0)
   density: number;
 
   @ApiProperty({ required: true, description: 'Температура' })
-  @IsInt()
+  @IsNumber()
+  @Min(0)
   temperature: number;
+
+  @ApiProperty({ required: true, description: 'Вес' })
+  @IsNumber()
+  @Min(0)
+  weight: number;
 }

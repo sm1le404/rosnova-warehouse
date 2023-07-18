@@ -10,9 +10,6 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
-import { Fuel } from '../../fuel/entities/fuel.entity';
-import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
-import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Transform } from 'class-transformer';
@@ -44,24 +41,21 @@ export class CreateOperationDto {
 
   @ApiProperty({
     required: true,
-    description: 'Топливо',
-    type: () => CommonId,
+    description: 'Полное наименование топлива',
   })
-  fuel: Pick<Fuel, 'id'>;
+  fuel: string;
 
   @ApiProperty({
     required: true,
-    description: 'Владелец топлива',
-    type: () => CommonId,
+    description: 'Полное наименование владельца топлива',
   })
-  fuelHolder: Pick<FuelHolder, 'id'>;
+  fuelHolder: string;
 
   @ApiProperty({
     required: true,
-    description: 'Завод',
-    type: () => CommonId,
+    description: 'Полное наименование завода',
   })
-  refinery: Pick<Refinery, 'id'>;
+  refinery: string;
 
   shift: Pick<Shift, 'id'>;
 
@@ -85,6 +79,7 @@ export class CreateOperationDto {
     required: true,
     description: 'Объект, содержащий номер и состояние резервуара',
     type: () => IVehicleTank,
+    isArray: true,
   })
   @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
@@ -113,21 +108,6 @@ export class CreateOperationDto {
   @ApiProperty({ required: true, description: 'Температура по документам' })
   @IsNumber()
   docTemperature: number;
-
-  @ApiProperty({ required: true, description: 'Фактический объём' })
-  @IsNumber()
-  @Min(0)
-  factVolume: number;
-
-  @ApiProperty({ required: true, description: 'Фактический вес' })
-  @IsNumber()
-  @Min(0)
-  factWeight: number;
-
-  @ApiProperty({ required: true, description: 'Фактическая плотность' })
-  @IsNumber()
-  @Min(0)
-  factDensity: number;
 
   @IsOptional()
   @IsNumber()
