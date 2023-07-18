@@ -2,25 +2,33 @@ import { AfterLoad, Column, Entity, ManyToOne } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { SupplyType } from '../enums';
+import { OperationStatus, OperationType } from '../enums';
+import { Dispenser } from '../../dispenser/entities/dispenser.entity';
+import { Driver } from '../../driver/entities/driver.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
-import { Tank } from '../../tank/entities/tank.entity';
 import { Shift } from '../../shift/entities/shift.entity';
+import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
-import { Driver } from '../../driver/entities/driver.entity';
 import { IVehicleTank } from '../../vehicle/types';
 
 @Entity()
-export class Supply extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Тип поставки' })
+export class Operation extends CommonEntity {
+  @ApiProperty({ required: true, description: 'Тип операции' })
   @Column({
     type: 'text',
-    enum: SupplyType,
-    default: SupplyType.PROCESS,
+    enum: OperationType,
   })
-  type: SupplyType;
+  type: OperationType;
+
+  @ApiProperty({ required: true, description: 'Статус операции' })
+  @Column({
+    type: 'text',
+    enum: OperationStatus,
+    default: OperationStatus.CREATED,
+  })
+  status: OperationStatus;
 
   @ApiProperty({
     type: () => IVehicleTank,
@@ -62,6 +70,22 @@ export class Supply extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   factDensity: number;
 
+  @ApiProperty({ required: true, description: 'Счётчик до' })
+  @Column({ type: 'float', nullable: true, default: 0 })
+  counterBefore: number;
+
+  @ApiProperty({ required: true, description: 'Счётчик после' })
+  @Column({ type: 'float', nullable: true, default: 0 })
+  counterAfter: number;
+
+  @ApiProperty({ required: true, description: 'Объём до', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
+  volumeBefore: number;
+
+  @ApiProperty({ required: true, description: 'Объём после', default: 0 })
+  @Column({ type: 'float', nullable: true, default: 0 })
+  volumeAfter: number;
+
   @ApiProperty({ required: true, description: 'Фактически в резервуаре' })
   @Column({ type: 'float', nullable: false })
   factByTank: number;
@@ -73,14 +97,6 @@ export class Supply extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   differenceWeight: number;
 
-  @ApiProperty({ required: true, description: 'Объём до', default: 0 })
-  @Column({ type: 'float', nullable: true, default: 0 })
-  volumeBefore: number;
-
-  @ApiProperty({ required: true, description: 'Объём после', default: 0 })
-  @Column({ type: 'float', nullable: true, default: 0 })
-  volumeAfter: number;
-
   @ApiProperty({ required: true, description: 'Уровень до', default: 0 })
   @Column({ type: 'float', nullable: true, default: 0 })
   levelBefore: number;
@@ -90,23 +106,37 @@ export class Supply extends CommonEntity {
   levelAfter: number;
 
   @ApiProperty({
+    type: () => Dispenser,
+    required: true,
+    description: 'Колонка',
+  })
+  @ManyToOne(() => Dispenser, (dispenser) => dispenser.operation, {
+    eager: true,
+  })
+  dispenser: Dispenser;
+
+  @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
+  @ManyToOne(() => Driver, (driver) => driver.operation, { eager: true })
+  driver: Driver;
+
+  @ApiProperty({
     type: () => Vehicle,
     required: true,
-    description: 'Транспортное средство',
+    description: 'Траспортное средство',
   })
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.supply, { eager: true })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.operation, { eager: true })
   vehicle: Vehicle;
 
   @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
-  @ManyToOne(() => Tank, (tank) => tank.supply, { eager: true })
+  @ManyToOne(() => Tank, (tank) => tank.operation, { eager: true })
   tank: Tank;
 
   @ApiProperty({ type: () => Shift, required: true, description: 'Смена' })
-  @ManyToOne(() => Shift, (shift) => shift.supply, { eager: true })
+  @ManyToOne(() => Shift, (shift) => shift.operation, { eager: true })
   shift: Shift;
 
   @ApiProperty({ type: () => Fuel, required: true, description: 'Топливо' })
-  @ManyToOne(() => Fuel, (fuel) => fuel.supply, { eager: true })
+  @ManyToOne(() => Fuel, (fuel) => fuel.operation, { eager: true })
   fuel: Fuel;
 
   @ApiProperty({
@@ -114,18 +144,20 @@ export class Supply extends CommonEntity {
     required: true,
     description: 'Топливодержатель',
   })
-  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.supply, {
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.operation, {
     eager: true,
   })
   fuelHolder: FuelHolder;
 
-  @ApiProperty({ type: () => Refinery, required: true, description: 'Завод' })
-  @ManyToOne(() => Refinery, (refinery) => refinery.supply, { eager: true })
+  @ApiProperty({
+    type: () => Refinery,
+    required: true,
+    description: 'Завод',
+  })
+  @ManyToOne(() => Refinery, (refinerty) => refinerty.operation, {
+    eager: true,
+  })
   refinery: Refinery;
-
-  @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
-  @ManyToOne(() => Driver, (driver) => driver.id, { eager: true })
-  driver: Driver;
 
   @AfterLoad()
   afterLoad() {

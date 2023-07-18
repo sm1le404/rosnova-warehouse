@@ -3,8 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Measurement } from '../../measurement/entities/measurement.entity';
-import { Supply } from '../../supply/entities/supply.entity';
-import { Outcome } from '../../outcome/entities/outcome.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
@@ -66,11 +65,8 @@ export class Tank extends CommonEntity {
   })
   measurement: Measurement[];
 
-  @OneToMany(() => Outcome, (outcome) => outcome.tank)
-  outcome: Outcome[];
-
-  @OneToMany(() => Supply, (supply) => supply.tank)
-  supply: Supply[];
+  @OneToMany(() => Operation, (operation) => operation.tank)
+  operation: Operation[];
 
   @ApiProperty({
     type: () => Fuel,

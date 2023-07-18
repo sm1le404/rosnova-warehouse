@@ -8,7 +8,6 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { OutcomeType } from '../enums';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
@@ -19,8 +18,9 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../../vehicle/types';
 import { CommonId } from '../../common/types/common-id.type';
+import { OperationStatus, OperationType } from '../enums';
 
-export class CreateOutcomeDto {
+export class CreateOperationDto {
   @ApiProperty({
     required: true,
     description: 'Водитель',
@@ -67,11 +67,19 @@ export class CreateOutcomeDto {
 
   @ApiProperty({
     required: true,
-    description: 'Состояние отпуска',
-    enum: OutcomeType,
+    description: 'Тип операции',
+    enum: OperationType,
   })
-  @IsEnum(OutcomeType)
-  type: OutcomeType;
+  @IsEnum(OperationType)
+  type: OperationType;
+
+  @ApiProperty({
+    required: true,
+    description: 'Статус операции',
+    enum: OperationStatus,
+  })
+  @IsEnum(OperationStatus)
+  status: OperationStatus;
 
   @ApiProperty({
     required: true,
@@ -140,4 +148,24 @@ export class CreateOutcomeDto {
   @IsNumber()
   @Min(0)
   volumeAfter?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  factByTank: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  differenceWeight: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  levelBefore: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  levelAfter: number;
 }

@@ -2,7 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { Outcome } from '../../outcome/entities/outcome.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 
 @Entity()
 export class Dispenser extends CommonEntity {
@@ -22,6 +22,6 @@ export class Dispenser extends CommonEntity {
   @Column({ type: 'boolean', default: false })
   isBlocked?: boolean;
 
-  @OneToMany(() => Outcome, (outcome) => outcome.dispenser)
-  outcome: Outcome[];
+  @OneToMany(() => Operation, (operation) => operation.dispenser)
+  operation: Operation[];
 }

@@ -3,8 +3,7 @@ import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { VehicleType } from '../enums';
-import { Outcome } from '../../outcome/entities/outcome.entity';
-import { Supply } from '../../supply/entities/supply.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 import { IVehicleTank } from '../types';
 
 @Entity()
@@ -57,11 +56,8 @@ export class Vehicle extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @OneToMany(() => Outcome, (outcome) => outcome.vehicle)
-  outcome: Outcome[];
-
-  @OneToMany(() => Supply, (supply) => supply.vehicle)
-  supply: Supply[];
+  @OneToMany(() => Operation, (operation) => operation.vehicle)
+  operation: Operation[];
 
   @AfterLoad()
   afterLoad() {

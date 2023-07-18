@@ -1,15 +1,14 @@
 export enum EventType {
-  DEFAULT = 'DEFAULT',
-  CREATE = 'CREATE',
-  UPDATE = 'UPDATE',
-  DELETE = 'DELETE',
+  DEFAULT = 'default',
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
 }
 
 export enum EventCollectionType {
-  DEFAULT = 'DEFAULT',
-  OUTCOME = 'OUTCOME',
-  SUPPLY = 'SUPPLY',
-  FUEL = 'FUEL',
-  SHIFT = 'SHIFT',
-  SETTINGS = 'SETTINGS',
+  DEFAULT = 'default',
+  OPERATION = 'operation',
+  FUEL = 'fuel',
+  SHIFT = 'shift',
+  SETTINGS = 'settings',
 }

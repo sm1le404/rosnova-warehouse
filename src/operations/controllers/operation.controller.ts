@@ -11,13 +11,17 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { OutcomeService } from '../services/outcome.service';
-import { Outcome } from '../entities/outcome.entity';
-import { CreateOutcomeDto, ResponseOutcomeDto, UpdateOutcomeDto } from '../dto';
+import { OperationService } from '../services/operation.service';
+import { Operation } from '../entities/operation.entity';
 import {
-  PaginationOutcome,
-  PaginationOutcomeParams,
-} from '../classes/pagination-outcome.params';
+  CreateOperationDto,
+  ResponseOperationDto,
+  UpdateOperationDto,
+} from '../dto';
+import {
+  PaginationOperation,
+  PaginationOperationParams,
+} from '../classes/pagination-operation.params';
 import { CommonPagination } from '../../common/decorators';
 import { Paginate } from 'nestjs-paginate';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -29,42 +33,42 @@ import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
 
-@ApiTags('Outcome')
-@Controller('outcome')
+@ApiTags('Operation')
+@Controller('operation')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, HasRole)
 @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
-export class OutcomeController {
+export class OperationController {
   constructor(
-    private readonly outcomeService: OutcomeService,
+    private readonly operationService: OperationService,
     private readonly eventService: EventService,
   ) {}
 
   @Get()
   @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
-    summary: 'Get outcome list',
+    summary: 'Get operation list',
   })
   @CommonPagination(
-    PaginationOutcomeParams.filterableColumns,
-    PaginationOutcomeParams.searchableColumns,
-    PaginationOutcomeParams.sortableColumns,
+    PaginationOperationParams.filterableColumns,
+    PaginationOperationParams.searchableColumns,
+    PaginationOperationParams.sortableColumns,
   )
-  @ApiResponse({ type: () => ResponseOutcomeDto })
+  @ApiResponse({ type: () => ResponseOperationDto })
   async findAll(
-    @Paginate() paginationPayload: PaginationOutcome,
-  ): Promise<ResponseOutcomeDto> {
-    return this.outcomeService.findPagination(paginationPayload);
+    @Paginate() paginationPayload: PaginationOperation,
+  ): Promise<ResponseOperationDto> {
+    return this.operationService.findPagination(paginationPayload);
   }
 
   @Get(':id')
   @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
-    summary: 'Get outcome by id',
+    summary: 'Get operation by id',
   })
-  @ApiResponse({ type: () => Outcome })
-  async findOne(@Param('id') id: number): Promise<Outcome> {
-    return this.outcomeService.findOne({
+  @ApiResponse({ type: () => Operation })
+  async findOne(@Param('id') id: number): Promise<Operation> {
+    return this.operationService.findOne({
       where: {
         id,
       },
@@ -73,21 +77,21 @@ export class OutcomeController {
 
   @Post()
   @ApiOperation({
-    summary: 'Add outcome',
+    summary: 'Add operation',
   })
-  @ApiResponse({ type: () => Outcome })
+  @ApiResponse({ type: () => Operation })
   async create(
-    @Body() createOutcomeDto: CreateOutcomeDto,
+    @Body() createOperationDto: CreateOperationDto,
     @CurrentUser() user: ICurrentUser,
-  ): Promise<Outcome> {
-    const response = await this.outcomeService.create(createOutcomeDto);
+  ): Promise<Operation> {
+    const response = await this.operationService.create(createOperationDto);
 
     await this.eventService.create({
-      collection: EventCollectionType.OUTCOME,
+      collection: EventCollectionType.OPERATION,
       type: EventType.CREATE,
       dataBefore: '',
-      dataAfter: JSON.stringify(createOutcomeDto),
-      name: String(createOutcomeDto.numberTTN),
+      dataAfter: JSON.stringify(createOperationDto),
+      name: String(createOperationDto.numberTTN),
       shift: user.lastShift,
     });
 
@@ -96,31 +100,31 @@ export class OutcomeController {
 
   @Put(':id')
   @ApiOperation({
-    summary: 'Update outcome by id',
+    summary: 'Update operation by id',
   })
-  @ApiResponse({ type: () => Outcome })
+  @ApiResponse({ type: () => Operation })
   async update(
     @Param('id') id: number,
-    @Body() updateOutcomeDto: UpdateOutcomeDto,
+    @Body() updateOperationDto: UpdateOperationDto,
     @CurrentUser() user: ICurrentUser,
-  ): Promise<Outcome> {
+  ): Promise<Operation> {
     const dataBefore = await this.findOne(id);
 
-    const updated = await this.outcomeService.update(
+    const updated = await this.operationService.update(
       {
         where: {
           id,
         },
       },
-      updateOutcomeDto,
+      updateOperationDto,
     );
 
     await this.eventService.create({
-      collection: EventCollectionType.OUTCOME,
+      collection: EventCollectionType.OPERATION,
       type: EventType.UPDATE,
       dataBefore: JSON.stringify(dataBefore),
-      dataAfter: JSON.stringify(updateOutcomeDto),
-      name: String(updateOutcomeDto.numberTTN),
+      dataAfter: JSON.stringify(updateOperationDto),
+      name: String(updateOperationDto.numberTTN),
       shift: user.lastShift,
     });
 
@@ -129,24 +133,24 @@ export class OutcomeController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete outcome by id',
+    summary: 'Delete operation by id',
   })
-  @ApiResponse({ type: () => Outcome })
+  @ApiResponse({ type: () => Operation })
   @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,
     @CurrentUser() user: ICurrentUser,
-  ): Promise<Outcome> {
+  ): Promise<Operation> {
     const dataBefore = await this.findOne(id);
 
     await this.eventService.create({
-      collection: EventCollectionType.OUTCOME,
+      collection: EventCollectionType.OPERATION,
       type: EventType.DELETE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
       name: String(dataBefore.numberTTN),
       shift: user.lastShift,
     });
-    return this.outcomeService.delete({ where: { id } });
+    return this.operationService.delete({ where: { id } });
   }
 }
