@@ -2,7 +2,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
-import { Outcome } from '../../outcome/entities/outcome.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 
 @Entity()
 export class Driver extends CommonEntity {
@@ -22,8 +22,8 @@ export class Driver extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @OneToMany(() => Outcome, (outcome) => outcome.driver)
-  outcome: Outcome[];
+  @OneToMany(() => Operation, (operation) => operation.driver)
+  operation: Operation[];
 
   @Column()
   protected fullName: string;

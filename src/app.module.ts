@@ -19,8 +19,7 @@ import { DispenserModule } from './dispenser/dispenser.module';
 import { RefineryModule } from './refinery/refinery.module';
 import { TankModule } from './tank/tank.module';
 import { VehicleModule } from './vehicle/vehicle.module';
-import { SupplyModule } from './supply/supply.module';
-import { OutcomeModule } from './outcome/outcome.module';
+import { OperationModule } from './operations/operation.module';
 import { ShiftModule } from './shift/shift.module';
 import { EventModule } from './event/event.module';
 import { AuthModule } from './auth/auth.module';
@@ -101,8 +100,7 @@ import { CronService } from './cron/services/cron.service';
     UserModule,
     FuelHolderModule,
     MeasurementModule,
-    SupplyModule,
-    OutcomeModule,
+    OperationModule,
     ShiftModule,
     EventModule,
     AuthModule,

@@ -3,6 +3,10 @@ export enum VehicleType {
   LOADER = 'LOADER',
 }
 
+export enum TrailerType {
+  TRAILER = 'TRAILER',
+}
+
 export enum CarModelType {
   UNKNOWN = 'UNKNOWN',
 }

@@ -1,10 +1,8 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Tank } from '../../tank/entities/tank.entity';
-import { Outcome } from '../../outcome/entities/outcome.entity';
-import { Supply } from '../../supply/entities/supply.entity';
 
 @Entity()
 export class FuelHolder extends CommonEntity {
@@ -22,10 +20,4 @@ export class FuelHolder extends CommonEntity {
 
   @OneToMany(() => Tank, (tank) => tank.fuelHolder)
   tank: Tank[];
-
-  @ManyToOne(() => Outcome, (outcome) => outcome.fuelHolder)
-  outcome: Outcome;
-
-  @ManyToOne(() => Supply, (supply) => supply.fuelHolder)
-  supply: Supply;
 }

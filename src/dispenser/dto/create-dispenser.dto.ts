@@ -16,4 +16,9 @@ export class CreateDispenserDto {
   @IsOptional()
   @IsBoolean()
   isEnabled?: boolean;
+
+  @ApiProperty({ required: false, description: 'Блокировка' })
+  @IsOptional()
+  @IsBoolean()
+  isBlocked?: boolean;
 }

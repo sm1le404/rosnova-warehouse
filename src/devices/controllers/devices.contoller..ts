@@ -1,6 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { DeviceTankService } from '../services/device.tank.service';
+import { ApiExcludeController } from '@nestjs/swagger';
 
+@ApiExcludeController()
 @Controller('devices')
 export class DevicesContoller {
   constructor(private readonly deviceTankService: DeviceTankService) {}
