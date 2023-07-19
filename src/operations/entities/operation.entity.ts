@@ -9,6 +9,7 @@ import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { IVehicleTank } from '../../vehicle/types';
 import { Trailer } from '../../vehicle/entities/trailer.entity';
+import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 
 @Entity()
 export class Operation extends CommonEntity {
@@ -60,6 +61,20 @@ export class Operation extends CommonEntity {
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })
   numberTTN: number;
+
+  @ApiProperty({ description: 'Дата начала операции' })
+  @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
+  startedAt?: number;
+
+  @ApiProperty({ description: 'Дата начала операции ISO' })
+  startedAtIso?: string;
+
+  @ApiProperty({ description: 'Дата завершения операции' })
+  @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
+  finishedAt?: number;
+
+  @ApiProperty({ description: 'Дата завершения операции ISO' })
+  finishedAtIso?: string;
 
   @ApiProperty({ required: true, description: 'Объём по документам' })
   @Column({ type: 'float', nullable: false })
@@ -129,6 +144,14 @@ export class Operation extends CommonEntity {
   })
   @ManyToOne(() => Trailer, (trailer) => trailer.operation, { eager: true })
   trailer: Trailer;
+
+  @ApiProperty({
+    type: () => Trailer,
+    required: true,
+    description: 'ТС',
+  })
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.operation, { eager: true })
+  vehicle: Vehicle;
 
   @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
   @ManyToOne(() => Tank, (tank) => tank.operation, { eager: true })
