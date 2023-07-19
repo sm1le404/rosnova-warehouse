@@ -124,7 +124,7 @@ export class ShiftController {
     );
 
     await this.eventService.create({
-      collection: EventCollectionType.OUTCOME,
+      collection: EventCollectionType.SHIFT,
       type: EventType.UPDATE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateShiftDto),

@@ -1,25 +1,23 @@
 import { FilterOperator } from 'nestjs-paginate/lib/paginate';
 import { PaginatedParams } from '../../common/classes/paginated-params';
-import { Outcome } from '../entities/outcome.entity';
+import { Operation } from '../entities/operation.entity';
 
-export class PaginationOutcome extends PaginatedParams<Outcome> {}
+export class PaginationOperation extends PaginatedParams<Operation> {}
 
-export const PaginationOutcomeParams = new PaginationOutcome();
+export const PaginationOperationParams = new PaginationOperation();
 
-PaginationOutcomeParams.selectedColumns = [];
-PaginationOutcomeParams.searchableColumns = ['numberTTN'];
-PaginationOutcomeParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
-PaginationOutcomeParams.relationList = [
+PaginationOperationParams.selectedColumns = [];
+PaginationOperationParams.searchableColumns = ['numberTTN'];
+PaginationOperationParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
+PaginationOperationParams.relationList = [
   'dispenser',
   'driver',
-  'fuel',
-  'fuelHolder',
   'shift',
   'tank',
-  'vehicle',
+  'trailer',
 ];
 
-PaginationOutcomeParams.filterableColumns = {
+PaginationOperationParams.filterableColumns = {
   id: [FilterOperator.IN, FilterOperator.EQ],
   createdAt: [FilterOperator.GTE, FilterOperator.LTE],
   dispenser: [FilterOperator.IN, FilterOperator.EQ],
@@ -28,6 +26,7 @@ PaginationOutcomeParams.filterableColumns = {
   fuelHolder: [FilterOperator.IN, FilterOperator.EQ],
   shift: [FilterOperator.IN, FilterOperator.EQ],
   tank: [FilterOperator.IN, FilterOperator.EQ],
-  vehicle: [FilterOperator.IN, FilterOperator.EQ],
+  trailer: [FilterOperator.IN, FilterOperator.EQ],
   status: [FilterOperator.IN, FilterOperator.EQ],
+  type: [FilterOperator.IN, FilterOperator.EQ],
 };
