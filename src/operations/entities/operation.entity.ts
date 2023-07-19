@@ -5,10 +5,10 @@ import { CommonEntity } from '../../common/entities/common.entity';
 import { OperationStatus, OperationType } from '../enums';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { Driver } from '../../driver/entities/driver.entity';
-import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Shift } from '../../shift/entities/shift.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { IVehicleTank } from '../../vehicle/types';
+import { Trailer } from '../../vehicle/entities/trailer.entity';
 
 @Entity()
 export class Operation extends CommonEntity {
@@ -127,12 +127,12 @@ export class Operation extends CommonEntity {
   driver: Driver;
 
   @ApiProperty({
-    type: () => Vehicle,
+    type: () => Trailer,
     required: true,
-    description: 'Траспортное средство',
+    description: 'Прицеп',
   })
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.operation, { eager: true })
-  vehicle: Vehicle;
+  @ManyToOne(() => Trailer, (trailer) => trailer.operation, { eager: true })
+  trailer: Trailer;
 
   @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
   @ManyToOne(() => Tank, (tank) => tank.operation, { eager: true })

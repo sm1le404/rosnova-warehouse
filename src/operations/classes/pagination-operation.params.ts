@@ -14,7 +14,7 @@ PaginationOperationParams.relationList = [
   'driver',
   'shift',
   'tank',
-  'vehicle',
+  'trailer',
 ];
 
 PaginationOperationParams.filterableColumns = {
@@ -26,7 +26,7 @@ PaginationOperationParams.filterableColumns = {
   fuelHolder: [FilterOperator.IN, FilterOperator.EQ],
   shift: [FilterOperator.IN, FilterOperator.EQ],
   tank: [FilterOperator.IN, FilterOperator.EQ],
-  vehicle: [FilterOperator.IN, FilterOperator.EQ],
+  trailer: [FilterOperator.IN, FilterOperator.EQ],
   status: [FilterOperator.IN, FilterOperator.EQ],
   type: [FilterOperator.IN, FilterOperator.EQ],
 };
