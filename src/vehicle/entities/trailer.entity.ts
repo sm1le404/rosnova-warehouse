@@ -9,18 +9,25 @@ import { Vehicle } from './vehicle.entity';
 
 @Entity()
 export class Trailer extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Тип прицепа', type: 'string' })
+  @ApiProperty({
+    required: false,
+    description: 'Тип прицепа',
+    type: 'string',
+  })
   @Column({
     type: 'text',
     enum: TrailerType,
+    default: TrailerType.TRAILER,
+    nullable: true,
   })
-  type: TrailerType;
+  type?: TrailerType;
 
-  @ApiProperty({ required: true, description: 'Модель прицепа' })
+  @ApiProperty({ required: false, description: 'Модель прицепа' })
   @Column({
     type: 'text',
+    nullable: true,
   })
-  trailerModel: string;
+  trailerModel?: string;
 
   @ApiProperty({ required: true, description: 'Регистрационный номер прицепа' })
   @Column({ type: 'varchar', nullable: false })
@@ -42,7 +49,7 @@ export class Trailer extends CommonEntity {
     isArray: true,
   })
   @Column({ type: 'text', nullable: false })
-  tanksCalibration: string;
+  sectionVolumes: string;
 
   @ApiProperty({ required: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
@@ -59,8 +66,8 @@ export class Trailer extends CommonEntity {
     if (this?.currentState) {
       this.currentState = JSON.parse(this.currentState);
     }
-    if (this?.tanksCalibration) {
-      this.tanksCalibration = JSON.parse(this.tanksCalibration);
+    if (this?.sectionVolumes) {
+      this.sectionVolumes = JSON.parse(this.sectionVolumes);
     }
   }
 }

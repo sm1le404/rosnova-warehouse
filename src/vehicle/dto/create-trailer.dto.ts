@@ -11,19 +11,6 @@ import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../types';
 
 export class CreateTrailerDto {
-  @ApiProperty({
-    required: true,
-    description: 'Тип прицепа',
-    enum: TrailerType,
-  })
-  @IsEnum(TrailerType)
-  type: TrailerType;
-
-  @ApiProperty({ required: true, description: 'Модель прицепа' })
-  @IsNotEmpty()
-  @IsString()
-  carModel: string;
-
   @ApiProperty({ required: true, description: 'Регистрационный номер прицепа' })
   @IsNotEmpty()
   @IsString()
@@ -49,10 +36,25 @@ export class CreateTrailerDto {
   @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
   @IsString()
-  tanksCalibration: string;
+  sectionVolumes: string;
 
   @ApiProperty({ required: false, description: 'Доступность', default: true })
   @IsBoolean()
   @IsOptional()
   isEnabled?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'Тип прицепа',
+    enum: TrailerType,
+    default: TrailerType.TRAILER,
+  })
+  @IsOptional()
+  @IsEnum(TrailerType)
+  type?: TrailerType;
+
+  @ApiProperty({ required: false, description: 'Модель прицепа' })
+  @IsOptional()
+  @IsString()
+  trailerModel?: string;
 }

@@ -132,11 +132,6 @@ export class CreateOperationDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  factByTank: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
   differenceWeight: number;
 
   @IsOptional()

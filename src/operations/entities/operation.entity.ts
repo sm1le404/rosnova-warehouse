@@ -93,10 +93,6 @@ export class Operation extends CommonEntity {
   @Column({ type: 'float', nullable: true, default: 0 })
   volumeAfter: number;
 
-  @ApiProperty({ required: true, description: 'Фактически в резервуаре' })
-  @Column({ type: 'float', nullable: false })
-  factByTank: number;
-
   @ApiProperty({
     required: true,
     description: 'Разница документарного и фактического веса',
