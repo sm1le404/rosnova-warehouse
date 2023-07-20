@@ -58,6 +58,13 @@ export class Operation extends CommonEntity {
   @Column({ type: 'text', nullable: false })
   refinery: string;
 
+  @ApiProperty({
+    required: false,
+    description: 'Назначение',
+  })
+  @Column({ type: 'text', nullable: true })
+  destination?: string;
+
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @Column({ type: 'int', nullable: false })
   numberTTN: number;
@@ -79,6 +86,10 @@ export class Operation extends CommonEntity {
   @ApiProperty({ required: true, description: 'Объём по документам' })
   @Column({ type: 'float', nullable: false })
   docVolume: number;
+
+  @ApiProperty({ required: false, description: 'Объём по факту' })
+  @Column({ type: 'float', nullable: true })
+  factVolume?: number;
 
   @ApiProperty({ required: true, description: 'Вес по документам' })
   @Column({ type: 'float', nullable: false })

@@ -7,7 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Driver } from '../../driver/entities/driver.entity';
@@ -51,19 +51,33 @@ export class CreateOperationDto {
     required: true,
     description: 'Полное наименование топлива',
   })
+  @IsNotEmpty()
+  @IsString()
   fuel: string;
 
   @ApiProperty({
     required: true,
     description: 'Полное наименование владельца топлива',
   })
+  @IsNotEmpty()
+  @IsString()
   fuelHolder: string;
 
   @ApiProperty({
     required: true,
     description: 'Полное наименование завода',
   })
+  @IsNotEmpty()
+  @IsString()
   refinery: string;
+
+  @ApiPropertyOptional({
+    required: false,
+    description: 'Назначение',
+  })
+  @IsNotEmpty()
+  @IsString()
+  destination?: string;
 
   shift: Pick<Shift, 'id'>;
 
