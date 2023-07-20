@@ -7,7 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Driver } from '../../driver/entities/driver.entity';
@@ -17,6 +17,9 @@ import { IVehicleTank } from '../../vehicle/types';
 import { CommonId } from '../../common/types/common-id.type';
 import { OperationStatus, OperationType } from '../enums';
 import { Trailer } from '../../vehicle/entities/trailer.entity';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Refinery } from '../../refinery/entities/refinery.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -49,21 +52,38 @@ export class CreateOperationDto {
 
   @ApiProperty({
     required: true,
-    description: 'Полное наименование топлива',
+    type: () => CommonId,
+    description: 'Топливо',
   })
-  fuel: string;
+  @IsNotEmpty()
+  @IsString()
+  fuel: Pick<Fuel, 'id'>;
 
   @ApiProperty({
     required: true,
-    description: 'Полное наименование владельца топлива',
+    type: () => CommonId,
+    description: 'Владелец топлива',
   })
-  fuelHolder: string;
+  @IsNotEmpty()
+  @IsString()
+  fuelHolder: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
     required: true,
-    description: 'Полное наименование завода',
+    type: () => CommonId,
+    description: 'Завод',
   })
-  refinery: string;
+  @IsNotEmpty()
+  @IsString()
+  refinery: Pick<Refinery, 'id'>;
+
+  @ApiPropertyOptional({
+    required: false,
+    description: 'Назначение',
+  })
+  @IsNotEmpty()
+  @IsString()
+  destination?: string;
 
   shift: Pick<Shift, 'id'>;
 
