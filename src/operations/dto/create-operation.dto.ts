@@ -16,6 +16,7 @@ import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../../vehicle/types';
 import { CommonId } from '../../common/types/common-id.type';
 import { OperationStatus, OperationType } from '../enums';
+import { Trailer } from '../../vehicle/entities/trailer.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -31,6 +32,13 @@ export class CreateOperationDto {
     type: () => CommonId,
   })
   vehicle: Pick<Vehicle, 'id'>;
+
+  @ApiProperty({
+    required: true,
+    description: 'Прицеп',
+    type: () => CommonId,
+  })
+  trailer: Pick<Trailer, 'id'>;
 
   @ApiProperty({
     required: true,
@@ -89,6 +97,10 @@ export class CreateOperationDto {
   @ApiProperty({ required: true, description: 'Номер накладной' })
   @IsPositive()
   numberTTN: number;
+
+  startedAt?: number;
+
+  finishedAt?: number;
 
   @ApiProperty({ required: true, description: 'Объём по документам' })
   @IsNumber()

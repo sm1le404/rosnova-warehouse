@@ -22,6 +22,14 @@ export class CommonSubscriber implements EntitySubscriberInterface {
     if (entity?.deletedAt) {
       entity.deletedAtIso = new Date(entity.deletedAt * 1000).toISOString();
     }
+
+    if (entity?.startedAt) {
+      entity.startedAtIso = new Date(entity.startedAt * 1000).toISOString();
+    }
+
+    if (entity?.finishedAt) {
+      entity.finishedAtIso = new Date(entity.finishedAt * 1000).toISOString();
+    }
   }
 
   /**
@@ -37,6 +45,18 @@ export class CommonSubscriber implements EntitySubscriberInterface {
     if (event?.entity?.updatedAt) {
       event.entity.updatedAtIso = new Date(
         event.entity.updatedAt * 1000,
+      ).toISOString();
+    }
+
+    if (event?.entity?.startedAt) {
+      event.entity.startedAtIso = new Date(
+        event.entity.startedAt * 1000,
+      ).toISOString();
+    }
+
+    if (event?.entity?.finishedAt) {
+      event.entity.finishedAtIso = new Date(
+        event.entity.finishedAt * 1000,
       ).toISOString();
     }
   }

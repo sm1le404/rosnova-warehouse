@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { VehicleType } from '../enums';
-import { Trailer } from './trailer.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 
 @Entity()
 export class Vehicle extends CommonEntity {
@@ -28,6 +28,6 @@ export class Vehicle extends CommonEntity {
   @Column({ type: 'boolean', default: true })
   isEnabled?: boolean;
 
-  @OneToMany(() => Trailer, (trailer) => trailer.vehicle)
-  trailer: Trailer[];
+  @OneToMany(() => Operation, (operation) => operation.vehicle)
+  operation: Operation[];
 }
