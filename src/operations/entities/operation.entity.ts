@@ -10,6 +10,9 @@ import { Tank } from '../../tank/entities/tank.entity';
 import { IVehicleTank } from '../../vehicle/types';
 import { Trailer } from '../../vehicle/entities/trailer.entity';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
+import { Fuel } from '../../fuel/entities/fuel.entity';
+import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
+import { Refinery } from '../../refinery/entities/refinery.entity';
 
 @Entity()
 export class Operation extends CommonEntity {
@@ -36,27 +39,6 @@ export class Operation extends CommonEntity {
   })
   @Column({ type: 'text', nullable: false })
   vehicleState: string;
-
-  @ApiProperty({
-    required: true,
-    description: 'Полное наименование топлива',
-  })
-  @Column({ type: 'text', nullable: false })
-  fuel: string;
-
-  @ApiProperty({
-    required: true,
-    description: 'Полное наименование владельца топлива',
-  })
-  @Column({ type: 'text', nullable: false })
-  fuelHolder: string;
-
-  @ApiProperty({
-    required: true,
-    description: 'Полное наименование завода',
-  })
-  @Column({ type: 'text', nullable: false })
-  refinery: string;
 
   @ApiProperty({
     required: false,
@@ -147,6 +129,29 @@ export class Operation extends CommonEntity {
   @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
   @ManyToOne(() => Driver, (driver) => driver.operation, { eager: true })
   driver: Driver;
+
+  @ApiProperty({
+    required: true,
+    description: 'Топливо',
+  })
+  @ManyToOne(() => Fuel, (fuel) => fuel.operation, { eager: true })
+  fuel: Fuel;
+
+  @ApiProperty({
+    required: true,
+    description: 'Владелец топлива',
+  })
+  @ManyToOne(() => FuelHolder, (fuelHolder) => fuelHolder.operation, {
+    eager: true,
+  })
+  fuelHolder: FuelHolder;
+
+  @ApiProperty({
+    required: true,
+    description: 'Завод',
+  })
+  @ManyToOne(() => Refinery, (refinery) => refinery.operation, { eager: true })
+  refinery: Refinery;
 
   @ApiProperty({
     type: () => Trailer,
