@@ -1,9 +1,9 @@
 import {
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   Min,
 } from 'class-validator';
@@ -81,6 +81,7 @@ export class CreateOperationDto {
     required: false,
     description: 'Назначение',
   })
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   destination?: string;
@@ -95,13 +96,9 @@ export class CreateOperationDto {
   @IsEnum(OperationType)
   type: OperationType;
 
-  @ApiProperty({
-    required: true,
-    description: 'Статус операции',
-    enum: OperationStatus,
-  })
+  @IsOptional()
   @IsEnum(OperationStatus)
-  status: OperationStatus;
+  status?: OperationStatus;
 
   @ApiProperty({
     required: true,
@@ -115,8 +112,9 @@ export class CreateOperationDto {
   vehicleState: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
-  @IsPositive()
-  numberTTN: number;
+  @IsNotEmpty()
+  @IsString()
+  numberTTN: string;
 
   startedAt?: number;
 
@@ -142,6 +140,10 @@ export class CreateOperationDto {
   docTemperature: number;
 
   @IsOptional()
+  @IsBoolean()
+  dispenserError?: boolean;
+
+  @IsOptional()
   @IsNumber()
   @Min(0)
   counterBefore?: number;
@@ -160,11 +162,6 @@ export class CreateOperationDto {
   @IsNumber()
   @Min(0)
   volumeAfter?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  differenceWeight: number;
 
   @IsOptional()
   @IsNumber()

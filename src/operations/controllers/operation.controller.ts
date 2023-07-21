@@ -91,7 +91,7 @@ export class OperationController {
       type: EventType.CREATE,
       dataBefore: '',
       dataAfter: JSON.stringify(createOperationDto),
-      name: String(createOperationDto.numberTTN),
+      name: createOperationDto.numberTTN,
       shift: user.lastShift,
     });
 
@@ -124,7 +124,7 @@ export class OperationController {
       type: EventType.UPDATE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateOperationDto),
-      name: String(updateOperationDto.numberTTN),
+      name: updateOperationDto.numberTTN,
       shift: user.lastShift,
     });
 
@@ -148,7 +148,7 @@ export class OperationController {
       type: EventType.DELETE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
-      name: String(dataBefore.numberTTN),
+      name: dataBefore.numberTTN,
       shift: user.lastShift,
     });
     return this.operationService.delete({ where: { id } });

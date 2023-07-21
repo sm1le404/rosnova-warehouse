@@ -23,13 +23,13 @@ export class Operation extends CommonEntity {
   })
   type: OperationType;
 
-  @ApiProperty({ required: true, description: 'Статус операции' })
+  @ApiProperty({ required: false, description: 'Статус операции' })
   @Column({
     type: 'text',
     enum: OperationStatus,
     default: OperationStatus.CREATED,
   })
-  status: OperationStatus;
+  status?: OperationStatus;
 
   @ApiProperty({
     type: () => IVehicleTank,
@@ -48,8 +48,8 @@ export class Operation extends CommonEntity {
   destination?: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
-  @Column({ type: 'int', nullable: false })
-  numberTTN: number;
+  @Column({ type: 'text', nullable: false })
+  numberTTN: string;
 
   @ApiProperty({ description: 'Дата начала операции' })
   @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
@@ -101,13 +101,6 @@ export class Operation extends CommonEntity {
   @Column({ type: 'float', nullable: true, default: 0 })
   volumeAfter: number;
 
-  @ApiProperty({
-    required: true,
-    description: 'Разница документарного и фактического веса',
-  })
-  @Column({ type: 'float', nullable: false })
-  differenceWeight: number;
-
   @ApiProperty({ required: true, description: 'Уровень до', default: 0 })
   @Column({ type: 'float', nullable: true, default: 0 })
   levelBefore: number;
@@ -115,6 +108,14 @@ export class Operation extends CommonEntity {
   @ApiProperty({ required: true, description: 'Уровень после', default: 0 })
   @Column({ type: 'float', nullable: true, default: 0 })
   levelAfter: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Ошибка на колонке',
+    default: false,
+  })
+  @Column({ type: 'boolean', nullable: true, default: false })
+  dispenserError: boolean;
 
   @ApiProperty({
     type: () => Dispenser,
