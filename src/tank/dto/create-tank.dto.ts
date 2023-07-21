@@ -43,7 +43,6 @@ export class CreateTankDto {
   @IsBoolean()
   isEnabled?: boolean;
 
-  @ApiProperty({ required: false, description: 'Блокировка' })
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
