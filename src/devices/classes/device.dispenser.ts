@@ -4,10 +4,10 @@ import {
   DispenserCommand,
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
-import { GoneException } from '@nestjs/common';
+import { BadRequestException, GoneException } from '@nestjs/common';
 
 export class DeviceDispenser {
-  private static instance: DeviceDispenser[];
+  private static instance: DeviceDispenser[] = [];
 
   private serialPort: SerialPort;
 
@@ -18,8 +18,9 @@ export class DeviceDispenser {
   private responseMessage: Array<any> = [];
 
   constructor(serialPort: SerialPort, currentAddressId: number) {
+    const currentHexAddress = parseInt(`${currentAddressId}`, 16);
     this.serialPort = serialPort;
-    this.currentAddressId = currentAddressId;
+    this.currentAddressId = currentHexAddress;
 
     this.serialPort.on('data', (data) => {
       for (let i = 0; i < data.length; i++) {
@@ -50,7 +51,7 @@ export class DeviceDispenser {
     serialPort: SerialPort,
     currentAddressId: number,
   ): DeviceDispenser {
-    if (!DeviceDispenser.instance) {
+    if (!DeviceDispenser.instance[currentAddressId]) {
       DeviceDispenser.instance[currentAddressId] = new DeviceDispenser(
         serialPort,
         currentAddressId,
@@ -60,7 +61,12 @@ export class DeviceDispenser {
     return DeviceDispenser.instance[currentAddressId];
   }
 
-  async callCommand(command: DispenserCommand, data: Array<any> = []) {
+  async callCommand(command: DispenserCommand, data: Buffer = Buffer.from([])) {
+    if (!this.serialPort.isOpen) {
+      throw new BadRequestException(
+        `COM порт недоступен, повторите попытку позднее`,
+      );
+    }
     if (command === DispenserCommand.SET_LITRES && data.length !== 5) {
       throw new Error('Неверная команда при установке литров');
     }
@@ -98,9 +104,9 @@ export class DeviceDispenser {
     });
 
     return new Promise((resolve) => {
-      let intervalCheckCompilteStatus = setInterval(() => {
+      let intervalCheckCompileStatus = setInterval(() => {
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
-          clearInterval(intervalCheckCompilteStatus);
+          clearInterval(intervalCheckCompileStatus);
           resolve(this.responseMessage);
         }
       }, 200);
