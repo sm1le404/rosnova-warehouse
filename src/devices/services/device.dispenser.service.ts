@@ -115,7 +115,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         },
         {
           status: OperationStatus.PROGRESS,
-          volumeAfter: countLitres,
+          factVolume: countLitres,
         },
       );
       //Фактически операция завершилась
