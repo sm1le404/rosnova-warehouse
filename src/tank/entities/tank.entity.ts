@@ -1,22 +1,19 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Measurement } from '../../measurement/entities/measurement.entity';
 import { Operation } from '../../operations/entities/operation.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Calibration } from './calibration.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
   @ApiProperty({ required: true, description: 'Порядок сортировки' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
-
-  @ApiProperty({ required: true, description: 'Калибр по таблице' })
-  @Column({ type: 'float', nullable: true, default: 0 })
-  calibrationTable?: number;
 
   @ApiProperty({ required: true, description: 'Общий объём' })
   @Column({ type: 'float', nullable: false })
@@ -95,4 +92,12 @@ export class Tank extends CommonEntity {
   })
   @ManyToOne(() => Refinery, (refinery) => refinery.tank, { eager: true })
   refinery?: Refinery;
+
+  @ApiPropertyOptional({
+    type: () => Calibration,
+    required: false,
+    description: 'Связный калибр',
+  })
+  @OneToMany(() => Calibration, (calibration) => calibration.tank)
+  calibration?: Calibration[];
 }
