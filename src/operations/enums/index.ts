@@ -10,6 +10,6 @@ export enum OperationStatus {
 export enum OperationType {
   OUTCOME = 'outcome',
   SUPPLY = 'supply',
-  STRAIT = 'strait',
+  INTERNAL = 'internal',
   RETURN = 'return',
 }

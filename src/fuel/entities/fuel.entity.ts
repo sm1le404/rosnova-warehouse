@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Tank } from '../../tank/entities/tank.entity';
+import { Operation } from '../../operations/entities/operation.entity';
 
 @Entity()
 export class Fuel extends CommonEntity {
@@ -20,4 +21,7 @@ export class Fuel extends CommonEntity {
 
   @OneToMany(() => Tank, (tank) => tank.fuel)
   tank?: Tank[];
+
+  @OneToMany(() => Operation, (operation) => operation.fuel)
+  operation?: Operation[];
 }
