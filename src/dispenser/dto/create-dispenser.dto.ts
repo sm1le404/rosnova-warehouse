@@ -1,4 +1,11 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDispenserDto {
@@ -20,4 +27,10 @@ export class CreateDispenserDto {
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
+
+  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
+  @IsInt()
+  @Min(0)
+  @Max(254)
+  addressId: number;
 }
