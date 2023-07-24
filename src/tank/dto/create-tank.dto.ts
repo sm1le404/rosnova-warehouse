@@ -32,6 +32,12 @@ export class CreateTankDto {
   @Min(0)
   sortIndex: number;
 
+  @ApiProperty({ required: false, description: 'Адрес на COM порте' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  addressId?: number;
+
   @ApiProperty({ required: true, description: 'Общий объём' })
   @IsOptional()
   @IsNumber()
