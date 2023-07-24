@@ -14,10 +14,6 @@ export class Tank extends CommonEntity {
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 
-  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @Column({ type: 'int', nullable: true })
-  addressId: number;
-
   @ApiProperty({ required: true, description: 'Калибр по таблице' })
   @Column({ type: 'float', nullable: true, default: 0 })
   calibrationTable?: number;
@@ -59,7 +55,7 @@ export class Tank extends CommonEntity {
   isBlocked?: boolean;
 
   @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: true })
   addressId: number;
 
   @ApiProperty({

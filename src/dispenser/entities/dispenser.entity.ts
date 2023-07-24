@@ -23,13 +23,9 @@ export class Dispenser extends CommonEntity {
   isBlocked?: boolean;
 
   @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: true })
   addressId: number;
 
   @OneToMany(() => Operation, (operation) => operation.dispenser)
   operation: Operation[];
-
-  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @Column({ type: 'int', nullable: true })
-  addressId: number;
 }

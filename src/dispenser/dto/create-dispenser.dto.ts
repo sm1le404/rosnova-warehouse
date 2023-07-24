@@ -33,10 +33,4 @@ export class CreateDispenserDto {
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
-
-  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @IsInt()
-  @Min(0)
-  @Max(254)
-  addressId: number;
 }

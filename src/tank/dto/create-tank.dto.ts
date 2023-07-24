@@ -60,12 +60,6 @@ export class CreateTankDto {
   @IsBoolean()
   isBlocked?: boolean;
 
-  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @IsInt()
-  @Min(0)
-  @Max(254)
-  addressId: number;
-
   @ApiProperty({ required: false, description: 'Калибр по таблице' })
   @IsNumber()
   @Min(0)
