@@ -40,8 +40,8 @@ export class DeviceTankService implements OnModuleDestroy {
     });
     this.serialPort.on('data', (data) => {
       //@TODO передавать в event инфо отсюда на конкретный резервуар
-      console.log('read result', this.readState(data));
-      console.log('address id', this.currentAddressId);
+      //console.log('read result', this.readState(data));
+      //console.log('address id', this.currentAddressId);
     });
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
