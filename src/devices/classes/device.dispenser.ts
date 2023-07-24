@@ -7,6 +7,8 @@ import {
 import { BadRequestException, GoneException } from '@nestjs/common';
 
 export class DeviceDispenser {
+  protected MAX_WAIT_TIMES = 20;
+
   private static instance: DeviceDispenser[] = [];
 
   private serialPort: SerialPort;
@@ -21,6 +23,13 @@ export class DeviceDispenser {
     const currentHexAddress = parseInt(`${currentAddressId}`, 16);
     this.serialPort = serialPort;
     this.currentAddressId = currentHexAddress;
+
+    this.serialPort.on('error', (data) => {
+      if (data instanceof Error) {
+        this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
+        throw new GoneException(data);
+      }
+    });
 
     this.serialPort.on('data', (data) => {
       for (let i = 0; i < data.length; i++) {
@@ -100,13 +109,20 @@ export class DeviceDispenser {
 
     this.serialPort.write(buffer, (errorData) => {
       if (errorData instanceof Error) {
+        this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
         throw new GoneException(errorData);
       }
     });
 
+    let callTimes = 0;
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(() => {
-        if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
+        callTimes++;
+
+        if (
+          this.status == DispenserStatusEnum.MESSAGE_COMPLETE ||
+          callTimes === this.MAX_WAIT_TIMES
+        ) {
           clearInterval(intervalCheckCompileStatus);
           resolve(this.responseMessage);
         }

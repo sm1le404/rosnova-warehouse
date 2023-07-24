@@ -42,11 +42,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
       stopBits: 2,
       autoOpen: false,
     });
-    this.serialPort.on('error', (data) => {
-      if (data instanceof Error) {
-        this.logger.error(data);
-      }
-    });
   }
 
   async drainFuel(payload: DispenserGetFuelDto) {
