@@ -55,8 +55,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Топливо',
   })
-  @IsNotEmpty()
-  @IsString()
   fuel: Pick<Fuel, 'id'>;
 
   @ApiProperty({
@@ -64,8 +62,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Владелец топлива',
   })
-  @IsNotEmpty()
-  @IsString()
   fuelHolder: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
@@ -73,8 +69,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Завод',
   })
-  @IsNotEmpty()
-  @IsString()
   refinery: Pick<Refinery, 'id'>;
 
   @ApiPropertyOptional({

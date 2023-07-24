@@ -1,11 +1,4 @@
-import {
-  IsBoolean,
-  IsInt,
-  IsNumber,
-  IsOptional,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDispenserDto {
