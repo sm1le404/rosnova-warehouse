@@ -7,7 +7,7 @@ import {
 import { BadRequestException, GoneException } from '@nestjs/common';
 
 export class DeviceDispenser {
-  protected MAX_WAIT_TIMES = 20;
+  protected MAX_WAIT_TIMES = 5;
 
   private static instance: DeviceDispenser[] = [];
 
@@ -90,6 +90,9 @@ export class DeviceDispenser {
       dataWithCompByte.push(data[i] ^ DispenserBytes.DEL);
     }
     checkSum ^= DispenserBytes.STOP_BYTE;
+    if (Buffer.byteLength(Buffer.from(data)) == 0) {
+      checkSum += 0x40;
+    }
 
     let request = [
       DispenserBytes.DEL,
@@ -127,7 +130,7 @@ export class DeviceDispenser {
           clearInterval(intervalCheckCompileStatus);
           resolve(this.responseMessage);
         }
-      }, 200);
+      }, 400);
     });
   }
 }
