@@ -20,7 +20,7 @@ export class DeviceDispenser {
   private responseMessage: Array<any> = [];
 
   constructor(serialPort: SerialPort, currentAddressId: number) {
-    const currentHexAddress = parseInt(`${currentAddressId}`, 16);
+    const currentHexAddress = DispenserBytes.LINE_NUMBER + currentAddressId;
     this.serialPort = serialPort;
     this.currentAddressId = currentHexAddress;
 
@@ -115,14 +115,15 @@ export class DeviceDispenser {
     });
 
     let callTimes = 0;
-    return new Promise((resolve) => {
+    return new Promise((resolve, error) => {
       let intervalCheckCompileStatus = setInterval(() => {
         callTimes++;
 
-        if (
-          this.status == DispenserStatusEnum.MESSAGE_COMPLETE ||
-          callTimes === this.MAX_WAIT_TIMES
-        ) {
+        if (callTimes === this.MAX_WAIT_TIMES) {
+          clearInterval(intervalCheckCompileStatus);
+          error(new Error('Исчерпан лимит ожидания ответа колонки'));
+        }
+        if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
           clearInterval(intervalCheckCompileStatus);
           resolve(this.responseMessage);
         }
