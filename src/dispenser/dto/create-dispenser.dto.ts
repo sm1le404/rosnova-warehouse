@@ -24,6 +24,12 @@ export class CreateDispenserDto {
   @IsBoolean()
   isEnabled?: boolean;
 
+  @ApiProperty({ required: false, description: 'Адрес на COM порте' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  addressId?: number;
+
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;

@@ -30,6 +30,6 @@ export class Dispenser extends CommonEntity {
   operation: Operation[];
 
   @ApiProperty({ required: true, description: 'Адрес на COM порте' })
-  @Column({ type: 'int', nullable: false })
+  @Column({ type: 'int', nullable: true })
   addressId: number;
 }
