@@ -8,6 +8,7 @@ import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Calibration } from './calibration.entity';
+import { TankHistory } from './tank-history.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
@@ -100,4 +101,15 @@ export class Tank extends CommonEntity {
   })
   @OneToMany(() => Calibration, (calibration) => calibration.tank)
   calibration?: Calibration[];
+
+  @ApiProperty({
+    type: () => TankHistory,
+    required: false,
+    description: 'История состояний резервуара',
+  })
+  @ManyToOne(() => TankHistory, (tankHistory) => tankHistory.tank, {
+    cascade: true,
+    eager: true,
+  })
+  tankHistory?: TankHistory;
 }

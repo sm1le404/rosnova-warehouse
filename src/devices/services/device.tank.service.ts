@@ -14,6 +14,9 @@ import {
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DeviceNames } from '../enums';
 import { DeviceInfoType } from '../types/device.info.type';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DeviceEvents } from '../enums/device-events.enum';
+import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -29,6 +32,7 @@ export class DeviceTankService implements OnModuleDestroy {
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
+    private eventEmitter: EventEmitter2,
   ) {
     this.serialPort = new SerialPort({
       path: this.configService.get('TANK_PORT') ?? 'COM1',
@@ -40,8 +44,14 @@ export class DeviceTankService implements OnModuleDestroy {
     });
     this.serialPort.on('data', (data) => {
       //@TODO передавать в event инфо отсюда на конкретный резервуар
-      //console.log('read result', this.readState(data));
-      //console.log('address id', this.currentAddressId);
+      // console.log('read result', this.readState(data));
+      // console.log('address id', this.currentAddressId);
+      if (this.readState(data)) {
+        this.eventEmitter.emit(
+          DeviceEvents.UPDATE_TANK_STATE,
+          new TankUpdateStateEvent(this.currentAddressId, this.readState(data)),
+        );
+      }
     });
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
