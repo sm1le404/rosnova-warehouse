@@ -1,4 +1,11 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
@@ -52,6 +59,12 @@ export class CreateTankDto {
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
+
+  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
+  @IsInt()
+  @Min(0)
+  @Max(254)
+  addressId: number;
 
   @ApiProperty({ required: false, description: 'Калибр по таблице' })
   @IsNumber()

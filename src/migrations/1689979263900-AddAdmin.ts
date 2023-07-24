@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /*eslint-disable*/
-export class AddAdmin1689929263900 implements MigrationInterface {
+export class AddAdmin1689979263900 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `INSERT INTO "user" ("role", "login", "password")
