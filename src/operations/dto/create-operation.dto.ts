@@ -20,6 +20,7 @@ import { Trailer } from '../../vehicle/entities/trailer.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -28,6 +29,13 @@ export class CreateOperationDto {
     type: () => CommonId,
   })
   driver: Pick<Driver, 'id'>;
+
+  @ApiProperty({
+    required: false,
+    description: 'Колонка',
+    type: () => CommonId,
+  })
+  dispenser?: Pick<Dispenser, 'id'>;
 
   @ApiProperty({
     required: true,
@@ -55,8 +63,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Топливо',
   })
-  @IsNotEmpty()
-  @IsString()
   fuel: Pick<Fuel, 'id'>;
 
   @ApiProperty({
@@ -64,8 +70,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Владелец топлива',
   })
-  @IsNotEmpty()
-  @IsString()
   fuelHolder: Pick<FuelHolder, 'id'>;
 
   @ApiProperty({
@@ -73,8 +77,6 @@ export class CreateOperationDto {
     type: () => CommonId,
     description: 'Завод',
   })
-  @IsNotEmpty()
-  @IsString()
   refinery: Pick<Refinery, 'id'>;
 
   @ApiPropertyOptional({
