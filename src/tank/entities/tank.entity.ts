@@ -54,6 +54,10 @@ export class Tank extends CommonEntity {
   @Column({ type: 'boolean', default: false })
   isBlocked?: boolean;
 
+  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
+  @Column({ type: 'int', nullable: false })
+  addressId: number;
+
   @ApiProperty({
     type: () => Measurement,
     isArray: true,
