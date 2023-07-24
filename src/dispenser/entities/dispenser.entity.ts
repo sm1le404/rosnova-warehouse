@@ -28,4 +28,8 @@ export class Dispenser extends CommonEntity {
 
   @OneToMany(() => Operation, (operation) => operation.dispenser)
   operation: Operation[];
+
+  @ApiProperty({ required: true, description: 'Адрес на COM порте' })
+  @Column({ type: 'int', nullable: false })
+  addressId: number;
 }

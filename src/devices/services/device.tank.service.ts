@@ -39,7 +39,7 @@ export class DeviceTankService implements OnModuleDestroy {
       autoOpen: false,
     });
     this.serialPort.on('data', (data) => {
-      console.log('port data', data);
+      //@TODO передавать в event инфо отсюда на конкретный резервуар
       console.log('read result', this.readState(data));
       console.log('address id', this.currentAddressId);
     });
@@ -53,7 +53,7 @@ export class DeviceTankService implements OnModuleDestroy {
   readState(data: Buffer): DeviceInfoType | null {
     let startReadPosition = 0;
     //Очищаем сообщение и сдвигаем позицию
-    if (data[0] == TANK_FIRST_BYTE && data[2] > 1) {
+    if (data[0] == TANK_FIRST_BYTE && data[2] > 0) {
       this.message = [];
       this.currentAddressId = data[1];
       this.messageLen = data[2];
@@ -131,7 +131,6 @@ export class DeviceTankService implements OnModuleDestroy {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
-    console.log('call read command', buffData);
     this.serialPort.write(buffData, (data) => {
       if (data instanceof Error) {
         this.logger.error(data);

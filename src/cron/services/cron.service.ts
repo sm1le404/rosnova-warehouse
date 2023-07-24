@@ -4,6 +4,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DeviceTankService } from '../../devices/services/device.tank.service';
 import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 import { ConfigService } from '@nestjs/config';
+import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 
 @Injectable()
 export class CronService {
@@ -11,6 +12,7 @@ export class CronService {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
     private readonly deviceTankService: DeviceTankService,
+    private readonly deviceDispenserService: DeviceDispenserService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -28,6 +30,20 @@ export class CronService {
     try {
       await this.deviceTankService.start();
       await this.deviceTankService.readCommand();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    name: 'initDispenser',
+  })
+  async initDispenser() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.deviceDispenserService.start();
     } catch (e) {
       this.logger.error(e);
     }
