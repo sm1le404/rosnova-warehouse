@@ -20,6 +20,7 @@ import { Trailer } from '../../vehicle/entities/trailer.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -28,6 +29,13 @@ export class CreateOperationDto {
     type: () => CommonId,
   })
   driver: Pick<Driver, 'id'>;
+
+  @ApiProperty({
+    required: false,
+    description: 'Колонка',
+    type: () => CommonId,
+  })
+  dispenser?: Pick<Dispenser, 'id'>;
 
   @ApiProperty({
     required: true,
