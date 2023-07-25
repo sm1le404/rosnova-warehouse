@@ -11,4 +11,6 @@ export enum EventCollectionType {
   FUEL = 'fuel',
   SHIFT = 'shift',
   SETTINGS = 'settings',
+  DRAIN_FUEL = 'drain_fuel',
+  CALL_DISPENSER_COMMAND = 'dispenser_command',
 }

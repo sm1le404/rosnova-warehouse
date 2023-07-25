@@ -78,7 +78,7 @@ export class DeviceDispenser {
       );
     }
     if (command === DispenserCommand.SET_LITRES && data.length !== 5) {
-      throw new Error('Неверная команда при установке литров');
+      throw new BadRequestException('Неверная команда при установке литров');
     }
 
     let checkSum = this.currentAddressId ^ command;
@@ -108,7 +108,6 @@ export class DeviceDispenser {
     ];
 
     const buffer = Buffer.from(request);
-    console.log('command message', buffer);
 
     this.serialPort.write(buffer, (errorData) => {
       if (errorData instanceof Error) {
@@ -124,7 +123,7 @@ export class DeviceDispenser {
 
         if (callTimes === this.MAX_WAIT_TIMES) {
           clearInterval(intervalCheckCompileStatus);
-          error(new Error('Исчерпан лимит ожидания ответа колонки'));
+          error(new GoneException('Исчерпан лимит ожидания ответа колонки'));
         }
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
           clearInterval(intervalCheckCompileStatus);

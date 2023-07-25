@@ -43,11 +43,8 @@ export class DeviceTankService implements OnModuleDestroy {
       autoOpen: false,
     });
     this.serialPort.on('data', (data) => {
-      //@TODO передавать в event инфо отсюда на конкретный резервуар
-      // console.log('read result', this.readState(data));
-      // console.log('address id', this.currentAddressId);
       const result = this.readState(data);
-      if (result) {
+      if (result !== undefined) {
         this.eventEmitter.emit(
           DeviceEvents.UPDATE_TANK_STATE,
           new TankUpdateStateEvent(this.currentAddressId, result),

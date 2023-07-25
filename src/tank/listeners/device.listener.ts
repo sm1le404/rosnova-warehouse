@@ -9,7 +9,7 @@ export class DispenserListener {
   constructor(private readonly tankService: TankService) {}
 
   @OnEvent(DeviceEvents.UPDATE_TANK_STATE)
-  handleDispenserStartedEvent(event: TankUpdateStateEvent) {
-    this.tankService.updateState(event.addressId, event.payload);
+  async handleDispenserStartedEvent(event: TankUpdateStateEvent) {
+    await this.tankService.updateState(event.addressId, event.payload);
   }
 }

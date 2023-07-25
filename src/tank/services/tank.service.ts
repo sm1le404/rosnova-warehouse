@@ -22,7 +22,7 @@ export class TankService extends CommonService<Tank> {
     return this.tankRepository;
   }
 
-  async updateState(addressId: number, payload: DeviceInfoType) {
+  async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
     const tank = await this.tankRepository.findOne({ where: { addressId } });
     if (!tank) {
       return;
@@ -37,7 +37,7 @@ export class TankService extends CommonService<Tank> {
         weight: Number(payload.WEIGHT.toFixed(2)),
       };
 
-      await this.update({ where: { addressId } }, tankData);
+      await this.update({ where: { id: tank.id } }, tankData);
       await this.tankHistoryService.create({
         ...tankData,
         tank: { id: tank.id },
