@@ -4,14 +4,16 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../entities/tank.entity';
 import { DeviceInfoType } from '../../devices/types/device.info.type';
-import { CreateTankDto } from '../dto';
+import { UpdateTankDto } from '../dto';
 import { MIN_DIFF_VOLUME } from '../constants';
+import { TankHistoryService } from './tank-history.service';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
   constructor(
     @InjectRepository(Tank)
-    private tankRepository: Repository<Tank>, // private readonly tankHistoryService:
+    private tankRepository: Repository<Tank>,
+    private readonly tankHistoryService: TankHistoryService,
   ) {
     super();
   }
@@ -23,20 +25,23 @@ export class TankService extends CommonService<Tank> {
   async updateState(addressId: number, payload: DeviceInfoType) {
     const tank = await this.tankRepository.findOne({ where: { addressId } });
     if (!tank) {
-      const tankData: CreateTankDto = {
-        addressId,
-        sortIndex: 0,
-        totalVolume: payload.TOTAL_VOLUME,
-        volume: payload.VOLUME,
-        temperature: payload.TEMP,
-        density: payload.DENSITY,
-        weight: payload.WEIGHT,
-      };
-
-      await this.create({ ...tankData, tankHistory: tankData });
+      return;
     }
 
     if (Math.abs(tank.totalVolume - payload.TOTAL_VOLUME) >= MIN_DIFF_VOLUME) {
+      const tankData: UpdateTankDto = {
+        totalVolume: Number(payload.TOTAL_VOLUME.toFixed(2)),
+        volume: Number(payload.VOLUME.toFixed(2)),
+        temperature: Number(payload.TEMP.toFixed(2)),
+        density: Number(payload.DENSITY.toFixed(2)),
+        weight: Number(payload.WEIGHT.toFixed(2)),
+      };
+
+      await this.update({ where: { addressId } }, tankData);
+      await this.tankHistoryService.create({
+        ...tankData,
+        tank: { id: tank.id },
+      });
     }
   }
 }

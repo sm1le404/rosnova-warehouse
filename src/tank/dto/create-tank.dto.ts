@@ -5,6 +5,7 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { CommonId } from '../../common/types/common-id.type';
 import { TankHistory } from '../entities/tank-history.entity';
+import { Transform } from 'class-transformer';
 
 export class CreateTankDto {
   @ApiProperty({
@@ -17,9 +18,10 @@ export class CreateTankDto {
   @ApiProperty({
     required: false,
     description: 'История состояния резервуара',
-    type: () => CommonId,
+    type: () => [CommonId],
   })
-  tankHistory?: Pick<TankHistory, 'id'>;
+  @Transform(({ value }) => value.map((item) => ({ id: item.toString() })))
+  tankHistory?: Pick<TankHistory, 'id'>[];
 
   @ApiProperty({
     required: false,

@@ -6,11 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Dispenser } from '../dispenser/entities/dispenser.entity';
 import { Operation } from '../operations/entities/operation.entity';
 import { Tank } from '../tank/entities/tank.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Dispenser, Operation, Tank])],
   controllers: [DevicesContoller],
-  providers: [DeviceTankService, DeviceDispenserService],
+  providers: [DeviceTankService, DeviceDispenserService, EventEmitter2],
   exports: [DeviceTankService, DeviceDispenserService],
 })
 export class DevicesModule {}

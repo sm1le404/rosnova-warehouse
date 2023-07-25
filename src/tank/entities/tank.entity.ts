@@ -107,9 +107,6 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'История состояний резервуара',
   })
-  @ManyToOne(() => TankHistory, (tankHistory) => tankHistory.tank, {
-    cascade: true,
-    eager: true,
-  })
-  tankHistory?: TankHistory;
+  @OneToMany(() => TankHistory, (tankHistory) => tankHistory.tank)
+  tankHistory?: TankHistory[];
 }

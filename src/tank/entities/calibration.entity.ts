@@ -14,7 +14,11 @@ export class Calibration extends CommonEntity {
   @Column({ type: 'float', nullable: true, default: 0 })
   level?: number;
 
-  @ApiProperty({ required: false, description: 'Связный резервуар' })
+  @ApiProperty({
+    type: () => Tank,
+    required: false,
+    description: 'Связный резервуар',
+  })
   @ManyToOne(() => Tank, (tank) => tank.calibration, { eager: true })
   tank?: Tank;
 }
