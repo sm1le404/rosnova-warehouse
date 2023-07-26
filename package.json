@@ -47,6 +47,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.2.0",
+    "exceljs": "^4.3.0",
     "nest-winston": "^1.9.3",
     "nestjs-paginate": "^8.1.4",
     "passport": "^0.6.0",

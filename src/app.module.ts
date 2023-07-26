@@ -29,6 +29,7 @@ import { DevicesModule } from './devices/devices.module';
 import { CronModule } from './cron/cron.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cron/services/cron.service';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -107,6 +108,7 @@ import { CronService } from './cron/services/cron.service';
     DevicesModule,
     ScheduleModule.forRoot(),
     CronModule,
+    ReportModule,
   ],
   controllers: [],
   providers: [CronService],
