@@ -28,7 +28,7 @@ const AppDataSource = new DataSource({
       ? path.join('dist', '**', '*.subscriber{.ts,.js}')
       : path.join(__dirname, '**', '*.subscriber{.ts,.js}'),
   ],
-  synchronize: true,
+  synchronize: false,
   migrationsRun: true,
   logging: !!process.env.DB_LOGGING,
   migrationsTransactionMode: 'each',

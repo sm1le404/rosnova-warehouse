@@ -40,6 +40,9 @@ export class TankService extends CommonService<Tank> {
       await this.update({ where: { id: tank.id } }, tankData);
       await this.tankHistoryService.create({
         ...tankData,
+        fuel: tank.fuel,
+        fuelHolder: tank.fuelHolder,
+        refinery: tank.refinery,
         tank: { id: tank.id },
       });
     }

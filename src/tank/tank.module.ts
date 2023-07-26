@@ -8,10 +8,11 @@ import { CalibrationController } from './controllers/calibration.controller';
 import { CalibrationService } from './services/calibration.service';
 import { TankHistoryService } from './services/tank-history.service';
 import { TankHistory } from './entities/tank-history.entity';
+import { TankHistoryController } from './controllers/tank-history.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Tank, Calibration, TankHistory])],
-  controllers: [TankController, CalibrationController],
+  controllers: [TankController, CalibrationController, TankHistoryController],
   providers: [TankService, CalibrationService, TankHistoryService],
 })
 export class TankModule {}
