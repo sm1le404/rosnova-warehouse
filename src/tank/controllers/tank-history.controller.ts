@@ -22,7 +22,7 @@ import { CommonPagination } from '../../common/decorators';
 @ApiTags('Tank-history')
 @Controller('tank-history')
 @UseInterceptors(ClassSerializerInterceptor)
-//@UseGuards(JwtAuthGuard, HasRole)
+@UseGuards(JwtAuthGuard, HasRole)
 export class TankHistoryController {
   constructor(private readonly tankHistoryService: TankHistoryService) {}
 
