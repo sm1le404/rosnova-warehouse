@@ -132,6 +132,7 @@ export class Operation extends CommonEntity {
   driver: Driver;
 
   @ApiProperty({
+    type: () => Fuel,
     required: true,
     description: 'Топливо',
   })
@@ -139,6 +140,7 @@ export class Operation extends CommonEntity {
   fuel: Fuel;
 
   @ApiProperty({
+    type: () => FuelHolder,
     required: true,
     description: 'Владелец топлива',
   })
@@ -148,6 +150,7 @@ export class Operation extends CommonEntity {
   fuelHolder: FuelHolder;
 
   @ApiProperty({
+    type: () => Refinery,
     required: true,
     description: 'Завод',
   })
