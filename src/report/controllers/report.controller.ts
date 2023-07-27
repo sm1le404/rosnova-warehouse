@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ReportMx2Service } from '../services/report.mx2.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -11,7 +11,7 @@ export class ReportController {
   constructor(private readonly reportMx2Service: ReportMx2Service) {}
 
   @Get('mx2')
-  async getMx2(@Res() res: Response, @Body() payload: GetMx2Dto) {
+  async getMx2(@Res() res: Response, @Query() payload: GetMx2Dto) {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

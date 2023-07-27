@@ -48,7 +48,7 @@ export class PaginatedParams<T extends BaseEntity> implements PaginateQuery {
     this._defaultSortBy = sort;
   }
 
-  private _maxLimit: number = 1000;
+  private _maxLimit: number = 0;
 
   get maxLimit() {
     return this._maxLimit;

@@ -3,3 +3,4 @@ export * from './chunk';
 export * from './unique';
 export * from './pagination';
 export * from './number';
+export * from './format-date';
