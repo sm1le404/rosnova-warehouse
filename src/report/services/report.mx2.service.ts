@@ -61,7 +61,7 @@ export class ReportMx2Service {
       const weightDiff = item.docWeight - item.factWeight;
       let realWeight = item.docWeight;
       if (item.docWeight * 0.0065 < weightDiff) {
-        realWeight = weightDiff - item.docWeight * 0.0065;
+        realWeight = realWeight - (weightDiff - item.docWeight * 0.0065);
       }
       worksheetMain.addRow([
         `${number}`,
