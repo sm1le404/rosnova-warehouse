@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
+import { GetByShiftAndDate } from '../types';
 
 @ApiTags('Report')
 @Controller('report')
@@ -34,7 +35,10 @@ export class ReportController {
   }
 
   @Get('outcome')
-  async outcomeReport(@Res() res: Response, @Query('shiftId') shiftId: number) {
+  async outcomeReport(
+    @Res() res: Response,
+    @Query() payload: GetByShiftAndDate,
+  ) {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -43,7 +47,7 @@ export class ReportController {
       'Content-disposition',
       `attachment;filename=outcome-report-${Date.now()}.xlsx`,
     );
-    const workbook = await this.reportOutcomeService.generate(shiftId);
+    const workbook = await this.reportOutcomeService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
