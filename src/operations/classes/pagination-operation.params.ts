@@ -15,6 +15,9 @@ PaginationOperationParams.relationList = [
   'shift',
   'tank',
   'trailer',
+  'fuel',
+  'fuelHolder',
+  'refinery',
 ];
 
 PaginationOperationParams.filterableColumns = {

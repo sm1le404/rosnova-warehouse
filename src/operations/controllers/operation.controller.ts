@@ -84,7 +84,10 @@ export class OperationController {
     @Body() createOperationDto: CreateOperationDto,
     @CurrentUser() user: ICurrentUser,
   ): Promise<Operation> {
-    const response = await this.operationService.create(createOperationDto);
+    const response = await this.operationService.create({
+      ...createOperationDto,
+      shift: user.lastShift,
+    });
 
     await this.eventService.create({
       collection: EventCollectionType.OPERATION,
