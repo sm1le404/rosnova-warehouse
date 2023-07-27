@@ -6,10 +6,15 @@ import { Request } from 'express';
 import { TokenPayload } from '../interface';
 import { UserService } from '../../user/services/user.service';
 import auth from '../constants';
+import { ShiftService } from '../../shift/services/shift.service';
+import { ICurrentUser } from '../interface/current-user.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly userService: UserService) {
+  constructor(
+    protected readonly userService: UserService,
+    protected readonly shiftService: ShiftService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
@@ -21,10 +26,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    return this.userService.findOne({
+    const user = await this.userService.findOne({
       where: {
         id: payload.id,
       },
     });
+
+    const lastshift = await this.shiftService.getLastShift(user.id);
+    (user as ICurrentUser).lastShift = lastshift;
+
+    return user;
   }
 }
