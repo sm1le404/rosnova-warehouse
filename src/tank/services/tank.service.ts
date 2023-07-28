@@ -30,11 +30,11 @@ export class TankService extends CommonService<Tank> {
 
     if (Math.abs(tank.totalVolume - payload.TOTAL_VOLUME) >= MIN_DIFF_VOLUME) {
       const tankData: UpdateTankDto = {
-        totalVolume: Number(payload.TOTAL_VOLUME.toFixed(2)),
-        volume: Number(payload.VOLUME.toFixed(2)),
-        temperature: Number(payload.TEMP.toFixed(2)),
-        density: Number(payload.DENSITY.toFixed(2)),
-        weight: Number(payload.WEIGHT.toFixed(2)),
+        totalVolume: Number(payload.TOTAL_VOLUME.toFixed(4)),
+        volume: Number(payload.VOLUME.toFixed(4)),
+        temperature: Number(payload.TEMP.toFixed(4)),
+        density: Number(payload.DENSITY.toFixed(4)),
+        weight: Number(payload.WEIGHT.toFixed(4)),
       };
 
       await this.update({ where: { id: tank.id } }, tankData);
