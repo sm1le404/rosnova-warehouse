@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  GoneException,
   Inject,
   Injectable,
   LoggerService,
@@ -10,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { IDispenserCommand } from '../interfaces/dispenser.command.interface';
 import { DeviceDispenser } from '../classes/device.dispenser';
-import { DispenserCommand } from '../enums/dispenser.enum';
+import { DispenserCommand, DispenserStatusEnum } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { Repository } from 'typeorm';
@@ -41,6 +42,78 @@ export class DeviceDispenserService implements OnModuleDestroy {
       parity: 'even',
       stopBits: 2,
       autoOpen: false,
+    });
+  }
+
+  async drainFuelTest(payload: DispenserGetFuelDto) {
+    const operation = await this.operationRepository.findOneOrFail({
+      where: {
+        id: payload.operationId,
+        status: OperationStatus.CREATED,
+        type: OperationType.OUTCOME,
+      },
+      relations: {
+        dispenser: true,
+        tank: true,
+      },
+    });
+    if (!operation?.dispenser?.addressId) {
+      throw new BadRequestException(`На колонке не установлен адрес`);
+    }
+
+    await this.dispenserRepository.update(
+      {
+        id: operation.dispenser.id,
+      },
+      { isBlocked: true },
+    );
+    await this.tankRepository.update(
+      {
+        id: operation.tank.id,
+      },
+      { isBlocked: true },
+    );
+
+    let counter = 0;
+    return new Promise((resolve) => {
+      let intervalCheckCompileStatus = setInterval(async () => {
+        counter++;
+
+        await this.operationRepository.update(
+          {
+            id: operation.id,
+          },
+          {
+            status: OperationStatus.PROGRESS,
+            factVolume: counter,
+            factWeight: counter * operation.tank.density,
+          },
+        );
+        if (counter === payload.litres) {
+          await this.operationRepository.update(
+            {
+              id: operation.id,
+            },
+            {
+              status: OperationStatus.FINISHED,
+            },
+          );
+          await this.dispenserRepository.update(
+            {
+              id: operation.dispenser.id,
+            },
+            { isBlocked: false },
+          );
+          await this.tankRepository.update(
+            {
+              id: operation.tank.id,
+            },
+            { isBlocked: false },
+          );
+          clearInterval(intervalCheckCompileStatus);
+          resolve('');
+        }
+      }, 1000);
     });
   }
 
@@ -90,79 +163,62 @@ export class DeviceDispenserService implements OnModuleDestroy {
       addressId: addressId,
     });
 
-    const interval = setInterval(async () => {
-      const status = await this.callCommand({
-        command: DispenserCommand.STATUS,
-        addressId: addressId,
-      });
-      //Запись реально залитого количества
-      const responseStatus: any = await this.callCommand({
-        command: DispenserCommand.GET_CURRENT_FULL_STATUS,
-        addressId: addressId,
-      });
-      const litresPacket = responseStatus
-        .slice(2, 11)
-        .filter((e, index) => index % 2 == 0);
-      const countLitres = parseInt(litresPacket.toString('utf8'));
-      await this.operationRepository.update(
-        {
-          id: operation.id,
-        },
-        {
-          status: OperationStatus.PROGRESS,
-          factVolume: countLitres,
-        },
-      );
-      //Фактически операция завершилась
-      if (status[2] == 0x34 && status[4] == 0x30) {
-        await this.callCommand({
-          command: DispenserCommand.ASK_LITRES,
+    return new Promise((resolve) => {
+      let intervalCheckCompileStatus = setInterval(async () => {
+        const status = await this.callCommand({
+          command: DispenserCommand.STATUS,
           addressId: addressId,
         });
+        //Запись реально залитого количества
+        const responseStatus: any = await this.callCommand({
+          command: DispenserCommand.GET_CURRENT_FULL_STATUS,
+          addressId: addressId,
+        });
+        const litresPacket = responseStatus
+          .slice(2, 11)
+          .filter((e, index) => index % 2 == 0);
+        const countLitres = parseInt(litresPacket.toString('utf8'));
         await this.operationRepository.update(
           {
             id: operation.id,
           },
           {
-            status: OperationStatus.FINISHED,
+            status: OperationStatus.PROGRESS,
+            factVolume: countLitres,
+            factWeight: countLitres * operation.tank.density,
           },
         );
-        await this.dispenserRepository.update(
-          {
-            id: operation.dispenser.id,
-          },
-          { isBlocked: false },
-        );
-        await this.tankRepository.update(
-          {
-            id: operation.tank.id,
-          },
-          { isBlocked: false },
-        );
-        clearInterval(interval);
-      } else if (status[2] == 0x31) {
-        await this.operationRepository.update(
-          {
-            id: operation.id,
-          },
-          {
-            status: OperationStatus.INTERRUPTED,
-          },
-        );
-        await this.dispenserRepository.update(
-          {
-            id: operation.dispenser.id,
-          },
-          { isBlocked: false },
-        );
-        await this.tankRepository.update(
-          {
-            id: operation.tank.id,
-          },
-          { isBlocked: false },
-        );
-      }
-    }, 1000);
+        //Фактически операция завершилась
+        if (status[2] == 0x34 && status[4] == 0x30) {
+          await this.callCommand({
+            command: DispenserCommand.ASK_LITRES,
+            addressId: addressId,
+          });
+          await this.operationRepository.update(
+            {
+              id: operation.id,
+            },
+            {
+              status: OperationStatus.FINISHED,
+            },
+          );
+          await this.dispenserRepository.update(
+            {
+              id: operation.dispenser.id,
+            },
+            { isBlocked: false },
+          );
+          await this.tankRepository.update(
+            {
+              id: operation.tank.id,
+            },
+            { isBlocked: false },
+          );
+          clearInterval(intervalCheckCompileStatus);
+          resolve('');
+        }
+      }, 1000);
+    });
   }
 
   async callCommand(payload: IDispenserCommand) {

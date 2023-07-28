@@ -87,4 +87,22 @@ export class DevicesContoller {
     });
     return this.deviceDispenserService.drainFuel(payload);
   }
+
+  @UseGuards(JwtAuthGuard, HasRole)
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
+  @Post('dispenser/drain/test')
+  async checkDispenserCommandTest(
+    @Body() payload: DispenserGetFuelDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    await this.eventService.create({
+      collection: EventCollectionType.DRAIN_FUEL,
+      type: EventType.DEFAULT,
+      dataBefore: '',
+      dataAfter: JSON.stringify(payload),
+      name: `Вызов команды на слив топлива`,
+      shift: user.lastShift,
+    });
+    return this.deviceDispenserService.drainFuelTest(payload);
+  }
 }
