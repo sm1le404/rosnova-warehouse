@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ReportMx2Service } from '../services/report.mx2.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -9,7 +9,7 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
-import { GetByShiftAndDate } from '../types';
+import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 
 @ApiTags('Report')
 @Controller('report')
@@ -37,7 +37,7 @@ export class ReportController {
   @Get('outcome')
   async outcomeReport(
     @Res() res: Response,
-    @Query() payload: GetByShiftAndDate,
+    @Query() payload: GetOutcomeReportDto,
   ) {
     res.setHeader(
       'Content-Type',
