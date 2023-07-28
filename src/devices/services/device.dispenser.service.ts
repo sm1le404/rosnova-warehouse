@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  GoneException,
   Inject,
   Injectable,
   LoggerService,
@@ -11,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { IDispenserCommand } from '../interfaces/dispenser.command.interface';
 import { DeviceDispenser } from '../classes/device.dispenser';
-import { DispenserCommand, DispenserStatusEnum } from '../enums/dispenser.enum';
+import { DispenserCommand } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { Repository } from 'typeorm';
