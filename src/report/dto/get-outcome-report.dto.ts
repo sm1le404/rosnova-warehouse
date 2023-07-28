@@ -8,8 +8,14 @@ export class GetOutcomeReportDto {
   shiftId: number;
 
   @ApiProperty({
-    required: true,
-    description: 'Фильтрация по дате (год, месяц, день)',
+    required: false,
+    description: 'Фильтрация по дате в формате timestamp (s)',
   })
-  date: string;
+  dateStart?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Фильтрация по дате в формате timestamp (s)',
+  })
+  dateEnd?: number;
 }
