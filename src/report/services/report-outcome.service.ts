@@ -5,7 +5,7 @@ import { Operation } from '../../operations/entities/operation.entity';
 import { Between, Repository } from 'typeorm';
 import { OperationType } from '../../operations/enums';
 import path from 'path';
-import { GetByShiftAndDate } from '../types';
+import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 import {
   dateFormatter,
   findDispenserIndices,
@@ -23,7 +23,7 @@ export class ReportOutcomeService {
   async generate({
     shiftId,
     date,
-  }: GetByShiftAndDate): Promise<ExcelJS.Workbook> {
+  }: GetOutcomeReportDto): Promise<ExcelJS.Workbook> {
     const rangeTime = getTimestampRange(date);
     const formattedDate = dateFormatter(new Date(date));
 
