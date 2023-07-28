@@ -2,14 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
 import { Operation } from '../../operations/entities/operation.entity';
-import { Between, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { OperationType } from '../../operations/enums';
 import path from 'path';
 import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 import {
   dateFormatter,
   findDispenserIndices,
-  getTimestampRange,
   outcomeReportMapper,
 } from '../utils';
 
@@ -22,17 +27,26 @@ export class ReportOutcomeService {
 
   async generate({
     shiftId,
-    date,
+    dateStart,
+    dateEnd,
   }: GetOutcomeReportDto): Promise<ExcelJS.Workbook> {
-    const rangeTime = getTimestampRange(date);
-    const formattedDate = dateFormatter(new Date(date));
+    const formattedDate = dateFormatter(dateStart, dateEnd);
+
+    const filter: FindOptionsWhere<Operation> = {
+      type: OperationType.OUTCOME,
+      shift: { id: shiftId },
+    };
+
+    if (dateStart && dateEnd) {
+      filter.startedAt = Between(dateStart, dateEnd);
+    } else if (dateStart) {
+      filter.startedAt = MoreThanOrEqual(dateStart);
+    } else if (dateEnd) {
+      filter.startedAt = LessThanOrEqual(dateEnd);
+    }
 
     const operations = await this.operationRepository.find({
-      where: {
-        type: OperationType.OUTCOME,
-        shift: { id: shiftId },
-        createdAt: Between(rangeTime.start, rangeTime.end),
-      },
+      where: filter,
       order: {
         dispenser: {
           id: 'ASC',
@@ -55,7 +69,7 @@ export class ReportOutcomeService {
 
     reportRows.unshift([
       formattedDate,
-      operations[0].dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
+      operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
     ]);
 
     const workbook = new ExcelJS.Workbook();
