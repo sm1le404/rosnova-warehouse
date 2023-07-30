@@ -1,5 +1,6 @@
 import { dateFormatter, timeFormatter } from './date-formatter.util';
 import { Operation } from '../../operations/entities/operation.entity';
+import { IVehicleTank } from '../../vehicle/types';
 
 const orderOfColumns = [
   'createdAt',
@@ -16,7 +17,7 @@ const orderOfColumns = [
   'factWeight',
   'factVolume',
   'factVolume',
-  'factWeight',
+  'vehicleState.weight',
   'tank.sortIndex',
 ];
 
@@ -32,6 +33,45 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
       }
       if (key.includes('fuel.name')) {
         return operation.fuel ? operation.fuel.name : '';
+      }
+      if (key.includes('vehicleState.density')) {
+        const vehicleState =
+          operation.vehicleState ?? JSON.parse(operation.vehicleState);
+        if (vehicleState) {
+          /* eslint-disable no-param-reassign */
+          return vehicleState.reduce(
+            (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
+            0,
+          );
+          /*eslint-disable-line no-param-reassign*/
+        }
+        return '';
+      }
+      if (key.includes('vehicleState.temperature')) {
+        const vehicleState =
+          operation.vehicleState ?? JSON.parse(operation.vehicleState);
+        if (vehicleState) {
+          /*eslint-disable-line no-param-reassign*/
+          return vehicleState.reduce(
+            (acc: number, item: IVehicleTank) => (acc += item.temperature ?? 0),
+            0,
+          );
+          /* eslint-disable no-param-reassign */
+        }
+        return '';
+      }
+      if (key.includes('vehicleState.weight')) {
+        const vehicleState =
+          operation.vehicleState ?? JSON.parse(operation.vehicleState);
+        if (vehicleState) {
+          /*eslint-disable-line no-param-reassign*/
+          return vehicleState.reduce(
+            (acc: number, item: IVehicleTank) => (acc += item.weight ?? 0),
+            0,
+          );
+          /* eslint-disable no-param-reassign */
+        }
+        return '';
       }
       if (key.includes('tank.sortIndex')) {
         return operation.tank ? operation.tank.sortIndex : '';

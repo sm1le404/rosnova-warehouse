@@ -5,7 +5,7 @@ import { Operation } from '../entities/operation.entity';
 
 export class ResponseOperationDto extends PaginatedResponse<Operation> {
   @ApiProperty({
-    type: () => [Operation],
+    type: () => Operation,
     isArray: true,
     description: 'Операция',
   })
