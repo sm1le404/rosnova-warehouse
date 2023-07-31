@@ -10,6 +10,7 @@ import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
 import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
+import { ReportFilteredService } from '../services/report-filtered.service';
 
 @ApiTags('Report')
 @Controller('report')
@@ -19,6 +20,7 @@ export class ReportController {
   constructor(
     private readonly reportMx2Service: ReportMx2Service,
     private readonly reportOutcomeService: ReportOutcomeService,
+    private readonly reportMonthService: ReportFilteredService,
   ) {}
 
   @Get('mx2')
@@ -48,6 +50,25 @@ export class ReportController {
       `attachment;filename=outcome-report-${Date.now()}.xlsx`,
     );
     const workbook = await this.reportOutcomeService.generate(payload);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @Get('month')
+  async monthReport(
+    @Res() res: Response,
+    @Query() payload: GetOutcomeReportDto,
+  ) {
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-disposition',
+      `attachment;filename=month-report-${Date.now()}.xlsx`,
+    );
+    const workbook = await this.reportMonthService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
