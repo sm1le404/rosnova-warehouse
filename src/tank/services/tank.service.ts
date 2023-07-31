@@ -37,7 +37,10 @@ export class TankService extends CommonService<Tank> {
         weight: Number(payload.WEIGHT.toFixed(4)),
       };
 
-      await this.update({ where: { id: tank.id } }, tankData);
+      await this.update(
+        { where: { id: tank.id } },
+        { ...tankData, isBlocked: true },
+      );
       await this.tankHistoryService.create({
         ...tankData,
         fuel: tank.fuel,
@@ -45,6 +48,8 @@ export class TankService extends CommonService<Tank> {
         refinery: tank.refinery,
         tank: { id: tank.id },
       });
+    } else {
+      await this.update({ where: { id: tank.id } }, { isBlocked: false });
     }
   }
 }

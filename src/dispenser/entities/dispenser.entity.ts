@@ -24,7 +24,11 @@ export class Dispenser extends CommonEntity {
 
   @ApiProperty({ required: true, description: 'Адрес на COM порте' })
   @Column({ type: 'int', nullable: true })
-  addressId: number;
+  addressId?: number;
+
+  @ApiProperty({ required: false, description: 'Ошибка на устройстве' })
+  @Column({ type: 'varchar', nullable: true })
+  error?: string;
 
   @OneToMany(() => Operation, (operation) => operation.dispenser)
   operation: Operation[];

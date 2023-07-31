@@ -17,6 +17,9 @@ import { DeviceInfoType } from '../types/device.info.type';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DeviceEvents } from '../enums/device-events.enum';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Tank } from '../../tank/entities/tank.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -33,6 +36,8 @@ export class DeviceTankService implements OnModuleDestroy {
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
     private eventEmitter: EventEmitter2,
+    @InjectRepository(Tank)
+    private readonly tankRepository: Repository<Tank>,
   ) {
     this.serialPort = new SerialPort({
       path: this.configService.get('TANK_PORT') ?? 'COM1',
@@ -54,6 +59,7 @@ export class DeviceTankService implements OnModuleDestroy {
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
         this.logger.error(data);
+        this.blockTanks(data);
       }
     });
   }
@@ -142,6 +148,9 @@ export class DeviceTankService implements OnModuleDestroy {
     this.serialPort.write(buffData, (data) => {
       if (data instanceof Error) {
         this.logger.error(data);
+        this.blockTanks(data);
+      } else {
+        this.unblockTanks();
       }
     });
   }
@@ -151,6 +160,9 @@ export class DeviceTankService implements OnModuleDestroy {
       this.serialPort.open((data) => {
         if (data instanceof Error) {
           this.logger.error(data);
+          this.blockTanks(data);
+        } else {
+          this.unblockTanks();
         }
       });
     }
@@ -159,6 +171,28 @@ export class DeviceTankService implements OnModuleDestroy {
   onModuleDestroy(): any {
     if (this.serialPort.isOpen) {
       this.serialPort.close();
+      this.blockTanks();
     }
+  }
+
+  private blockTanks(error: Error | null = null) {
+    this.tankRepository.update(
+      {
+        isBlocked: false,
+      },
+      {
+        isBlocked: true,
+        error: error?.message ? error.message : `Закрыт доступ к COM порту`,
+      },
+    );
+  }
+
+  private unblockTanks() {
+    this.tankRepository.update(
+      {
+        isBlocked: true,
+      },
+      { isBlocked: false, error: null },
+    );
   }
 }

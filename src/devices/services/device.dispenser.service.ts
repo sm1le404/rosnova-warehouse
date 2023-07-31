@@ -13,7 +13,7 @@ import { DeviceDispenser } from '../classes/device.dispenser';
 import { DispenserCommand } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
@@ -234,6 +234,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       this.serialPort.open((data) => {
         if (data instanceof Error) {
           this.logger.error(data);
+          this.blockDispenser(data);
+        } else {
+          this.unblockDispenser();
         }
       });
     }
@@ -242,6 +245,23 @@ export class DeviceDispenserService implements OnModuleDestroy {
   onModuleDestroy(): any {
     if (this.serialPort.isOpen) {
       this.serialPort.close();
+      this.blockDispenser();
     }
+  }
+
+  private blockDispenser(
+    error: Error | null = null,
+    filter: FindOptionsWhere<Dispenser> = { isBlocked: false },
+  ) {
+    this.dispenserRepository.update(filter, {
+      isBlocked: true,
+      error: error?.message ? error.message : `Закрыт доступ к COM порту`,
+    });
+  }
+
+  private unblockDispenser(
+    filter: FindOptionsWhere<Dispenser> = { isBlocked: true },
+  ) {
+    this.dispenserRepository.update(filter, { isBlocked: false, error: null });
   }
 }
