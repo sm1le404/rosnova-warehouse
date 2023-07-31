@@ -29,7 +29,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     protected readonly logger: LoggerService,
     @InjectRepository(Dispenser)
     private readonly dispenserRepository: Repository<Dispenser>,
-    @InjectRepository(Dispenser)
+    @InjectRepository(Operation)
     private readonly operationRepository: Repository<Operation>,
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
@@ -56,6 +56,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         tank: true,
       },
     });
+
     if (!operation?.dispenser?.addressId) {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
