@@ -69,7 +69,7 @@ export class ReportMx2Service {
         `${item.fuelHolder.shortName}`,
         `${item.fuel.name} ${item.refinery.shortName}`,
         `т`,
-        `${realWeight}`,
+        `${realWeight.toFixed(2)}`,
         ``,
         ``,
         `Склад ГСМ ООО "Регион Трейд"`,
