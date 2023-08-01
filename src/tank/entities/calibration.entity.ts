@@ -19,6 +19,6 @@ export class Calibration extends CommonEntity {
     required: false,
     description: 'Связный резервуар',
   })
-  @ManyToOne(() => Tank, (tank) => tank.calibration, { eager: true })
+  @ManyToOne(() => Tank, (tank) => tank.calibration)
   tank?: Tank;
 }

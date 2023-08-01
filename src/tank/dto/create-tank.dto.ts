@@ -6,6 +6,7 @@ import { Refinery } from '../../refinery/entities/refinery.entity';
 import { CommonId } from '../../common/types/common-id.type';
 import { TankHistory } from '../entities/tank-history.entity';
 import { Transform } from 'class-transformer';
+import { Calibration } from '../entities/calibration.entity';
 
 export class CreateTankDto {
   @ApiProperty({
@@ -18,10 +19,20 @@ export class CreateTankDto {
   @ApiProperty({
     required: false,
     description: 'История состояния резервуара',
-    type: () => [CommonId],
+    isArray: true,
+    type: () => CommonId,
   })
   @Transform(({ value }) => value.map((item) => ({ id: item.toString() })))
   tankHistory?: Pick<TankHistory, 'id'>[];
+
+  @ApiProperty({
+    required: false,
+    description: 'Калибровочная таблица',
+    isArray: true,
+    type: () => CommonId,
+  })
+  @Transform(({ value }) => value.map((item) => ({ id: item.toString() })))
+  calibration?: Pick<Calibration, 'id'>[];
 
   @ApiProperty({
     required: false,
@@ -62,12 +73,6 @@ export class CreateTankDto {
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
-
-  @ApiProperty({ required: false, description: 'Калибр по таблице' })
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  calibrationTable?: number;
 
   @ApiProperty({
     required: false,

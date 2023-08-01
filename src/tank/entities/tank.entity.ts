@@ -103,7 +103,9 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'Связный калибр',
   })
-  @OneToMany(() => Calibration, (calibration) => calibration.tank)
+  @OneToMany(() => Calibration, (calibration) => calibration.tank, {
+    eager: true,
+  })
   calibration?: Calibration[];
 
   @ApiProperty({
@@ -111,6 +113,8 @@ export class Tank extends CommonEntity {
     required: false,
     description: 'История состояний резервуара',
   })
-  @OneToMany(() => TankHistory, (tankHistory) => tankHistory.tank)
+  @OneToMany(() => TankHistory, (tankHistory) => tankHistory.tank, {
+    eager: true,
+  })
   tankHistory?: TankHistory[];
 }
