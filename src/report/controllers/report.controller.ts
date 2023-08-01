@@ -11,6 +11,7 @@ import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
 import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 import { ReportFilteredService } from '../services/report-filtered.service';
+import { GetMonthReportDto } from '../dto/get-month-report.dto';
 
 @ApiTags('Report')
 @Controller('report')
@@ -56,10 +57,7 @@ export class ReportController {
   }
 
   @Get('month')
-  async monthReport(
-    @Res() res: Response,
-    @Query() payload: GetOutcomeReportDto,
-  ) {
+  async monthReport(@Res() res: Response, @Query() payload: GetMonthReportDto) {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

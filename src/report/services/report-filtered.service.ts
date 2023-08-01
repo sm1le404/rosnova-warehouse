@@ -28,8 +28,11 @@ export class ReportFilteredService {
   }: GetMonthReportDto): Promise<ExcelJS.Workbook> {
     const filter: FindOptionsWhere<Operation> = {
       type: OperationType.OUTCOME,
-      shift: { id: shiftId },
     };
+
+    if (shiftId) {
+      filter.shift = { id: shiftId };
+    }
 
     if (dateStart && dateEnd) {
       filter.startedAt = Between(dateStart, dateEnd);

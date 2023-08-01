@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GetMonthReportDto {
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Фильтрация по смене',
   })
-  shiftId: number;
+  shiftId?: number;
 
   @ApiProperty({
     required: false,
