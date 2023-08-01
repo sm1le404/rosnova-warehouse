@@ -7,10 +7,11 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { HasRole } from '../../auth/guard/has-role.guard';
@@ -33,8 +34,17 @@ export class CalibrationController {
     summary: 'Get calibration list',
   })
   @ApiResponse({ type: () => Calibration, isArray: true })
-  async findAll(): Promise<Calibration[]> {
-    return this.calibrationService.find({});
+  async findAll(@Query('filter.tank') tankId: number): Promise<Calibration[]> {
+    return this.calibrationService.find({
+      where: {
+        tank: {
+          id: tankId,
+        },
+      },
+      relations: {
+        tank: true,
+      },
+    });
   }
 
   @Get(':id')
@@ -53,13 +63,16 @@ export class CalibrationController {
 
   @Post()
   @ApiOperation({
-    summary: 'Add calibration',
+    summary: 'Add calibrations',
   })
-  @ApiResponse({ type: () => Calibration })
+  @ApiResponse({ type: () => Calibration, isArray: true })
+  @ApiBody({ type: CreateCalibrationDto, isArray: true })
   async create(
-    @Body() createCalibrationDto: CreateCalibrationDto,
-  ): Promise<Calibration> {
-    return this.calibrationService.create(createCalibrationDto);
+    @Body() createCalibrationDto: CreateCalibrationDto[],
+  ): Promise<Calibration[]> {
+    return Promise.all(
+      createCalibrationDto.map((item) => this.calibrationService.create(item)),
+    );
   }
 
   @Put(':id')
@@ -88,5 +101,16 @@ export class CalibrationController {
   @ApiResponse({ type: () => Calibration })
   async delete(@Param('id') id: number): Promise<Calibration> {
     return this.calibrationService.delete({ where: { id } });
+  }
+
+  @Delete()
+  @ApiOperation({
+    summary: 'Delete calibration by tank id',
+  })
+  @ApiResponse({ type: () => Calibration, isArray: true })
+  async deleteByTankId(
+    @Query('filter.tank') id: number,
+  ): Promise<Calibration[]> {
+    return this.calibrationService.deleteMany({ where: { tank: { id } } });
   }
 }
