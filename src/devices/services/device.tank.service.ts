@@ -145,13 +145,12 @@ export class DeviceTankService implements OnModuleDestroy {
     });
     tankList.forEach((tank) => {
       if (tank.addressId) {
-        console.log('start read tank', tank);
-        this.readCommand(tank.addressId.toString(16));
+        this.readCommand(tank.addressId);
       }
     });
   }
 
-  async readCommand(addressId: any) {
+  async readCommand(addressId: number) {
     const packet = [
       addressId,
       TankHelperParams.DATA_LENGTH,
@@ -160,13 +159,15 @@ export class DeviceTankService implements OnModuleDestroy {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
+    console.log('read command', buffData);
     this.serialPort.write(buffData, (data) => {
-      if (data instanceof Error) {
-        this.logger.error(data);
-        this.blockTanks(data);
-      } else {
-        this.unblockTanks();
-      }
+      console.error('write error', data);
+      // if (data instanceof Error) {
+      //   //this.logger.error(data);
+      //   //this.blockTanks(data);
+      // } else {
+      //   //this.unblockTanks();
+      // }
     });
   }
 
