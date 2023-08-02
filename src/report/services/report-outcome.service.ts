@@ -71,7 +71,7 @@ export class ReportOutcomeService {
     }
 
     reportRows.unshift([
-      formattedDate,
+      '',
       operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
     ]);
 
