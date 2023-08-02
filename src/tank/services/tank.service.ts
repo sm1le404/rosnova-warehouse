@@ -35,6 +35,7 @@ export class TankService extends CommonService<Tank> {
         temperature: Number(payload.TEMP.toFixed(4)),
         density: Number(payload.DENSITY.toFixed(4)),
         weight: Number(payload.WEIGHT.toFixed(4)),
+        level: Number(payload.LAYER_LIQUID.toFixed(4)),
       };
 
       await this.update(
