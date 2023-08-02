@@ -143,9 +143,12 @@ export class DeviceTankService implements OnModuleDestroy {
         addressId: Not(IsNull()),
       },
     });
-    for (const tank of tankList) {
-      await this.readCommand(tank.addressId);
-    }
+    tankList.forEach((tank) => {
+      if (tank.addressId) {
+        console.log('start read tank', tank);
+        this.readCommand(tank.addressId);
+      }
+    });
   }
 
   async readCommand(addressId: number) {
