@@ -59,7 +59,6 @@ export class CreateTankDto {
   @Min(0)
   addressId?: number;
 
-  @ApiProperty({ required: true, description: 'Общий объём' })
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -84,30 +83,25 @@ export class CreateTankDto {
   @IsOptional()
   deathBalance?: number;
 
-  @ApiProperty({ required: false, description: 'Температура', default: 0 })
   @IsNumber()
   @IsOptional()
   temperature?: number;
 
-  @ApiProperty({ required: false, description: 'Объём', default: 0 })
   @IsNumber()
   @Min(0)
   @IsOptional()
   volume?: number;
 
-  @ApiProperty({ required: false, description: 'Вес', default: 0 })
   @IsNumber()
   @Min(0)
   @IsOptional()
   weight?: number;
 
-  @ApiProperty({ required: false, description: 'Плотность', default: 0 })
   @IsNumber()
   @Min(0)
   @IsOptional()
   density?: number;
 
-  @ApiProperty({ required: false, description: 'Уровень', default: 0 })
   @IsNumber()
   @Min(0)
   @IsOptional()
