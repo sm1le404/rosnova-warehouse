@@ -19,7 +19,7 @@ import { DeviceEvents } from '../enums/device-events.enum';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../tank/entities/tank.entity';
-import { IsNull, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -48,13 +48,17 @@ export class DeviceTankService implements OnModuleDestroy {
       autoOpen: false,
     });
     this.serialPort.on('data', (data) => {
-      const result = this.readState(data);
-      if (result.VOLUME !== 0) {
-        console.log('data', this.currentAddressId, result);
-        this.eventEmitter.emit(
-          DeviceEvents.UPDATE_TANK_STATE,
-          new TankUpdateStateEvent(this.currentAddressId, result),
-        );
+      try {
+        const result = this.readState(data);
+        if (!!result && result?.VOLUME !== 0) {
+          console.log('data', this.currentAddressId, result);
+          this.eventEmitter.emit(
+            DeviceEvents.UPDATE_TANK_STATE,
+            new TankUpdateStateEvent(this.currentAddressId, result),
+          );
+        }
+      } catch (e) {
+        this.logger.error(e);
       }
     });
     this.serialPort.on('error', (data) => {
@@ -143,11 +147,9 @@ export class DeviceTankService implements OnModuleDestroy {
         addressId: Not(IsNull()),
       },
     });
-    tankList.forEach((tank) => {
-      if (tank.addressId) {
-        this.readCommand(tank.addressId);
-      }
-    });
+    for (const tank of tankList) {
+      await this.readCommand(tank.addressId);
+    }
   }
 
   async readCommand(addressId: number) {
@@ -161,13 +163,12 @@ export class DeviceTankService implements OnModuleDestroy {
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
     console.log('read command', buffData);
     this.serialPort.write(buffData, (data) => {
-      console.error('write error', data);
-      // if (data instanceof Error) {
-      //   //this.logger.error(data);
-      //   //this.blockTanks(data);
-      // } else {
-      //   //this.unblockTanks();
-      // }
+      if (data instanceof Error) {
+        this.logger.error(data);
+        this.blockTanks(data, { addressId });
+      } else {
+        this.unblockTanks({ addressId });
+      }
     });
   }
 
@@ -191,24 +192,17 @@ export class DeviceTankService implements OnModuleDestroy {
     }
   }
 
-  private blockTanks(error: Error | null = null) {
-    this.tankRepository.update(
-      {
-        isBlocked: false,
-      },
-      {
-        isBlocked: true,
-        error: error?.message ? error.message : `Закрыт доступ к COM порту`,
-      },
-    );
+  private blockTanks(
+    error: Error | null = null,
+    filter: FindOptionsWhere<Tank> = { isBlocked: false },
+  ) {
+    this.tankRepository.update(filter, {
+      isBlocked: true,
+      error: error?.message ? error.message : `Закрыт доступ к COM порту`,
+    });
   }
 
-  private unblockTanks() {
-    this.tankRepository.update(
-      {
-        isBlocked: true,
-      },
-      { isBlocked: false, error: null },
-    );
+  private unblockTanks(filter: FindOptionsWhere<Tank> = { isBlocked: true }) {
+    this.tankRepository.update(filter, { isBlocked: false, error: null });
   }
 }
