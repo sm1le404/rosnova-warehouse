@@ -17,8 +17,13 @@ export const dateFormatter = (dateStart?: number, dateEnd?: number): string => {
     : undefined;
   const yearEnd = dateEnd ? new Date(dateEnd * 1000).getFullYear() : undefined;
 
-  if (dayStart && dayEnd) {
-    return `${dayStart}.${monthStart}.${yearStart} - ${dayEnd}.${monthEnd}.${yearEnd}`;
+  if (dateStart && dateEnd) {
+    const equalDate =
+      `${dayStart}.${monthStart}.${yearStart}` ===
+      `${dayEnd}.${monthEnd}.${yearEnd}`;
+    return equalDate
+      ? `${dayStart}.${monthStart}.${yearStart}`
+      : `${dayStart}.${monthStart}.${yearStart} - ${dayEnd}.${monthEnd}.${yearEnd}`;
   } else if (dateStart) {
     return `${dayStart}.${monthStart}.${yearStart}`;
   } else if (dateEnd) {
