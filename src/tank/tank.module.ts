@@ -20,5 +20,6 @@ import { TankListener } from './listeners/tank.listener';
     TankHistoryService,
     TankListener,
   ],
+  exports: [TankService],
 })
 export class TankModule {}

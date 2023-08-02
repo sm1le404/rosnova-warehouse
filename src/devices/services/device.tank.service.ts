@@ -20,6 +20,7 @@ import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event'
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../tank/entities/tank.entity';
 import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
+import { TankService } from '../../tank/services/tank.service';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -38,6 +39,7 @@ export class DeviceTankService implements OnModuleDestroy {
     private eventEmitter: EventEmitter2,
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
+    private readonly tankService: TankService,
   ) {
     this.serialPort = new SerialPort({
       path: this.configService.get('TANK_PORT') ?? 'COM1',
@@ -52,10 +54,11 @@ export class DeviceTankService implements OnModuleDestroy {
         const result = this.readState(data);
         if (!!result && result?.VOLUME !== 0) {
           console.log('data', this.currentAddressId, result);
-          this.eventEmitter.emit(
-            DeviceEvents.UPDATE_TANK_STATE,
-            new TankUpdateStateEvent(this.currentAddressId, result),
-          );
+          this.tankService.updateState(this.currentAddressId, result);
+          // this.eventEmitter.emit(
+          //   DeviceEvents.UPDATE_TANK_STATE,
+          //   new TankUpdateStateEvent(this.currentAddressId, result),
+          // );
         }
       } catch (e) {
         this.logger.error(e);

@@ -9,9 +9,13 @@ import { Tank } from '../tank/entities/tank.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EventService } from '../event/services/event.service';
 import { Event } from '../event/entities/event.entity';
+import { TankModule } from '../tank/tank.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Dispenser, Operation, Tank, Event])],
+  imports: [
+    TypeOrmModule.forFeature([Dispenser, Operation, Tank, Event]),
+    TankModule,
+  ],
   controllers: [DevicesContoller],
   providers: [
     DeviceTankService,
