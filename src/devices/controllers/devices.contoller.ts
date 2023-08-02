@@ -20,6 +20,9 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { EventService } from '../../event/services/event.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
+import { DeviceEvents } from '../enums/device-events.enum';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -28,6 +31,7 @@ export class DevicesContoller {
     private readonly deviceTankService: DeviceTankService,
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly eventService: EventService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   @ApiExcludeEndpoint()
@@ -47,8 +51,16 @@ export class DevicesContoller {
         '42056d49420651573f077b6f420800000034',
         'hex',
       );
-      console.log(this.deviceTankService.readState(buffTest2));
-    }, 2500);
+      const result = this.deviceTankService.readState(buffTest2);
+      console.log(result);
+      console.log(
+        this.eventEmitter.emit(
+          DeviceEvents.UPDATE_TANK_STATE,
+          new TankUpdateStateEvent(1, result),
+        ),
+      );
+      console.log(this.eventEmitter);
+    }, 1500);
   }
 
   @Post('dispenser/callCommand')
