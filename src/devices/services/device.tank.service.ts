@@ -146,12 +146,12 @@ export class DeviceTankService implements OnModuleDestroy {
     tankList.forEach((tank) => {
       if (tank.addressId) {
         console.log('start read tank', tank);
-        this.readCommand(tank.addressId);
+        this.readCommand(tank.addressId.toString(16));
       }
     });
   }
 
-  async readCommand(addressId: number) {
+  async readCommand(addressId: any) {
     const packet = [
       addressId,
       TankHelperParams.DATA_LENGTH,
