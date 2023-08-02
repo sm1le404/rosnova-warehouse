@@ -26,7 +26,6 @@ import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-r
 import { ResponseDto } from '../../common/dto';
 import { ICurrentUser } from '../interface/current-user.interface';
 import { ShiftService } from '../../shift/services/shift.service';
-import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Auth')
 @ApiExtraModels(User)
@@ -34,7 +33,6 @@ import { ConfigService } from '@nestjs/config';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
     protected readonly tokensService: TokensService,
     protected readonly shiftService: ShiftService,
   ) {}
@@ -49,17 +47,10 @@ export class AuthController {
   async login(
     @Body() body: AuthLoginRequestDto,
     @Res() response: Response,
-    @Req() request: Request,
   ): Promise<Response<ResponseDto<User>>> {
     const user: ICurrentUser = (await this.authService.login(
       body,
     )) as ICurrentUser;
-
-    const host: string =
-      request?.headers?.origin ?? request?.headers?.host ?? '';
-    const isLocalhost: boolean = host.includes(
-      `localhost:${this.configService.get('APP_PORT')}`,
-    );
 
     const access = this.tokensService.getJwtAccessToken({
       id: user.id,
@@ -80,7 +71,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'none',
-      secure: !isLocalhost,
+      secure: true,
     });
 
     response.cookie('Refresh', refresh.token, {
@@ -88,7 +79,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'none',
-      secure: !isLocalhost,
+      secure: true,
     });
 
     const { password, ...result } = user;
@@ -104,11 +95,6 @@ export class AuthController {
     summary: 'Refresh auth token',
   })
   async refresh(@Req() request: Request, @Res() response: Response) {
-    const host: string =
-      request?.headers?.origin ?? request?.headers?.host ?? '';
-    const isLocalhost: boolean = host.includes(
-      `localhost:${this.configService.get('APP_PORT')}`,
-    );
     const user: ICurrentUser | undefined = request.user as ICurrentUser;
     if (!user.id) {
       throw new BadRequestException('User not found');
@@ -133,7 +119,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'none',
-      secure: !isLocalhost,
+      secure: true,
     });
 
     response.cookie('Refresh', refresh.token, {
@@ -141,7 +127,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       sameSite: 'none',
-      secure: !isLocalhost,
+      secure: true,
     });
 
     return response.send(user);
