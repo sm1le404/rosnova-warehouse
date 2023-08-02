@@ -34,8 +34,11 @@ export class ReportOutcomeService {
 
     const filter: FindOptionsWhere<Operation> = {
       type: OperationType.OUTCOME,
-      shift: { id: shiftId },
     };
+
+    if (shiftId) {
+      filter.shift = { id: shiftId };
+    }
 
     if (dateStart && dateEnd) {
       filter.startedAt = Between(dateStart, dateEnd);
@@ -75,7 +78,13 @@ export class ReportOutcomeService {
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
     await workbook.xlsx.readFile(
-      path.join(process.cwd(), 'src/assets/outcome-dayreport-template.xlsx'),
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'assets',
+        'outcome-dayreport-template.xlsx',
+      ),
     );
     const worksheet = workbook.getWorksheet('page');
     worksheet.name = formattedDate;

@@ -64,8 +64,11 @@ export class ReportFilteredService {
     workbook.created = new Date();
     await workbook.xlsx.readFile(
       path.join(
-        process.cwd(),
-        'src/assets/filtered-month-report-template.xlsx',
+        __dirname,
+        '..',
+        '..',
+        'assets',
+        'filtered-month-report-template.xlsx',
       ),
     );
 
