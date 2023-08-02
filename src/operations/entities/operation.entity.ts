@@ -48,8 +48,8 @@ export class Operation extends CommonEntity {
   destination?: string;
 
   @ApiProperty({ required: true, description: 'Номер накладной' })
-  @Column({ type: 'text', nullable: false })
-  numberTTN: string;
+  @Column({ type: 'text', nullable: true })
+  numberTTN?: string;
 
   @ApiProperty({ description: 'Дата начала операции' })
   @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })

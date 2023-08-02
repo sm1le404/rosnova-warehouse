@@ -163,6 +163,15 @@ export class DeviceDispenserService implements OnModuleDestroy {
       addressId: addressId,
     });
 
+    await this.operationRepository.update(
+      {
+        id: operation.id,
+      },
+      {
+        startedAt: Math.floor(Date.now() / 1000),
+      },
+    );
+
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
         const status = await this.callCommand({
@@ -200,6 +209,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
             },
             {
               status: OperationStatus.FINISHED,
+              finishedAt: Math.floor(Date.now() / 1000),
             },
           );
           await this.dispenserRepository.update(

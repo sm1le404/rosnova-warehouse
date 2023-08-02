@@ -113,10 +113,10 @@ export class CreateOperationDto {
   @IsString()
   vehicleState: string;
 
-  @ApiProperty({ required: true, description: 'Номер накладной' })
-  @IsNotEmpty()
+  @ApiProperty({ required: false, description: 'Номер накладной' })
+  @IsOptional()
   @IsString()
-  numberTTN: string;
+  numberTTN?: string;
 
   startedAt?: number;
 
