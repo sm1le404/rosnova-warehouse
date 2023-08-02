@@ -5,7 +5,7 @@ import { TankService } from '../services/tank.service';
 import { TankUpdateStateEvent } from '../events/tank-update-state.event';
 
 @Injectable()
-export class DispenserListener {
+export class TankListener {
   constructor(private readonly tankService: TankService) {}
 
   @OnEvent(DeviceEvents.UPDATE_TANK_STATE)

@@ -27,7 +27,7 @@ export class TankService extends CommonService<Tank> {
     if (!tank) {
       return;
     }
-
+    console.log('update state call', payload, tank);
     if (Math.abs(tank.totalVolume - payload.TOTAL_VOLUME) >= MIN_DIFF_VOLUME) {
       const tankData: UpdateTankDto = {
         totalVolume: Number(payload.TOTAL_VOLUME.toFixed(4)),

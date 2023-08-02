@@ -19,7 +19,7 @@ import { DeviceEvents } from '../enums/device-events.enum';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../tank/entities/tank.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -49,8 +49,8 @@ export class DeviceTankService implements OnModuleDestroy {
     });
     this.serialPort.on('data', (data) => {
       const result = this.readState(data);
-      console.log('read tank result', this.currentAddressId, result);
-      if (result !== undefined) {
+      if (result.VOLUME !== 0) {
+        console.log('data', this.currentAddressId, result);
         this.eventEmitter.emit(
           DeviceEvents.UPDATE_TANK_STATE,
           new TankUpdateStateEvent(this.currentAddressId, result),
@@ -69,8 +69,6 @@ export class DeviceTankService implements OnModuleDestroy {
     let startReadPosition = 0;
     //Очищаем сообщение и сдвигаем позицию
     if (data[0] == TANK_FIRST_BYTE && data[2] > 0) {
-      console.log('data', data);
-      console.log('buffer data', Buffer.from(data));
       this.message = [];
       this.currentAddressId = data[1];
       this.messageLen = data[2];
@@ -139,9 +137,20 @@ export class DeviceTankService implements OnModuleDestroy {
     return response;
   }
 
-  async readCommand() {
+  async readTanks() {
+    const tankList = await this.tankRepository.find({
+      where: {
+        addressId: Not(IsNull()),
+      },
+    });
+    for (const tank of tankList) {
+      await this.readCommand(tank.addressId);
+    }
+  }
+
+  async readCommand(addressId: number) {
     const packet = [
-      TankHelperParams.ADDRESS_LINE,
+      addressId,
       TankHelperParams.DATA_LENGTH,
       TankHelperParams.COMMAND_READ,
       TankHelperParams.DATA,
