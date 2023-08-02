@@ -69,6 +69,8 @@ export class DeviceTankService implements OnModuleDestroy {
     let startReadPosition = 0;
     //Очищаем сообщение и сдвигаем позицию
     if (data[0] == TANK_FIRST_BYTE && data[2] > 0) {
+      console.log('data', data);
+      console.log('buffer data', Buffer.from(data));
       this.message = [];
       this.currentAddressId = data[1];
       this.messageLen = data[2];
@@ -121,16 +123,16 @@ export class DeviceTankService implements OnModuleDestroy {
           response[DeviceNames.VOLUME_PERCENT] = param.readFloatLE(0);
           break;
         case TankDeviceParams.TOTAL_VOLUME:
-          response[DeviceNames.TOTAL_VOLUME] = param.readFloatLE(0);
+          response[DeviceNames.TOTAL_VOLUME] = param.readFloatLE(0) * 1000;
           break;
         case TankDeviceParams.WEIGHT:
-          response[DeviceNames.WEIGHT] = param.readFloatLE(0);
+          response[DeviceNames.WEIGHT] = param.readFloatLE(0) * 1000;
           break;
         case TankDeviceParams.DENSITY:
           response[DeviceNames.DENSITY] = param.readFloatLE(0);
           break;
         case TankDeviceParams.VOLUME:
-          response[DeviceNames.VOLUME] = param.readFloatLE(0);
+          response[DeviceNames.VOLUME] = param.readFloatLE(0) * 1000;
           break;
       }
     }
