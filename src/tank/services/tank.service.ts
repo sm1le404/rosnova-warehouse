@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../entities/tank.entity';
 import { DeviceInfoType } from '../../devices/types/device.info.type';
-import { UpdateTankDto } from '../dto';
 import { MIN_DIFF_VOLUME } from '../constants';
 import { TankHistoryService } from './tank-history.service';
+import { DeviceTankUpdateType } from '../interfaces';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
@@ -27,7 +27,7 @@ export class TankService extends CommonService<Tank> {
     if (!tank) {
       return;
     }
-    const tankData: UpdateTankDto = {
+    const tankData: DeviceTankUpdateType = {
       volume: Number(payload.VOLUME.toFixed(4)),
       temperature: Number(payload.TEMP.toFixed(4)),
       density: Number(payload.DENSITY.toFixed(4)),
