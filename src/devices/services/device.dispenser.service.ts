@@ -153,11 +153,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
     for (let i = litres.length; i < 5; i++) {
       litres.unshift(`0`);
     }
+    console.log(`Установили литраж на колонке ${addressId}`);
     await this.callCommand({
       command: DispenserCommand.SET_LITRES,
       addressId: addressId,
       data: Buffer.from(litres.join('')),
     });
+    console.log(`INIT  на колонке ${addressId}`);
     await this.callCommand({
       command: DispenserCommand.INIT,
       addressId: addressId,
@@ -178,6 +180,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           command: DispenserCommand.STATUS,
           addressId: addressId,
         });
+        console.log(`Процесс пролива ${addressId}`, status);
         //Запись реально залитого количества
         const responseStatus: any = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_FULL_STATUS,
@@ -199,6 +202,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         );
         //Фактически операция завершилась
         if (status[2] == 0x34 && status[4] == 0x30) {
+          console.log(`Процесс пролива завершен ${addressId}`);
           await this.callCommand({
             command: DispenserCommand.ASK_LITRES,
             addressId: addressId,

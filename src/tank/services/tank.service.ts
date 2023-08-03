@@ -27,7 +27,6 @@ export class TankService extends CommonService<Tank> {
     if (!tank) {
       return;
     }
-    console.log('update state call', payload, tank);
     const tankData: UpdateTankDto = {
       volume: Number(payload.VOLUME.toFixed(4)),
       temperature: Number(payload.TEMP.toFixed(4)),

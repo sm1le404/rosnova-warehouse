@@ -51,7 +51,6 @@ export class DeviceTankService implements OnModuleDestroy {
       try {
         const result = this.readState(data);
         if (!!result && result?.VOLUME !== 0) {
-          console.log('data', this.currentAddressId, result);
           this.eventEmitter.emit(
             DeviceEvents.UPDATE_TANK_STATE,
             new TankUpdateStateEvent(this.currentAddressId, result),
@@ -161,7 +160,6 @@ export class DeviceTankService implements OnModuleDestroy {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
-    console.log('read command', buffData);
     this.serialPort.write(buffData, (data) => {
       if (data instanceof Error) {
         this.logger.error(data);
