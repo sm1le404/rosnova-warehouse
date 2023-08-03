@@ -28,20 +28,19 @@ export class TankService extends CommonService<Tank> {
       return;
     }
     console.log('update state call', payload, tank);
-    if (Math.abs(tank.totalVolume - payload.TOTAL_VOLUME) >= MIN_DIFF_VOLUME) {
-      const tankData: UpdateTankDto = {
-        totalVolume: Number(payload.TOTAL_VOLUME.toFixed(4)),
-        volume: Number(payload.VOLUME.toFixed(4)),
-        temperature: Number(payload.TEMP.toFixed(4)),
-        density: Number(payload.DENSITY.toFixed(4)),
-        weight: Number(payload.WEIGHT.toFixed(4)),
-        level: Number(payload.LAYER_LIQUID.toFixed(4)),
-      };
+    const tankData: UpdateTankDto = {
+      volume: Number(payload.VOLUME.toFixed(4)),
+      temperature: Number(payload.TEMP.toFixed(4)),
+      density: Number(payload.DENSITY.toFixed(4)),
+      weight: Number(payload.WEIGHT.toFixed(4)),
+      level: Number(payload.LAYER_LIQUID.toFixed(4)),
+    };
 
-      await this.update(
-        { where: { id: tank.id } },
-        { ...tankData, isBlocked: true },
-      );
+    await this.update(
+      { where: { id: tank.id } },
+      { ...tankData, isBlocked: true },
+    );
+    if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
       await this.tankHistoryService.create({
         ...tankData,
         fuel: tank.fuel,
