@@ -35,7 +35,6 @@ export class DeviceDispenser {
       for (let i = 0; i < data.length; i++) {
         this.responseMessage.push(data[i]);
       }
-      console.log('dispenser response', this.responseMessage);
       if (
         this.responseMessage[0] == DispenserBytes.DEL &&
         this.responseMessage[1] == DispenserBytes.START_BYTE
