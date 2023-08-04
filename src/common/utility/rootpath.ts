@@ -1,4 +1,6 @@
 import path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 
 export const rootpath = (): string => {
   const rootPathDir = process.execPath.split(path.sep);
@@ -8,4 +10,8 @@ export const rootpath = (): string => {
     tempPath = `${path.sep}${tempPath}`;
   }
   return path.normalize(tempPath);
+};
+
+export const logInRoot = (data: string) => {
+  fs.appendFileSync(`${rootpath()}message-log.txt`, `${data + os.EOL}`);
 };

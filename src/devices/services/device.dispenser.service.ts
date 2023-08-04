@@ -18,6 +18,7 @@ import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
+import { logInRoot } from '../../common/utility/rootpath';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -176,20 +177,32 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
-        const status = await this.callCommand({
+        const status: any = await this.callCommand({
           command: DispenserCommand.STATUS,
           addressId: addressId,
         });
         console.log(`Процесс пролива ${addressId}`, status);
+        let data1: any = Buffer.from(status);
+        logInRoot(
+          `${new Date().toLocaleTimeString()} ${data1
+            .inspect()
+            .toString()} Статус колонки: ${addressId}`,
+        );
         //Запись реально залитого количества
         const responseStatus: any = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
         });
+        let data2: any = Buffer.from(responseStatus);
         const litresPacket = responseStatus
           .slice(4, 13)
           .filter((e, index) => index % 2 == 0);
         const countLitres = parseInt(litresPacket.toString());
+        logInRoot(
+          `${new Date().toLocaleTimeString()} ${data2
+            .inspect()
+            .toString()} Пролитые литры: ${countLitres}  Колонка: ${addressId}`,
+        );
         await this.operationRepository.update(
           {
             id: operation.id,
@@ -201,16 +214,18 @@ export class DeviceDispenserService implements OnModuleDestroy {
           },
         );
         //ТРК выключена . Отпуск топлива закончен
-        //или мы дошли по лимиту литров
-        if (
-          (status[2] == 0x34 && status[4] == 0x30) ||
-          countLitres >= payload.litres
-        ) {
+        if (status[2] == 0x34 && status[4] == 0x30) {
           console.log(`Процесс пролива завершен ${addressId}`);
-          await this.callCommand({
+          const approveResult: any = await this.callCommand({
             command: DispenserCommand.APPROVE_LITRES,
             addressId: addressId,
           });
+          let data3: any = Buffer.from(approveResult);
+          logInRoot(
+            `${new Date().toLocaleTimeString()} ${data3
+              .inspect()
+              .toString()} Зафиксировали результат Колонка: ${addressId}`,
+          );
           await this.operationRepository.update(
             {
               id: operation.id,
