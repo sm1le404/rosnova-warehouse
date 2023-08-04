@@ -37,18 +37,6 @@ export class DeviceDispenser {
       }
       if (
         this.responseMessage[0] == DispenserBytes.DEL &&
-        this.responseMessage[1] == DispenserBytes.START_BYTE
-      ) {
-        if (
-          this.responseMessage[this.responseMessage.length - 2] ==
-            DispenserBytes.STOP_BYTE &&
-          this.responseMessage[this.responseMessage.length - 3] ==
-            DispenserBytes.STOP_BYTE
-        ) {
-          this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
-        }
-      } else if (
-        this.responseMessage[0] == DispenserBytes.DEL &&
         this.responseMessage[1] != DispenserBytes.START_BYTE
       ) {
         this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
@@ -126,7 +114,9 @@ export class DeviceDispenser {
         }
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
           clearInterval(intervalCheckCompileStatus);
-          resolve(this.responseMessage);
+          const result = this.responseMessage;
+          this.responseMessage = [];
+          resolve(result);
         }
       }, 400);
     });
