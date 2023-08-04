@@ -116,6 +116,7 @@ export class DeviceDispenser {
           clearInterval(intervalCheckCompileStatus);
           const result = this.responseMessage;
           this.responseMessage = [];
+          this.status = DispenserStatusEnum.READY;
           resolve(result);
         }
       }, 400);
