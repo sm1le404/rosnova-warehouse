@@ -183,13 +183,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
         console.log(`Процесс пролива ${addressId}`, status);
         //Запись реально залитого количества
         const responseStatus: any = await this.callCommand({
-          command: DispenserCommand.GET_CURRENT_FULL_STATUS,
+          command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
         });
         const litresPacket = responseStatus
-          .slice(2, 11)
+          .slice(4, 13)
           .filter((e, index) => index % 2 == 0);
-        const countLitres = parseInt(litresPacket.toString('utf8'));
+        const countLitres = parseInt(litresPacket.toString());
         await this.operationRepository.update(
           {
             id: operation.id,
@@ -200,11 +200,15 @@ export class DeviceDispenserService implements OnModuleDestroy {
             factWeight: countLitres * operation.tank.density,
           },
         );
-        //Фактически операция завершилась
-        if (status[2] == 0x34 && status[4] == 0x30) {
+        //ТРК выключена . Отпуск топлива закончен
+        //или мы дошли по лимиту литров
+        if (
+          (status[2] == 0x34 && status[4] == 0x30) ||
+          countLitres >= payload.litres
+        ) {
           console.log(`Процесс пролива завершен ${addressId}`);
           await this.callCommand({
-            command: DispenserCommand.ASK_LITRES,
+            command: DispenserCommand.APPROVE_LITRES,
             addressId: addressId,
           });
           await this.operationRepository.update(
