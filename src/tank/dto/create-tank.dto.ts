@@ -82,28 +82,4 @@ export class CreateTankDto {
   @Min(0)
   @IsOptional()
   deathBalance?: number;
-
-  @IsNumber()
-  @IsOptional()
-  temperature?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  volume?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  weight?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  density?: number;
-
-  @IsNumber()
-  @Min(0)
-  @IsOptional()
-  level?: number;
 }
