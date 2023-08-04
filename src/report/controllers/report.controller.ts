@@ -77,7 +77,7 @@ export class ReportController {
   @Get('drawback')
   async drawbackReport(
     @Res() res: Response,
-    @Query() payload: GetMonthReportDto,
+    @Query('operationId') operationId: number,
   ) {
     res.setHeader(
       'Content-Type',
@@ -87,7 +87,7 @@ export class ReportController {
       'Content-disposition',
       `attachment;filename=drawback-report-${Date.now()}.xlsx`,
     );
-    const workbook = await this.reportDrawbackService.generate(payload);
+    const workbook = await this.reportDrawbackService.generate(operationId);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
