@@ -193,12 +193,12 @@ export class DeviceDispenserService implements OnModuleDestroy {
             .toString()} Статус колонки: ${addressId}`,
         );
         //Запись реально залитого количества
-        const responseStatus: any = await this.callCommand({
+        let responseStatus: any = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
         });
         let data2: any = Buffer.from(responseStatus);
-        const litresPacket = responseStatus
+        const litresPacket = Buffer.from(responseStatus)
           .slice(4, 13)
           .filter((e, index) => index % 2 == 0);
         const countLitres = parseInt(litresPacket.toString());
