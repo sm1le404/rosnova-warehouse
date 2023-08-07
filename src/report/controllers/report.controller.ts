@@ -12,6 +12,7 @@ import { RoleType } from '../../user/enums';
 import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 import { ReportFilteredService } from '../services/report-filtered.service';
 import { GetMonthReportDto } from '../dto/get-month-report.dto';
+import { ReportDrawbackService } from '../services/report-drawback.service';
 
 @ApiTags('Report')
 @Controller('report')
@@ -22,6 +23,7 @@ export class ReportController {
     private readonly reportMx2Service: ReportMx2Service,
     private readonly reportOutcomeService: ReportOutcomeService,
     private readonly reportMonthService: ReportFilteredService,
+    private readonly reportDrawbackService: ReportDrawbackService,
   ) {}
 
   @Get('mx2')
@@ -67,6 +69,25 @@ export class ReportController {
       `attachment;filename=month-report-${Date.now()}.xlsx`,
     );
     const workbook = await this.reportMonthService.generate(payload);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @Get('drawback')
+  async drawbackReport(
+    @Res() res: Response,
+    @Query('operationId') operationId: number,
+  ) {
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-disposition',
+      `attachment;filename=drawback-report-${Date.now()}.xlsx`,
+    );
+    const workbook = await this.reportDrawbackService.generate(operationId);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
