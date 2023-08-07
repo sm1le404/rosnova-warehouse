@@ -70,7 +70,10 @@ export class DeviceDispenser {
     return DeviceDispenser.instance[currentAddressId];
   }
 
-  async callCommand(command: DispenserCommand, data: Buffer = Buffer.from([])) {
+  async callCommand(
+    command: DispenserCommand,
+    data: Buffer = Buffer.from([]),
+  ): Promise<Array<any>> {
     if (!this.serialPort.isOpen) {
       throw new BadRequestException(
         `COM порт недоступен, повторите попытку позднее`,
