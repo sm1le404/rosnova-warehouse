@@ -30,6 +30,7 @@ export class CreateVehicleDto {
     isArray: true,
   })
   @Transform(({ value }) => JSON.stringify(value))
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   currentState?: string;
@@ -41,6 +42,7 @@ export class CreateVehicleDto {
     isArray: true,
   })
   @Transform(({ value }) => JSON.stringify(value))
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
   sectionVolumes?: string;
