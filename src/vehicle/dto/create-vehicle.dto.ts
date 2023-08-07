@@ -11,16 +11,19 @@ import { Transform } from 'class-transformer';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Trailer } from '../entities/trailer.entity';
 import { IVehicleTank } from '../types';
+import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateVehicleDto {
-  @ApiProperty({ type: Number, required: false, description: 'Водитель' })
+  @ApiProperty({
+    type: () => CommonId,
+    required: false,
+    description: 'Водитель',
+  })
   @IsOptional()
-  @Transform(({ value }) => (value ? { id: +value } : null))
   driver?: Pick<Driver, 'id'>;
 
-  @ApiProperty({ type: Number, required: false, description: 'Прицеп' })
+  @ApiProperty({ type: () => CommonId, required: false, description: 'Прицеп' })
   @IsOptional()
-  @Transform(({ value }) => (value ? { id: +value } : null))
   trailer?: Pick<Trailer, 'id'>;
 
   @ApiProperty({
