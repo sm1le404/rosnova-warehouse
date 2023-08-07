@@ -27,23 +27,23 @@ export class Vehicle extends CommonEntity {
   @Column({ type: 'varchar', nullable: false })
   regNumber: string;
 
-  @ApiProperty({
-    type: () => PickType(IVehicleTank, ['index', 'volume']),
-    required: false,
-    description: 'Объект, содержащий номер и состояние резервуаров',
-    isArray: true,
-  })
-  @Column({ type: 'text', nullable: true })
-  currentState?: string;
+  // @ApiProperty({
+  //   type: () => PickType(IVehicleTank, ['index', 'volume']),
+  //   required: false,
+  //   description: 'Объект, содержащий номер и состояние резервуаров',
+  //   isArray: true,
+  // })
+  // @Column({ type: 'text', nullable: true })
+  // currentState?: string;
 
-  @ApiProperty({
-    type: () => PickType(IVehicleTank, ['index', 'volume']),
-    required: false,
-    description: 'Объект, содержащий номер и калибр резервуара',
-    isArray: true,
-  })
-  @Column({ type: 'text', nullable: true })
-  sectionVolumes?: string;
+  // @ApiProperty({
+  //   type: () => PickType(IVehicleTank, ['index', 'volume']),
+  //   required: false,
+  //   description: 'Объект, содержащий номер и калибр резервуара',
+  //   isArray: true,
+  // })
+  // @Column({ type: 'text', nullable: true })
+  // sectionVolumes?: string;
 
   @ApiProperty({ required: true, description: 'Доступность' })
   @Column({ type: 'boolean', default: true })
