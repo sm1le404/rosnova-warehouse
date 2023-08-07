@@ -186,7 +186,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
           command: DispenserCommand.STATUS,
           addressId: addressId,
         });
-        console.log(`Процесс пролива ${addressId}`, status);
         let data1: any = Buffer.from(status);
         logInRoot(
           `${new Date().toLocaleTimeString()} ${data1

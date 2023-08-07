@@ -119,24 +119,25 @@ export class DeviceDispenser {
     });
 
     let callTimes = 0;
-    return new Promise((resolve, error) => {
+    return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(() => {
         callTimes++;
 
         if (callTimes === this.MAX_WAIT_TIMES) {
           clearInterval(intervalCheckCompileStatus);
           this.responseMessage = [];
-          this.status = DispenserStatusEnum.DISABLE;
-          error(new GoneException('Исчерпан лимит ожидания ответа колонки'));
+          this.status = DispenserStatusEnum.READY;
+          resolve(this.responseMessage);
+          //error(new GoneException('Исчерпан лимит ожидания ответа колонки'));
         }
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
           clearInterval(intervalCheckCompileStatus);
+          this.status = DispenserStatusEnum.READY;
           const result = this.responseMessage;
           this.responseMessage = [];
-          this.status = DispenserStatusEnum.READY;
           resolve(result);
         }
-      }, 1000);
+      }, 100);
     });
   }
 }
