@@ -146,15 +146,20 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
       { isBlocked: true },
     );
-    await this.callCommand({
+    const currentStatus = await this.callCommand({
       command: DispenserCommand.STATUS,
       addressId: addressId,
     });
+
     let litres = payload.litres.toString().split('');
     for (let i = litres.length; i < 5; i++) {
       litres.unshift(`0`);
     }
-    console.log(`Установили литраж на колонке ${addressId}`);
+    console.log(
+      `Установили литраж на колонке ${addressId}, текущий статус ${currentStatus.join(
+        ' ',
+      )}`,
+    );
     await this.callCommand({
       command: DispenserCommand.SET_LITRES,
       addressId: addressId,

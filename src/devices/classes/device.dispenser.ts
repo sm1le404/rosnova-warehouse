@@ -7,7 +7,7 @@ import {
 import { BadRequestException, GoneException } from '@nestjs/common';
 
 export class DeviceDispenser {
-  protected MAX_WAIT_TIMES = 5;
+  protected MAX_WAIT_TIMES = 30;
 
   private static instance: DeviceDispenser[] = [];
 
@@ -35,13 +35,25 @@ export class DeviceDispenser {
       for (let i = 0; i < data.length; i++) {
         this.responseMessage.push(data[i]);
       }
-      if (
-        this.responseMessage[0] == DispenserBytes.DEL &&
-        this.responseMessage[1] != DispenserBytes.START_BYTE
-      ) {
+      if (this.checkState(this.responseMessage)) {
         this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
       }
     });
+  }
+
+  private checkState(reponse: Array<any>): boolean {
+    if (
+      reponse[0] == DispenserBytes.DEL &&
+      reponse[1] == DispenserBytes.START_BYTE
+    ) {
+      return true;
+    } else if (
+      reponse[0] == DispenserBytes.DEL &&
+      (reponse[1] == DispenserBytes.ACK || reponse[1] == DispenserBytes.CAN)
+    ) {
+      return true;
+    }
+    return false;
   }
 
   static getInstance(
@@ -110,6 +122,8 @@ export class DeviceDispenser {
 
         if (callTimes === this.MAX_WAIT_TIMES) {
           clearInterval(intervalCheckCompileStatus);
+          this.responseMessage = [];
+          this.status = DispenserStatusEnum.DISABLE;
           error(new GoneException('Исчерпан лимит ожидания ответа колонки'));
         }
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
@@ -119,7 +133,7 @@ export class DeviceDispenser {
           this.status = DispenserStatusEnum.READY;
           resolve(result);
         }
-      }, 400);
+      }, 1000);
     });
   }
 }
