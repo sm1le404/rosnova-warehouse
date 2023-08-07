@@ -146,22 +146,49 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
       { isBlocked: true },
     );
+    let dataCurrent: any;
+
+    const flushStatus = await this.callCommand({
+      command: DispenserCommand.FLUSH,
+      addressId: addressId,
+    });
+
+    dataCurrent = Buffer.from(flushStatus);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Сброс состояния: ${addressId}`,
+    );
+
     const currentStatus = await this.callCommand({
       command: DispenserCommand.STATUS,
       addressId: addressId,
     });
 
-    let dataCurrent: any = Buffer.from(currentStatus);
+    dataCurrent = Buffer.from(currentStatus);
     logInRoot(
       `${new Date().toLocaleTimeString()} ${dataCurrent
         .inspect()
-        .toString()} Установили литры: ${addressId}`,
+        .toString()} Текущий статус: ${addressId}`,
     );
 
     let litres = payload.litres.toString().split('');
     for (let i = litres.length; i < 5; i++) {
       litres.unshift(`0`);
     }
+
+    const setPrice = await this.callCommand({
+      command: DispenserCommand.SET_PRICE,
+      addressId: addressId,
+      data: Buffer.from([0, 1, 0, 0]),
+    });
+
+    dataCurrent = Buffer.from(setPrice);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Установили цену: ${addressId}`,
+    );
 
     const setLitres = await this.callCommand({
       command: DispenserCommand.SET_LITRES,
