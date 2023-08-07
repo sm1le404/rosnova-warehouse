@@ -151,25 +151,42 @@ export class DeviceDispenserService implements OnModuleDestroy {
       addressId: addressId,
     });
 
+    let dataCurrent: any = Buffer.from(currentStatus);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Установили литры: ${addressId}`,
+    );
+
     let litres = payload.litres.toString().split('');
     for (let i = litres.length; i < 5; i++) {
       litres.unshift(`0`);
     }
-    console.log(
-      `Установили литраж на колонке ${addressId}, текущий статус ${currentStatus.join(
-        ' ',
-      )}`,
-    );
-    await this.callCommand({
+
+    const setLitres = await this.callCommand({
       command: DispenserCommand.SET_LITRES,
       addressId: addressId,
       data: Buffer.from(litres.join('')),
     });
-    console.log(`INIT  на колонке ${addressId}`);
-    await this.callCommand({
+
+    let dataSetLitres: any = Buffer.from(setLitres);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataSetLitres
+        .inspect()
+        .toString()} Установили литры: ${addressId}`,
+    );
+
+    const init = await this.callCommand({
       command: DispenserCommand.INIT,
       addressId: addressId,
     });
+
+    let dataInit: any = Buffer.from(init);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataInit
+        .inspect()
+        .toString()} Инициализация колонки: ${addressId}`,
+    );
 
     await this.operationRepository.update(
       {
