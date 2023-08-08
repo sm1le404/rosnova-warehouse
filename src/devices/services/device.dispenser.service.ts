@@ -215,6 +215,18 @@ export class DeviceDispenserService implements OnModuleDestroy {
         .toString()} Инициализация колонки: ${addressId}`,
     );
 
+    const startDrop = await this.callCommand({
+      command: DispenserCommand.START_DROP,
+      addressId: addressId,
+    });
+
+    let dataDrop: any = Buffer.from(startDrop);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataDrop
+        .inspect()
+        .toString()} Безусловный старт раздачи колонки: ${addressId}`,
+    );
+
     await this.operationRepository.update(
       {
         id: operation.id,

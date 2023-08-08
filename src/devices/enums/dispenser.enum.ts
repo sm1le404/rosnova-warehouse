@@ -17,6 +17,7 @@ export enum DispenserCommand {
   APPROVE_LITRES = 0x38, //	Подтверждение записи итогов отпуска
   SET_PRICE = 0x51, //	Установка цены за топливо
   SET_LITRES = 0x54, //	Установка дозы отпуска топлива в литрах
+  START_DROP = 0x56, //	Безусловный старт раздачи
 }
 
 export enum DispenserBytes {
