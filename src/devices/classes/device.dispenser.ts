@@ -137,6 +137,10 @@ export class DeviceDispenser {
           const result = this.responseMessage;
           this.responseMessage = [];
           resolve(result);
+        } else if (command == DispenserCommand.START_DROP) {
+          clearInterval(intervalCheckCompileStatus);
+          this.status = DispenserStatusEnum.READY;
+          resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
         }
       }, 100);
     });
