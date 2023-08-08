@@ -8,6 +8,8 @@ import { BadRequestException, GoneException } from '@nestjs/common';
 import { logInRoot } from '../../common/utility/rootpath';
 
 export class DeviceDispenser {
+  protected static MAX_RESPONSE_BYTES = 53;
+
   private static instance: DeviceDispenser[] = [];
 
   private serialPort: SerialPort;
@@ -55,6 +57,8 @@ export class DeviceDispenser {
       reponse[0] == DispenserBytes.DEL &&
       (reponse[1] == DispenserBytes.ACK || reponse[1] == DispenserBytes.CAN)
     ) {
+      return true;
+    } else if (reponse.length > DeviceDispenser.MAX_RESPONSE_BYTES) {
       return true;
     }
     return false;
@@ -142,7 +146,7 @@ export class DeviceDispenser {
           this.status = DispenserStatusEnum.READY;
           resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
         }
-      }, 100);
+      }, 10);
     });
   }
 }
