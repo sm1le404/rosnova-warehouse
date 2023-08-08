@@ -40,6 +40,12 @@ export class DeviceDispenser {
   }
 
   private checkState(reponse: Array<any>): boolean {
+    let dataCurrent: any = Buffer.from(reponse);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Проверка data ${reponse}`,
+    );
     if (
       reponse[0] == DispenserBytes.DEL &&
       reponse[1] == DispenserBytes.START_BYTE

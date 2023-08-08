@@ -148,17 +148,17 @@ export class DeviceDispenserService implements OnModuleDestroy {
     );
     let dataCurrent: any;
 
-    // const flushStatus = await this.callCommand({
-    //   command: DispenserCommand.FLUSH,
-    //   addressId: addressId,
-    // });
-    //
-    // dataCurrent = Buffer.from(flushStatus);
-    // logInRoot(
-    //   `${new Date().toLocaleTimeString()} ${dataCurrent
-    //     .inspect()
-    //     .toString()} Сброс состояния: ${addressId}`,
-    // );
+    const flushStatus = await this.callCommand({
+      command: DispenserCommand.FLUSH,
+      addressId: addressId,
+    });
+
+    dataCurrent = Buffer.from(flushStatus);
+    await logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Сброс состояния: ${addressId}`,
+    );
 
     const currentStatus = await this.callCommand({
       command: DispenserCommand.STATUS,
