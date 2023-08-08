@@ -5,6 +5,7 @@ import {
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
+import { logInRoot } from '../../common/utility/rootpath';
 
 export class DeviceDispenser {
   private static instance: DeviceDispenser[] = [];
@@ -114,7 +115,14 @@ export class DeviceDispenser {
         throw new GoneException(errorData);
       }
     });
-
+    let dataCurrent: any = Buffer.from(request);
+    logInRoot(
+      `${new Date().toLocaleTimeString()} ${dataCurrent
+        .inspect()
+        .toString()} Вызов команды ${command} на колонке ${
+        this.currentAddressId
+      }`,
+    );
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(() => {
         if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
