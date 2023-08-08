@@ -148,17 +148,17 @@ export class DeviceDispenserService implements OnModuleDestroy {
     );
     let dataCurrent: any;
 
-    const flushStatus = await this.callCommand({
-      command: DispenserCommand.FLUSH,
-      addressId: addressId,
-    });
-
-    dataCurrent = Buffer.from(flushStatus);
-    logInRoot(
-      `${new Date().toLocaleTimeString()} ${dataCurrent
-        .inspect()
-        .toString()} Сброс состояния: ${addressId}`,
-    );
+    // const flushStatus = await this.callCommand({
+    //   command: DispenserCommand.FLUSH,
+    //   addressId: addressId,
+    // });
+    //
+    // dataCurrent = Buffer.from(flushStatus);
+    // logInRoot(
+    //   `${new Date().toLocaleTimeString()} ${dataCurrent
+    //     .inspect()
+    //     .toString()} Сброс состояния: ${addressId}`,
+    // );
 
     const currentStatus = await this.callCommand({
       command: DispenserCommand.STATUS,
@@ -166,7 +166,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     dataCurrent = Buffer.from(currentStatus);
-    logInRoot(
+    await logInRoot(
       `${new Date().toLocaleTimeString()} ${dataCurrent
         .inspect()
         .toString()} Текущий статус: ${addressId}`,
@@ -184,7 +184,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     dataCurrent = Buffer.from(setPrice);
-    logInRoot(
+    await logInRoot(
       `${new Date().toLocaleTimeString()} ${dataCurrent
         .inspect()
         .toString()} Установили цену: ${addressId}`,
@@ -197,7 +197,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     let dataSetLitres: any = Buffer.from(setLitres);
-    logInRoot(
+    await logInRoot(
       `${new Date().toLocaleTimeString()} ${dataSetLitres
         .inspect()
         .toString()} Установили литры: ${addressId}`,
@@ -209,7 +209,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     let dataInit: any = Buffer.from(init);
-    logInRoot(
+    await logInRoot(
       `${new Date().toLocaleTimeString()} ${dataInit
         .inspect()
         .toString()} Инициализация колонки: ${addressId}`,
@@ -221,7 +221,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     let dataDrop: any = Buffer.from(startDrop);
-    logInRoot(
+    await logInRoot(
       `${new Date().toLocaleTimeString()} ${dataDrop
         .inspect()
         .toString()} Безусловный старт раздачи колонки: ${addressId}`,
@@ -238,18 +238,18 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
-        const status: any = await this.callCommand({
+        const status: Array<any> = await this.callCommand({
           command: DispenserCommand.STATUS,
           addressId: addressId,
         });
         let data1: any = Buffer.from(status);
-        logInRoot(
+        await logInRoot(
           `${new Date().toLocaleTimeString()} ${data1
             .inspect()
             .toString()} Статус колонки: ${addressId}`,
         );
         //Запись реально залитого количества
-        let responseStatus: any = await this.callCommand({
+        let responseStatus: Array<any> = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
         });
@@ -258,30 +258,32 @@ export class DeviceDispenserService implements OnModuleDestroy {
           .slice(4, 13)
           .filter((e, index) => index % 2 == 0);
         const countLitres = parseInt(litresPacket.toString());
-        logInRoot(
+        await logInRoot(
           `${new Date().toLocaleTimeString()} ${data2
             .inspect()
             .toString()} Пролитые литры: ${countLitres}  Колонка: ${addressId}`,
         );
-        await this.operationRepository.update(
-          {
-            id: operation.id,
-          },
-          {
-            status: OperationStatus.PROGRESS,
-            factVolume: countLitres,
-            factWeight: countLitres * operation.tank.density,
-          },
-        );
+        if (countLitres > 0) {
+          await this.operationRepository.update(
+            {
+              id: operation.id,
+            },
+            {
+              status: OperationStatus.PROGRESS,
+              factVolume: countLitres,
+              factWeight: countLitres * operation.tank.density,
+            },
+          );
+        }
         //ТРК выключена . Отпуск топлива закончен
         if (status[2] == 0x34 && status[4] == 0x30) {
-          console.log(`Процесс пролива завершен ${addressId}`);
+          clearInterval(intervalCheckCompileStatus);
           const approveResult: any = await this.callCommand({
             command: DispenserCommand.APPROVE_LITRES,
             addressId: addressId,
           });
           let data3: any = Buffer.from(approveResult);
-          logInRoot(
+          await logInRoot(
             `${new Date().toLocaleTimeString()} ${data3
               .inspect()
               .toString()} Зафиксировали результат Колонка: ${addressId}`,
@@ -307,7 +309,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
             },
             { isBlocked: false },
           );
-          clearInterval(intervalCheckCompileStatus);
           resolve('');
         }
       }, 1000);

@@ -12,7 +12,7 @@ export const rootpath = (): string => {
   return path.normalize(tempPath);
 };
 
-export const logInRoot = (data: string) => {
+export const logInRoot = async (data: string) => {
   console.log(`${data + os.EOL}`);
-  fs.appendFileSync(`${rootpath()}message-log.txt`, `${data + os.EOL}`);
+  await fs.appendFileSync(`${rootpath()}message-log.txt`, `${data + os.EOL}`);
 };
