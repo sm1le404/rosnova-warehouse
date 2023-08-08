@@ -13,6 +13,6 @@ export const rootpath = (): string => {
 };
 
 export const logInRoot = (data: string) => {
-  console.log(`${rootpath()}message-log.txt`);
+  console.log(`${data + os.EOL}`);
   fs.appendFileSync(`${rootpath()}message-log.txt`, `${data + os.EOL}`);
 };
