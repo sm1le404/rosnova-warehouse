@@ -24,11 +24,11 @@ import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Водитель',
     type: () => CommonId,
   })
-  driver: Pick<Driver, 'id'>;
+  driver?: Pick<Driver, 'id'>;
 
   @ApiProperty({
     required: false,
@@ -38,18 +38,18 @@ export class CreateOperationDto {
   dispenser?: Pick<Dispenser, 'id'>;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Транспорт',
     type: () => CommonId,
   })
-  vehicle: Pick<Vehicle, 'id'>;
+  vehicle?: Pick<Vehicle, 'id'>;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Прицеп',
     type: () => CommonId,
   })
-  trailer: Pick<Trailer, 'id'>;
+  trailer?: Pick<Trailer, 'id'>;
 
   @ApiProperty({
     required: true,
@@ -103,15 +103,16 @@ export class CreateOperationDto {
   status?: OperationStatus;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Объект, содержащий номер и состояние резервуара',
     type: () => IVehicleTank,
     isArray: true,
   })
   @Transform(({ value }) => JSON.stringify(value))
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
-  vehicleState: string;
+  vehicleState?: string;
 
   @ApiProperty({ required: false, description: 'Номер накладной' })
   @IsOptional()
