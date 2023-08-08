@@ -34,11 +34,11 @@ export class Operation extends CommonEntity {
   @ApiProperty({
     type: () => IVehicleTank,
     isArray: true,
-    required: true,
+    required: false,
     description: 'Состояние резервуаров ТС',
   })
-  @Column({ type: 'text', nullable: false })
-  vehicleState: string;
+  @Column({ type: 'text', nullable: true })
+  vehicleState?: string;
 
   @ApiProperty({
     required: false,
@@ -131,9 +131,9 @@ export class Operation extends CommonEntity {
   })
   dispenser: Dispenser;
 
-  @ApiProperty({ type: () => Driver, required: true, description: 'Водитель' })
+  @ApiProperty({ type: () => Driver, required: false, description: 'Водитель' })
   @ManyToOne(() => Driver, (driver) => driver.operation, { eager: true })
-  driver: Driver;
+  driver?: Driver;
 
   @ApiProperty({
     type: () => Fuel,
@@ -163,19 +163,19 @@ export class Operation extends CommonEntity {
 
   @ApiProperty({
     type: () => Trailer,
-    required: true,
+    required: false,
     description: 'Прицеп',
   })
   @ManyToOne(() => Trailer, (trailer) => trailer.operation, { eager: true })
-  trailer: Trailer;
+  trailer?: Trailer;
 
   @ApiProperty({
     type: () => Trailer,
-    required: true,
+    required: false,
     description: 'ТС',
   })
   @ManyToOne(() => Vehicle, (vehicle) => vehicle.operation, { eager: true })
-  vehicle: Vehicle;
+  vehicle?: Vehicle;
 
   @ApiProperty({ type: () => Tank, required: true, description: 'Резервуар' })
   @ManyToOne(() => Tank, (tank) => tank.operation, { eager: true })
