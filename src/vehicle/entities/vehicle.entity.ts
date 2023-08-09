@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import {
+  AfterLoad,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -69,4 +76,14 @@ export class Vehicle extends CommonEntity {
   @OneToOne(() => Trailer, { eager: true })
   @JoinColumn()
   trailer?: Trailer;
+
+  @AfterLoad()
+  afterLoad() {
+    if (this?.currentState) {
+      this.currentState = JSON.parse(this.currentState);
+    }
+    if (this?.sectionVolumes) {
+      this.sectionVolumes = JSON.parse(this.sectionVolumes);
+    }
+  }
 }
