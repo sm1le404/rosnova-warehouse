@@ -2,6 +2,7 @@ import { SerialPort } from 'serialport';
 import {
   DispenserBytes,
   DispenserCommand,
+  DispenserCommandLength,
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
@@ -17,6 +18,8 @@ export class DeviceDispenser {
   private readonly currentAddressId: number;
 
   private status: DispenserStatusEnum = DispenserStatusEnum.READY;
+
+  private lastCommand: number;
 
   private responseMessage: Array<any> = [];
 
@@ -50,7 +53,8 @@ export class DeviceDispenser {
     );
     if (
       reponse[0] == DispenserBytes.DEL &&
-      reponse[1] == DispenserBytes.START_BYTE
+      reponse[1] == DispenserBytes.START_BYTE &&
+      DispenserCommandLength[this.lastCommand].includes(reponse.length)
     ) {
       return true;
     } else if (
@@ -104,6 +108,8 @@ export class DeviceDispenser {
       checkSum += 0x40;
     }
 
+    this.lastCommand = command;
+
     let request = [
       DispenserBytes.DEL,
       DispenserBytes.START_BYTE,
@@ -146,7 +152,7 @@ export class DeviceDispenser {
           this.status = DispenserStatusEnum.READY;
           resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
         }
-      }, 10);
+      }, 200);
     });
   }
 }
