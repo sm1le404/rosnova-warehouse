@@ -59,7 +59,7 @@ export class CreateTankDto {
   @Min(0)
   addressId?: number;
 
-  @IsOptional()
+  @ApiProperty({ required: true, description: 'Общий объём' })
   @IsNumber()
   @Min(0)
   totalVolume: number;
