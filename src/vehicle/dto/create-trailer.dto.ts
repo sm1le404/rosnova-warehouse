@@ -9,18 +9,8 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { TrailerType } from '../enums';
 import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../types';
-import { Driver } from '../../driver/entities/driver.entity';
-import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateTrailerDto {
-  @ApiProperty({
-    type: () => CommonId,
-    required: false,
-    description: 'Водитель',
-  })
-  @IsOptional()
-  driver?: Pick<Driver, 'id'>;
-
   @ApiProperty({ required: true, description: 'Регистрационный номер прицепа' })
   @IsNotEmpty()
   @IsString()
