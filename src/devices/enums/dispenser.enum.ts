@@ -12,7 +12,6 @@ export enum DispenserCommand {
   FLUSH = 0x33, // Сброс ТРК
   GET_CURRENT_STATUS = 0x34, // Запрос текущих данных отпуска топлива
   GET_CURRENT_FULL_STATUS = 0x35, // Запрос полных данных отпуска топлива
-  GET_SUM = 0x36, // Запрос показаний суммарников
   GET_TYPE_TRK = 0x37, // Запрос типа ТРК
   APPROVE_LITRES = 0x38, //	Подтверждение записи итогов отпуска
   SET_PRICE = 0x51, //	Установка цены за топливо
@@ -20,9 +19,10 @@ export enum DispenserCommand {
   START_DROP = 0x56, //	Безусловный старт раздачи
 }
 
-export const DispenserCommandLength: Record<number, number> = {
-  0x31: 9,
-  0x34: 17,
+export const DispenserCommandLength: Record<number, Array<number>> = {
+  0x31: [7, 9],
+  0x34: [17],
+  0x35: [37, 39, 45],
 };
 
 export enum DispenserBytes {
