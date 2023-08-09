@@ -7,6 +7,7 @@ import { TankHistory } from '../tank/entities/tank-history.entity';
 import { ReportMx2Service } from './services/report.mx2.service';
 import { ReportFilteredService } from './services/report-filtered.service';
 import { ReportDrawbackService } from './services/report-drawback.service';
+import { ReportTopUpService } from './services/report-topup.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Operation, TankHistory])],
@@ -16,6 +17,7 @@ import { ReportDrawbackService } from './services/report-drawback.service';
     ReportMx2Service,
     ReportFilteredService,
     ReportDrawbackService,
+    ReportTopUpService,
   ],
 })
 export class ReportModule {}
