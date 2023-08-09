@@ -20,9 +20,9 @@ export enum DispenserCommand {
   START_DROP = 0x56, //	Безусловный старт раздачи
 }
 
-export const DispenserCommandLength: Record<number, Array<number>> = {
-  0x31: [9],
-  0x34: [17],
+export const DispenserCommandLength: Record<number, number> = {
+  0x31: 9,
+  0x34: 17,
 };
 
 export enum DispenserBytes {

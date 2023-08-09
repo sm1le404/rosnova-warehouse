@@ -54,7 +54,7 @@ export class DeviceDispenser {
     if (
       reponse[0] == DispenserBytes.DEL &&
       reponse[1] == DispenserBytes.START_BYTE &&
-      DispenserCommandLength[this.lastCommand].includes(reponse.length)
+      DispenserCommandLength[this.lastCommand] === reponse.length
     ) {
       return true;
     } else if (
