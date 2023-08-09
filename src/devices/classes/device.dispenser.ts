@@ -51,7 +51,9 @@ export class DeviceDispenser {
         .inspect()
         .toString()} Проверка data ${reponse}`,
     );
-    if (
+    if (reponse.length > DeviceDispenser.MAX_RESPONSE_BYTES) {
+      return true;
+    } else if (
       reponse[0] == DispenserBytes.DEL &&
       reponse[1] == DispenserBytes.START_BYTE &&
       DispenserCommandLength[this.lastCommand].includes(reponse.length)
@@ -61,8 +63,6 @@ export class DeviceDispenser {
       reponse[0] == DispenserBytes.DEL &&
       (reponse[1] == DispenserBytes.ACK || reponse[1] == DispenserBytes.CAN)
     ) {
-      return true;
-    } else if (reponse.length > DeviceDispenser.MAX_RESPONSE_BYTES) {
       return true;
     }
     return false;
@@ -149,10 +149,11 @@ export class DeviceDispenser {
           resolve(result);
         } else if (command == DispenserCommand.START_DROP) {
           clearInterval(intervalCheckCompileStatus);
+          this.responseMessage = [];
           this.status = DispenserStatusEnum.READY;
           resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
         }
-      }, 200);
+      }, 100);
     });
   }
 }
