@@ -69,9 +69,97 @@ export class ReportDrawbackService {
       worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
     });
 
+    const len = vehicleState?.length ?? 0;
+
+    // Очистка формы
+    worksheet.spliceRows(39 + len, 5 - len);
+
+    // Добавление формул
+    worksheet.getCell(`B${39 + len}`).value = {
+      formula: `SUM(B39:B${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`C${39 + len}`).value = {
+      formula: `AVERAGE(C39:C${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`D${39 + len}`).value = {
+      formula: `AVERAGE(D39:D${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`F${39 + len}`).value = {
+      formula: `SUM(F39:F${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${39 + len}`).value = {
+      formula: `F${39 + len}/C${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`H${39 + len}`).value = {
+      formula: `SUM(H39:H${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`B${39 + len}`).value = {
+      formula: `SUM(B$39:B$${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`I${39 + len}`).value = {
+      formula: `SUM(I39:I${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`J${39 + len}`).value = {
+      formula: `B${39 + len}-I${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`K${39 + len}`).value = {
+      formula: 'B34*K37/100',
+      date1904: true,
+    };
+    worksheet.getCell(`L${39 + len}`).value = {
+      formula: 'B34*L37/100',
+      date1904: true,
+    };
+    worksheet.getCell(`M${39 + len}`).value = {
+      formula: 'B34*M37/100',
+      date1904: true,
+    };
+    worksheet.getCell(`N${39 + len}`).value = {
+      formula: `H${39 + len}-I${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`O${39 + len}`).value = {
+      formula: `SUM(O39:O${39 + len - 1})`,
+      date1904: true,
+    };
+    worksheet.getCell(`P${39 + len}`).value = {
+      formula: `ABS(M${39 + len})-ABS(O${39 + len})`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${47 - (5 - len)}`).value = {
+      formula: `H${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${48 - (5 - len)}`).value = {
+      formula: `I${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${49 - (5 - len)}`).value = {
+      formula: `O${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${50 - (5 - len)}`).value = {
+      formula: `J${39 + len}`,
+      date1904: true,
+    };
+    worksheet.getCell(`G${51 - (5 - len)}`).value = {
+      formula: `IF(B34+O${39 + len}>B34;B34;B34+O${39 + len})`,
+      date1904: true,
+    };
+
     // ФИО оператора и водителя
-    worksheet.getCell('H58').value = operation.shift?.user?.login ?? '';
-    worksheet.getCell('H60').value =
+    worksheet.getCell(`H${56 - (5 - len)}`).value =
+      operation.shift?.user?.login ?? '';
+    worksheet.getCell(`H${58 - (5 - len)}`).value =
       `${operation.driver?.lastName} ${operation.driver?.firstName?.slice(
         0,
         1,

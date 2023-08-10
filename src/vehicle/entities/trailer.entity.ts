@@ -1,18 +1,10 @@
-import {
-  AfterLoad,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-} from 'typeorm';
+import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { TrailerType } from '../enums';
 import { Operation } from '../../operations/entities/operation.entity';
 import { IVehicleTank } from '../types';
-import { Driver } from '../../driver/entities/driver.entity';
 
 @Entity()
 export class Trailer extends CommonEntity {
@@ -64,15 +56,6 @@ export class Trailer extends CommonEntity {
 
   @OneToMany(() => Operation, (operation) => operation.trailer)
   operation: Operation[];
-
-  @ApiProperty({
-    type: () => Driver,
-    required: false,
-    description: 'Водитель',
-  })
-  @OneToOne(() => Driver, { eager: true })
-  @JoinColumn()
-  driver?: Driver;
 
   @AfterLoad()
   afterLoad() {
