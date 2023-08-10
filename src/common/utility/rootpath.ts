@@ -12,7 +12,19 @@ export const rootpath = (): string => {
   return path.normalize(tempPath);
 };
 
-export const logInRoot = async (data: string) => {
-  console.log(`${data + os.EOL}`);
-  await fs.appendFileSync(`${rootpath()}message-log.txt`, `${data + os.EOL}`);
+export enum LogDirection {
+  IN = '<<',
+  OUT = '>>',
+}
+export const logInRoot = async (
+  data: string,
+  direction: LogDirection = LogDirection.IN,
+) => {
+  let dateString = new Date().toISOString();
+  dateString = dateString.split('T')[1];
+  const finalString = `${dateString.replace('Z', '')} ${direction} ${
+    data + os.EOL
+  }`;
+  console.log(`${finalString}`);
+  await fs.appendFileSync(`${rootpath()}message-log.txt`, `${finalString}`);
 };

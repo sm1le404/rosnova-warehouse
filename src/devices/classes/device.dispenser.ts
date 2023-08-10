@@ -6,7 +6,7 @@ import {
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
-import { logInRoot } from '../../common/utility/rootpath';
+import { LogDirection, logInRoot } from '../../common/utility/rootpath';
 import { CommandInterface } from '../interfaces/command.interface';
 
 export class DeviceDispenser {
@@ -46,12 +46,6 @@ export class DeviceDispenser {
   }
 
   private checkState(reponse: Array<any>): boolean {
-    let dataCurrent: any = Buffer.from(reponse);
-    logInRoot(
-      `${new Date().toLocaleTimeString()} ${dataCurrent
-        .inspect()
-        .toString()} Проверка data ${reponse}`,
-    );
     if (reponse.length > DeviceDispenser.MAX_RESPONSE_BYTES) {
       return true;
     } else if (
@@ -96,22 +90,33 @@ export class DeviceDispenser {
 
       let dataCurrent: any = Buffer.from(lastCommand.request);
       await logInRoot(
-        `${new Date().toLocaleTimeString()} ${dataCurrent
+        `${dataCurrent
           .inspect()
-          .toString()} Вызов команды ${lastCommand.command} на колонке ${
-          lastCommand.addressId
-        }`,
+          .toString()} Вызов команды ${lastCommand.command.toString(
+          16,
+        )} на колонке ${lastCommand.addressId}`,
       );
 
       return new Promise((resolve) => {
-        let intervalCheckCompileStatus = setInterval(() => {
+        let intervalCheckCompileStatus = setInterval(async () => {
           if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
             const result = this.responseMessage;
             this.resolveHelper(intervalCheckCompileStatus);
+            const dataCurrent: any = Buffer.from(result);
+            await logInRoot(
+              `${dataCurrent.inspect().toString()}`,
+              LogDirection.OUT,
+            );
             resolve(result);
           } else if (lastCommand.command == DispenserCommand.START_DROP) {
             this.resolveHelper(intervalCheckCompileStatus);
-            resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
+            const result = [DispenserBytes.DEL, DispenserBytes.ACK];
+            const dataCurrent: any = Buffer.from(result);
+            await logInRoot(
+              `${dataCurrent.inspect().toString()}`,
+              LogDirection.OUT,
+            );
+            resolve(result);
           }
         }, 100);
       });
