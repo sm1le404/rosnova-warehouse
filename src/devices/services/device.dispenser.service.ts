@@ -22,7 +22,7 @@ import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
-  private readonly serialPortList: Record<number, SerialPort>;
+  private readonly serialPortList: Record<number, SerialPort> = {};
 
   constructor(
     private readonly configService: ConfigService,
@@ -42,7 +42,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       .getMany()
       .then((result) => {
         result.forEach((dispenser) => {
-          if (dispenser.comId > 0) {
+          if (dispenser.comId > 0 && !this.serialPortList[dispenser.comId]) {
             this.serialPortList[dispenser.comId] = new SerialPort({
               path: `COM${dispenser.comId}`,
               baudRate: 4800,
