@@ -57,6 +57,7 @@ export class DeviceDispenser {
     } else if (
       reponse[0] == DispenserBytes.DEL &&
       reponse[1] == DispenserBytes.START_BYTE &&
+      this.lastCommand &&
       DispenserCommandLength[this.lastCommand].includes(reponse.length)
     ) {
       return true;
@@ -83,6 +84,7 @@ export class DeviceDispenser {
     if (this.commandList.length) {
       this.isBusyState = true;
       const lastCommand = this.commandList.shift();
+      this.lastCommand = lastCommand.command;
       const buffer = Buffer.from(lastCommand.request);
 
       this.serialPort.write(buffer, (errorData) => {
