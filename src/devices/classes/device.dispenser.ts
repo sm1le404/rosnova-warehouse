@@ -7,15 +7,18 @@ import {
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
 import { logInRoot } from '../../common/utility/rootpath';
+import { CommandInterface } from '../interfaces/command.interface';
 
 export class DeviceDispenser {
+  private isBusyState = false;
+
+  private commandList: Array<CommandInterface> = [];
+
   protected static MAX_RESPONSE_BYTES = 53;
 
   private static instance: DeviceDispenser[] = [];
 
   private serialPort: SerialPort;
-
-  private readonly currentAddressId: number;
 
   private status: DispenserStatusEnum = DispenserStatusEnum.READY;
 
@@ -23,10 +26,8 @@ export class DeviceDispenser {
 
   private responseMessage: Array<any> = [];
 
-  constructor(serialPort: SerialPort, currentAddressId: number) {
-    const currentHexAddress = DispenserBytes.LINE_NUMBER + currentAddressId;
+  constructor(serialPort: SerialPort) {
     this.serialPort = serialPort;
-    this.currentAddressId = currentHexAddress;
 
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
@@ -68,21 +69,64 @@ export class DeviceDispenser {
     return false;
   }
 
-  static getInstance(
-    serialPort: SerialPort,
-    currentAddressId: number,
-  ): DeviceDispenser {
-    if (!DeviceDispenser.instance[currentAddressId]) {
-      DeviceDispenser.instance[currentAddressId] = new DeviceDispenser(
+  static getInstance(serialPort: SerialPort): DeviceDispenser {
+    if (!DeviceDispenser.instance[serialPort.path]) {
+      DeviceDispenser.instance[serialPort.path] = new DeviceDispenser(
         serialPort,
-        currentAddressId,
       );
     }
 
-    return DeviceDispenser.instance[currentAddressId];
+    return DeviceDispenser.instance[serialPort.path];
+  }
+
+  async executeLastCommand(): Promise<Array<any>> {
+    if (this.commandList.length) {
+      this.isBusyState = true;
+      const lastCommand = this.commandList.shift();
+      const buffer = Buffer.from(lastCommand.request);
+
+      this.serialPort.write(buffer, (errorData) => {
+        if (errorData instanceof Error) {
+          this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
+          throw new GoneException(errorData);
+        }
+      });
+
+      let dataCurrent: any = Buffer.from(lastCommand.request);
+      await logInRoot(
+        `${new Date().toLocaleTimeString()} ${dataCurrent
+          .inspect()
+          .toString()} Вызов команды ${lastCommand.command} на колонке ${
+          lastCommand.addressId
+        }`,
+      );
+
+      return new Promise((resolve) => {
+        let intervalCheckCompileStatus = setInterval(() => {
+          if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
+            const result = this.responseMessage;
+            this.resolveHelper(intervalCheckCompileStatus);
+            resolve(result);
+          } else if (lastCommand.command == DispenserCommand.START_DROP) {
+            this.resolveHelper(intervalCheckCompileStatus);
+            resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
+          }
+        }, 100);
+      });
+    }
+
+    return [];
+  }
+
+  private resolveHelper(intervalId) {
+    clearInterval(intervalId);
+    this.status = DispenserStatusEnum.READY;
+    this.responseMessage = [];
+    this.isBusyState = false;
   }
 
   async callCommand(
+    addressId: number,
     command: DispenserCommand,
     data: Buffer = Buffer.from([]),
   ): Promise<Array<any>> {
@@ -95,7 +139,9 @@ export class DeviceDispenser {
       throw new BadRequestException('Неверная команда при установке литров');
     }
 
-    let checkSum = this.currentAddressId ^ command;
+    const currentHexAddress = DispenserBytes.LINE_NUMBER + addressId;
+
+    let checkSum = currentHexAddress ^ command;
 
     let dataWithCompByte = [];
     for (let i = 0; i < data.length; i++) {
@@ -108,13 +154,11 @@ export class DeviceDispenser {
       checkSum += 0x40;
     }
 
-    this.lastCommand = command;
-
     let request = [
       DispenserBytes.DEL,
       DispenserBytes.START_BYTE,
-      this.currentAddressId,
-      this.currentAddressId ^ DispenserBytes.DEL,
+      currentHexAddress,
+      currentHexAddress ^ DispenserBytes.DEL,
       command,
       command ^ DispenserBytes.DEL,
       ...dataWithCompByte,
@@ -123,35 +167,17 @@ export class DeviceDispenser {
       checkSum,
     ];
 
-    const buffer = Buffer.from(request);
-
-    this.serialPort.write(buffer, (errorData) => {
-      if (errorData instanceof Error) {
-        this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
-        throw new GoneException(errorData);
-      }
+    this.commandList.push({
+      addressId,
+      command,
+      request,
     });
-    let dataCurrent: any = Buffer.from(request);
-    logInRoot(
-      `${new Date().toLocaleTimeString()} ${dataCurrent
-        .inspect()
-        .toString()} Вызов команды ${command} на колонке ${
-        this.currentAddressId
-      }`,
-    );
+
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(() => {
-        if (this.status == DispenserStatusEnum.MESSAGE_COMPLETE) {
+        if (!this.isBusyState) {
           clearInterval(intervalCheckCompileStatus);
-          this.status = DispenserStatusEnum.READY;
-          const result = this.responseMessage;
-          this.responseMessage = [];
-          resolve(result);
-        } else if (command == DispenserCommand.START_DROP) {
-          clearInterval(intervalCheckCompileStatus);
-          this.responseMessage = [];
-          this.status = DispenserStatusEnum.READY;
-          resolve([DispenserBytes.DEL, DispenserBytes.ACK]);
+          resolve(this.executeLastCommand());
         }
       }, 100);
     });

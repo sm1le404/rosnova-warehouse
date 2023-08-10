@@ -22,6 +22,10 @@ export class Dispenser extends CommonEntity {
   @Column({ type: 'boolean', default: false })
   isBlocked?: boolean;
 
+  @ApiProperty({ required: true, description: 'COM порт' })
+  @Column({ type: 'int', nullable: true })
+  comId?: number;
+
   @ApiProperty({ required: true, description: 'Адрес на COM порте' })
   @Column({ type: 'int', nullable: true })
   addressId?: number;

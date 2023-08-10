@@ -8,7 +8,6 @@ import {
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { IDispenserCommand } from '../interfaces/dispenser.command.interface';
 import { DeviceDispenser } from '../classes/device.dispenser';
 import { DispenserCommand } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,10 +18,11 @@ import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
 import { logInRoot } from '../../common/utility/rootpath';
+import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
-  private readonly serialPort: SerialPort;
+  private readonly serialPortList: Record<number, SerialPort>;
 
   constructor(
     private readonly configService: ConfigService,
@@ -35,14 +35,25 @@ export class DeviceDispenserService implements OnModuleDestroy {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
   ) {
-    this.serialPort = new SerialPort({
-      path: this.configService.get('DISPENSER_PORT') ?? 'COM2',
-      baudRate: 4800,
-      dataBits: 7,
-      parity: 'even',
-      stopBits: 2,
-      autoOpen: false,
-    });
+    this.dispenserRepository
+      .createQueryBuilder(`dispenser`)
+      .addSelect(`comId`)
+      .groupBy(`comId`)
+      .getMany()
+      .then((result) => {
+        result.forEach((dispenser) => {
+          if (dispenser.comId > 0) {
+            this.serialPortList[dispenser.comId] = new SerialPort({
+              path: `COM${dispenser.comId}`,
+              baudRate: 4800,
+              dataBits: 7,
+              parity: 'even',
+              stopBits: 2,
+              autoOpen: false,
+            });
+          }
+        });
+      });
   }
 
   async drainFuelTest(payload: DispenserGetFuelDto) {
@@ -151,6 +162,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const flushStatus = await this.callCommand({
       command: DispenserCommand.FLUSH,
       addressId: addressId,
+      comId: operation.dispenser.comId,
     });
 
     dataCurrent = Buffer.from(flushStatus);
@@ -163,6 +175,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const currentStatus = await this.callCommand({
       command: DispenserCommand.STATUS,
       addressId: addressId,
+      comId: operation.dispenser.comId,
     });
 
     dataCurrent = Buffer.from(currentStatus);
@@ -181,6 +194,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       command: DispenserCommand.SET_PRICE,
       addressId: addressId,
       data: Buffer.from([0, 1, 0, 0]),
+      comId: operation.dispenser.comId,
     });
 
     dataCurrent = Buffer.from(setPrice);
@@ -194,6 +208,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       command: DispenserCommand.SET_LITRES,
       addressId: addressId,
       data: Buffer.from(litres.join('')),
+      comId: operation.dispenser.comId,
     });
 
     let dataSetLitres: any = Buffer.from(setLitres);
@@ -206,6 +221,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const init = await this.callCommand({
       command: DispenserCommand.INIT,
       addressId: addressId,
+      comId: operation.dispenser.comId,
     });
 
     let dataInit: any = Buffer.from(init);
@@ -218,6 +234,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const startDrop = await this.callCommand({
       command: DispenserCommand.START_DROP,
       addressId: addressId,
+      comId: operation.dispenser.comId,
     });
 
     let dataDrop: any = Buffer.from(startDrop);
@@ -241,6 +258,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         const status: Array<any> = await this.callCommand({
           command: DispenserCommand.STATUS,
           addressId: addressId,
+          comId: operation.dispenser.comId,
         });
         let data1: any = Buffer.from(status);
         await logInRoot(
@@ -252,6 +270,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         let responseStatus: Array<any> = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
+          comId: operation.dispenser.comId,
         });
         let data2: any = Buffer.from(responseStatus);
         const litresPacket = Buffer.from(responseStatus)
@@ -281,6 +300,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           const approveResult: any = await this.callCommand({
             command: DispenserCommand.APPROVE_LITRES,
             addressId: addressId,
+            comId: operation.dispenser.comId,
           });
           let data3: any = Buffer.from(approveResult);
           await logInRoot(
@@ -315,31 +335,58 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
   }
 
-  async callCommand(payload: IDispenserCommand) {
+  async callCommand(payload: DispenserCommandDto) {
+    if (!this.serialPortList[payload.comId]) {
+      throw new BadRequestException(`COM порт не обнаружен`);
+    }
     const dispenser = DeviceDispenser.getInstance(
-      this.serialPort,
-      payload.addressId,
+      this.serialPortList[payload.comId],
     );
-    return dispenser.callCommand(payload.command, payload.data);
+    return dispenser.callCommand(
+      payload.addressId,
+      payload.command,
+      payload.data,
+    );
   }
 
   async start() {
-    if (!this.serialPort.isOpen) {
-      this.serialPort.open((data) => {
-        if (data instanceof Error) {
-          this.logger.error(data);
-          this.blockDispenser(data);
-        } else {
-          this.unblockDispenser();
-        }
-      });
+    if (!!this.serialPortList) {
+      const ports = Object.keys(this.serialPortList);
+      if (ports.length > 0) {
+        ports.forEach((portNumber) => {
+          const serialPort: SerialPort = this.serialPortList[portNumber];
+          if (!serialPort.isOpen) {
+            const portNumber = parseInt(serialPort.path.substr(3));
+            serialPort.open((data) => {
+              if (data instanceof Error) {
+                this.logger.error(data);
+                this.blockDispenser(data, {
+                  comId: portNumber,
+                });
+              } else {
+                this.unblockDispenser({
+                  comId: portNumber,
+                });
+              }
+            });
+          }
+        });
+      }
     }
   }
 
   onModuleDestroy(): any {
-    if (this.serialPort.isOpen) {
-      this.serialPort.close();
-      this.blockDispenser();
+    if (!!this.serialPortList) {
+      const ports = Object.keys(this.serialPortList);
+      if (ports.length > 0) {
+        ports.forEach((portNumber) => {
+          const serialPort: SerialPort = this.serialPortList[portNumber];
+          if (serialPort.isOpen) {
+            serialPort.close();
+          }
+        });
+        this.blockDispenser();
+      }
     }
   }
 

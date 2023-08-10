@@ -23,6 +23,12 @@ export class CreateDispenserDto {
   @Min(0)
   addressId?: number;
 
+  @ApiProperty({ required: false, description: 'COM порт' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  comId?: number;
+
   @IsOptional()
   @IsBoolean()
   isBlocked?: boolean;
