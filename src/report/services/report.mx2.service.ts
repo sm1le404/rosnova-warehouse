@@ -66,7 +66,7 @@ export class ReportMx2Service {
       worksheetMain.addRow([
         `${number}`,
         `${startedDateFormatted}`,
-        `${item.fuelHolder.shortName}`,
+        `${item.fuelHolder.fullName}`,
         `${item.fuel.name} ${item.refinery.shortName}`,
         `т`,
         `${realWeight.toFixed(2)}`,
