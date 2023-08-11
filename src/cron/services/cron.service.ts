@@ -35,7 +35,7 @@ export class CronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS, {
+  @Cron(CronExpression.EVERY_10_SECONDS, {
     name: 'initDispenser',
   })
   async initDispenser() {
