@@ -194,11 +194,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
       comId: operation.dispenser.comId,
     });
 
-    await this.callCommand({
-      command: DispenserCommand.START_DROP,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
+    // await this.callCommand({
+    //   command: DispenserCommand.START_DROP,
+    //   addressId: addressId,
+    //   comId: operation.dispenser.comId,
+    // });
 
     await this.operationRepository.update(
       {
