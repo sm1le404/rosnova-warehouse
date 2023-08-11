@@ -18,6 +18,7 @@ import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
+import { LogDirection, logInRoot } from '../../common/utility/rootpath';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -169,11 +170,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
       comId: operation.dispenser.comId,
     });
 
-    let litres = payload.litres.toString().split('');
-    for (let i = litres.length; i < 5; i++) {
-      litres.unshift(`0`);
-    }
-
     await this.callCommand({
       command: DispenserCommand.SET_PRICE,
       addressId: addressId,
@@ -181,6 +177,10 @@ export class DeviceDispenserService implements OnModuleDestroy {
       comId: operation.dispenser.comId,
     });
 
+    let litres = payload.litres.toString().split('');
+    for (let i = litres.length; i < 5; i++) {
+      litres.unshift(`0`);
+    }
     await this.callCommand({
       command: DispenserCommand.SET_LITRES,
       addressId: addressId,
@@ -194,11 +194,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
       comId: operation.dispenser.comId,
     });
 
-    // await this.callCommand({
-    //   command: DispenserCommand.START_DROP,
-    //   addressId: addressId,
-    //   comId: operation.dispenser.comId,
-    // });
+    await this.callCommand({
+      command: DispenserCommand.START_DROP,
+      addressId: addressId,
+      comId: operation.dispenser.comId,
+    });
 
     await this.operationRepository.update(
       {
@@ -295,16 +295,19 @@ export class DeviceDispenserService implements OnModuleDestroy {
         ports.forEach((portNumber) => {
           const serialPort: SerialPort = this.serialPortList[portNumber];
           if (!serialPort.isOpen) {
-            const portNumber = parseInt(serialPort.path.substr(3));
             serialPort.open((data) => {
+              logInRoot(
+                `Попытка инициализации ${portNumber}`,
+                LogDirection.OUT,
+              );
               if (data instanceof Error) {
                 this.logger.error(data);
                 this.blockDispenser(data, {
-                  comId: portNumber,
+                  comId: parseInt(portNumber),
                 });
               } else {
                 this.unblockDispenser({
-                  comId: portNumber,
+                  comId: parseInt(portNumber),
                 });
               }
             });
