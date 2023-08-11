@@ -189,6 +189,12 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     await this.callCommand({
+      command: DispenserCommand.CHECK_LITRES,
+      addressId: addressId,
+      comId: operation.dispenser.comId,
+    });
+
+    await this.callCommand({
       command: DispenserCommand.INIT,
       addressId: addressId,
       comId: operation.dispenser.comId,

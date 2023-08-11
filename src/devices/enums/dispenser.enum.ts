@@ -17,6 +17,7 @@ export enum DispenserCommand {
   SET_PRICE = 0x51, //	Установка цены за топливо
   SET_LITRES = 0x54, //	Установка дозы отпуска топлива в литрах
   START_DROP = 0x56, //	Безусловный старт раздачи
+  CHECK_LITRES = 0x58, // Запрос количества литров
 }
 
 export const DispenserCommandLength: Record<number, Array<number>> = {
