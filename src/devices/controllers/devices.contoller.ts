@@ -79,6 +79,9 @@ export class DevicesContoller {
       name: `Вызов произвольной команды`,
       shift: user.lastShift,
     });
+    if (payload?.data && Array.isArray(payload.data)) {
+      payload.data = Buffer.from(payload.data);
+    }
     return this.deviceDispenserService.callCommand(payload);
   }
 
