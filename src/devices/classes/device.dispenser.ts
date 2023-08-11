@@ -94,7 +94,7 @@ export class DeviceDispenser {
           .inspect()
           .toString()} Вызов команды ${lastCommand.command.toString(
           16,
-        )} на колонке ${lastCommand.addressId}`,
+        )} на адресе ${lastCommand.addressId} ${this.serialPort.path}`,
       );
 
       return new Promise((resolve) => {
@@ -181,10 +181,11 @@ export class DeviceDispenser {
     });
 
     return new Promise((resolve) => {
-      let intervalCheckCompileStatus = setInterval(() => {
+      let intervalCheckCompileStatus = setInterval(async () => {
         if (!this.isBusyState) {
           clearInterval(intervalCheckCompileStatus);
-          resolve(this.executeLastCommand());
+          const executeResult = await this.executeLastCommand();
+          resolve(executeResult);
         }
       }, 100);
     });
