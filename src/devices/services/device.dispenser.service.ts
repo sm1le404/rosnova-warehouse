@@ -173,7 +173,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     await this.callCommand({
       command: DispenserCommand.SET_PRICE,
       addressId: addressId,
-      data: Buffer.from([0, 1, 0, 0]),
+      data: Buffer.from([0x30, 0x31, 0x30, 0x30]),
       comId: operation.dispenser.comId,
     });
 
@@ -189,19 +189,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     await this.callCommand({
-      command: DispenserCommand.CHECK_LITRES,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
-
-    await this.callCommand({
       command: DispenserCommand.INIT,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
-
-    await this.callCommand({
-      command: DispenserCommand.START_DROP,
       addressId: addressId,
       comId: operation.dispenser.comId,
     });

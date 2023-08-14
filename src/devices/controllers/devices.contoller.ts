@@ -80,7 +80,7 @@ export class DevicesContoller {
       shift: user.lastShift,
     });
     if (payload?.data && Array.isArray(payload.data)) {
-      payload.data = Buffer.from(payload.data);
+      payload.data = Buffer.from(payload.data.join(''));
     }
     return this.deviceDispenserService.callCommand(payload);
   }
