@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Operation } from '../../operations/entities/operation.entity';
+import { DispenserStatus } from '../../devices/enums/dispenser.enum';
 
 @Entity()
 export class Dispenser extends CommonEntity {
@@ -33,6 +34,10 @@ export class Dispenser extends CommonEntity {
   @ApiProperty({ required: false, description: 'Ошибка на устройстве' })
   @Column({ type: 'varchar', nullable: true })
   error?: string;
+
+  @ApiProperty({ required: false, enum: DispenserStatus })
+  @Column({ type: 'int', nullable: true })
+  statusId?: number;
 
   @OneToMany(() => Operation, (operation) => operation.dispenser)
   operation: Operation[];

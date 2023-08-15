@@ -2,7 +2,6 @@ import { SerialPort } from 'serialport';
 import {
   DispenserBytes,
   DispenserCommand,
-  DispenserCommandLength,
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
@@ -51,8 +50,8 @@ export class DeviceDispenser {
     } else if (
       reponse[0] == DispenserBytes.DEL &&
       reponse[1] == DispenserBytes.START_BYTE &&
-      this.lastCommand &&
-      DispenserCommandLength[this.lastCommand].includes(reponse.length)
+      reponse[reponse.length - 2] == DispenserBytes.STOP_BYTE &&
+      reponse[reponse.length - 3] == DispenserBytes.STOP_BYTE
     ) {
       return true;
     } else if (

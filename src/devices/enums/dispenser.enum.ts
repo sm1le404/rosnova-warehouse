@@ -12,6 +12,7 @@ export enum DispenserCommand {
   FLUSH = 0x33, // Сброс ТРК
   GET_CURRENT_STATUS = 0x34, // Запрос текущих данных отпуска топлива
   GET_CURRENT_FULL_STATUS = 0x35, // Запрос полных данных отпуска топлива
+  GET_SUMMARY_STATE = 0x36, // Запрос показаний суммарников
   GET_TYPE_TRK = 0x37, // Запрос типа ТРК
   APPROVE_LITRES = 0x38, //	Подтверждение записи итогов отпуска
   SET_PRICE = 0x51, //	Установка цены за топливо
@@ -19,12 +20,6 @@ export enum DispenserCommand {
   START_DROP = 0x56, //	Безусловный старт раздачи
   CHECK_LITRES = 0x58, // Запрос количества литров
 }
-
-export const DispenserCommandLength: Record<number, Array<number>> = {
-  0x31: [7, 9],
-  0x34: [17],
-  0x35: [37, 39, 45],
-};
 
 export enum DispenserBytes {
   DEL = 0x7f,
@@ -36,4 +31,13 @@ export enum DispenserBytes {
   // при полностью корректном запросе от СУ принята команда, не входящая в перечень команд СУ
   CAN = 0x18, // Ответ ТРК – данные приняты правильно, но выполнить команду нет возможности,
   // т. е. от СУ поступила команда , которую в данный момент времени выполнять нельзя
+}
+
+export enum DispenserStatus {
+  TRK_OFF_RK_ON = 0x30,
+  TRK_OFF_RK_OFF = 0x31,
+  INITIALIZE = 0x32,
+  PROCESS = 0x33,
+  DONE = 0x34,
+  MANUAL_MODE = 0x35,
 }

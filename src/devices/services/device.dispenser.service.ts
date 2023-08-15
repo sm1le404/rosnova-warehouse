@@ -9,7 +9,7 @@ import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DeviceDispenser } from '../classes/device.dispenser';
-import { DispenserCommand } from '../enums/dispenser.enum';
+import { DispenserCommand, DispenserStatus } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -19,6 +19,7 @@ import { OperationStatus, OperationType } from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 import { LogDirection, logInRoot } from '../../common/utility/rootpath';
+import { DispenserHelper } from '../classes/dispenser.helper';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -173,7 +174,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     await this.callCommand({
       command: DispenserCommand.SET_PRICE,
       addressId: addressId,
-      data: Buffer.from([0x30, 0x31, 0x30, 0x30]),
+      data: Buffer.from(`0100`),
       comId: operation.dispenser.comId,
     });
 
@@ -194,6 +195,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
       comId: operation.dispenser.comId,
     });
 
+    let summaryStatus: Array<any> = await this.callCommand({
+      command: DispenserCommand.GET_SUMMARY_STATE,
+      addressId: addressId,
+      comId: operation.dispenser.comId,
+    });
+    const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
+
     await this.operationRepository.update(
       {
         id: operation.id,
@@ -201,6 +209,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       {
         startedAt: Math.floor(Date.now() / 1000),
         status: OperationStatus.STARTED,
+        counterBefore: summaryLitres,
       },
     );
 
@@ -212,15 +221,12 @@ export class DeviceDispenserService implements OnModuleDestroy {
           comId: operation.dispenser.comId,
         });
         //Запись реально залитого количества
-        let responseStatus: Array<any> = await this.callCommand({
+        let litresStatus: Array<any> = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
           addressId: addressId,
           comId: operation.dispenser.comId,
         });
-        const litresPacket = Buffer.from(responseStatus)
-          .slice(4, 13)
-          .filter((e, index) => index % 2 == 0);
-        const countLitres = parseInt(litresPacket.toString());
+        const countLitres = DispenserHelper.getLitres(litresStatus);
         if (countLitres > 0) {
           await this.operationRepository.update(
             {
@@ -234,13 +240,19 @@ export class DeviceDispenserService implements OnModuleDestroy {
           );
         }
         //ТРК выключена . Отпуск топлива закончен
-        if (status[2] == 0x34 && status[4] == 0x30) {
+        if (status[2] == DispenserStatus.DONE) {
           clearInterval(intervalCheckCompileStatus);
           await this.callCommand({
             command: DispenserCommand.APPROVE_LITRES,
             addressId: addressId,
             comId: operation.dispenser.comId,
           });
+          summaryStatus = await this.callCommand({
+            command: DispenserCommand.GET_SUMMARY_STATE,
+            addressId: addressId,
+            comId: operation.dispenser.comId,
+          });
+          const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
           await this.operationRepository.update(
             {
               id: operation.id,
@@ -248,13 +260,14 @@ export class DeviceDispenserService implements OnModuleDestroy {
             {
               status: OperationStatus.FINISHED,
               finishedAt: Math.floor(Date.now() / 1000),
+              counterAfter: summaryLitres,
             },
           );
           await this.dispenserRepository.update(
             {
               id: operation.dispenser.id,
             },
-            { isBlocked: false },
+            { isBlocked: false, currentCounter: summaryLitres },
           );
           await this.tankRepository.update(
             {
@@ -275,11 +288,26 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const dispenser = DeviceDispenser.getInstance(
       this.serialPortList[payload.comId],
     );
-    return dispenser.callCommand(
+    const commandResult = await dispenser.callCommand(
       payload.addressId,
       payload.command,
       payload.data,
     );
+    if (payload.command === DispenserCommand.STATUS) {
+      const statusNumber = parseInt(commandResult[2], 10);
+      if (DispenserStatus[statusNumber]) {
+        await this.dispenserRepository.update(
+          {
+            comId: payload.comId,
+            addressId: payload.addressId,
+          },
+          {
+            statusId: statusNumber,
+          },
+        );
+      }
+    }
+    return commandResult;
   }
 
   async start() {
