@@ -34,7 +34,10 @@ export class ReportController {
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
-    res.setHeader('Content-disposition', `attachment;filename=mx2report.xlsx`);
+    res.setHeader(
+      'Content-disposition',
+      `attachment;filename=mx2report-${Date.now()}.xlsx`,
+    );
     const workbook = await this.reportMx2Service.generate(payload);
     return workbook.xlsx.write(res).then(() => {
       res.status(200).end();
