@@ -12,7 +12,7 @@ import { DeviceDispenser } from '../classes/device.dispenser';
 import { DispenserCommand, DispenserStatus } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
@@ -368,5 +368,46 @@ export class DeviceDispenserService implements OnModuleDestroy {
     filter: FindOptionsWhere<Dispenser> = { isBlocked: true },
   ) {
     this.dispenserRepository.update(filter, { isBlocked: false, error: null });
+  }
+
+  async updateDispenserStatuses() {
+    const dispensers = await this.dispenserRepository.find({
+      where: {
+        isBlocked: false,
+        addressId: Not(IsNull()),
+        comId: Not(IsNull()),
+      },
+    });
+    dispensers.forEach((dispenser) => {
+      this.callCommand({
+        addressId: dispenser.addressId,
+        comId: dispenser.comId,
+        command: DispenserCommand.STATUS,
+      });
+    });
+  }
+
+  async updateDispenserSummary() {
+    const dispensers = await this.dispenserRepository.find({
+      where: {
+        isBlocked: false,
+        addressId: Not(IsNull()),
+        comId: Not(IsNull()),
+      },
+    });
+    for (const dispenser of dispensers) {
+      let summaryStatus: Array<any> = await this.callCommand({
+        addressId: dispenser.addressId,
+        comId: dispenser.comId,
+        command: DispenserCommand.GET_SUMMARY_STATE,
+      });
+      const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
+      await this.dispenserRepository.update(
+        {
+          id: dispenser.id,
+        },
+        { currentCounter: summaryLitres },
+      );
+    }
   }
 }

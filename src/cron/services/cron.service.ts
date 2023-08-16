@@ -48,4 +48,18 @@ export class CronService {
       this.logger.error(e);
     }
   }
+
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    name: 'updateDispenserStatuses',
+  })
+  async updateDispenserStatuses() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.deviceDispenserService.updateDispenserStatuses();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
 }

@@ -188,7 +188,11 @@ export class Operation extends CommonEntity {
   @AfterLoad()
   afterLoad() {
     if (this?.vehicleState) {
-      this.vehicleState = JSON.parse(this.vehicleState);
+      try {
+        this.vehicleState = JSON.parse(this.vehicleState);
+      } catch (e) {
+        this.vehicleState = null;
+      }
     }
   }
 }

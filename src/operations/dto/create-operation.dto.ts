@@ -156,11 +156,13 @@ export class CreateOperationDto {
   @Min(0)
   counterAfter?: number;
 
+  @ApiProperty({ required: false, description: 'Объем в резервуаре до' })
   @IsOptional()
   @IsNumber()
   @Min(0)
   volumeBefore?: number;
 
+  @ApiProperty({ required: false, description: 'Объем в резервуаре после' })
   @IsOptional()
   @IsNumber()
   @Min(0)

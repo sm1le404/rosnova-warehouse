@@ -60,10 +60,18 @@ export class Trailer extends CommonEntity {
   @AfterLoad()
   afterLoad() {
     if (this?.currentState) {
-      this.currentState = JSON.parse(this.currentState);
+      try {
+        this.currentState = JSON.parse(this.currentState);
+      } catch (e) {
+        this.currentState = null;
+      }
     }
     if (this?.sectionVolumes) {
-      this.sectionVolumes = JSON.parse(this.sectionVolumes);
+      try {
+        this.sectionVolumes = JSON.parse(this.sectionVolumes);
+      } catch (e) {
+        this.sectionVolumes = null;
+      }
     }
   }
 }

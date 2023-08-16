@@ -14,11 +14,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../user/entities/user.entity';
 import { ShiftService } from '../shift/services/shift.service';
 import { Shift } from '../shift/entities/shift.entity';
+import { DevicesModule } from '../devices/devices.module';
+import { DispenserModule } from '../dispenser/dispenser.module';
 
 @Module({
   imports: [
     JwtModule.register({}),
     UserModule,
+    DevicesModule,
+    DispenserModule,
     TypeOrmModule.forFeature([User, Shift]),
   ],
   controllers: [AuthController],

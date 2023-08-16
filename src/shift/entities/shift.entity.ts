@@ -1,10 +1,11 @@
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { AfterLoad, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Event } from '../../event/entities/event.entity';
 import { Operation } from '../../operations/entities/operation.entity';
 import { User } from '../../user/entities/user.entity';
+import { DispenserSummaryInterface } from '../interfaces/dispenser.summary.interface';
 
 @Entity()
 export class Shift extends CommonEntity {
@@ -34,4 +35,40 @@ export class Shift extends CommonEntity {
   })
   @ManyToOne(() => User, (user) => user.shift, { eager: true })
   user: User;
+
+  @ApiProperty({
+    type: () => DispenserSummaryInterface,
+    required: true,
+    description: 'Объект, содержащий номер и состояние колонок в начале смены',
+    isArray: true,
+  })
+  @Column({ type: 'text', nullable: true })
+  startDispensersState?: string;
+
+  @ApiProperty({
+    type: () => DispenserSummaryInterface,
+    required: true,
+    description: 'Объект, содержащий номер и состояние колонок в конце смены',
+    isArray: true,
+  })
+  @Column({ type: 'text', nullable: true })
+  finishDispensersState?: string;
+
+  @AfterLoad()
+  afterLoad() {
+    if (this?.startDispensersState) {
+      try {
+        this.startDispensersState = JSON.parse(this.startDispensersState);
+      } catch (e) {
+        this.startDispensersState = null;
+      }
+    }
+    if (this?.finishDispensersState) {
+      try {
+        this.finishDispensersState = JSON.parse(this.finishDispensersState);
+      } catch (e) {
+        this.finishDispensersState = null;
+      }
+    }
+  }
 }
