@@ -14,6 +14,10 @@ import { ReportFilteredService } from '../services/report-filtered.service';
 import { GetMonthReportDto } from '../dto/get-month-report.dto';
 import { ReportDrawbackService } from '../services/report-drawback.service';
 import { ReportTopUpService } from '../services/report-topup.service';
+import { dateFormatter, translitFromRuToEn } from '../utils';
+import { Operation } from '../../operations/entities/operation.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @ApiTags('Report')
 @Controller('report')
@@ -26,6 +30,8 @@ export class ReportController {
     private readonly reportMonthService: ReportFilteredService,
     private readonly reportDrawbackService: ReportDrawbackService,
     private readonly reportTopUpService: ReportTopUpService,
+    @InjectRepository(Operation)
+    private operationRepository: Repository<Operation>,
   ) {}
 
   @Get('mx2')
@@ -71,7 +77,9 @@ export class ReportController {
     );
     res.setHeader(
       'Content-disposition',
-      `attachment;filename=month-report-${Date.now()}.xlsx`,
+      `attachment;filename=${String(
+        new Date(Date.now()).getMonth() + 1,
+      ).padStart(2, '0')}_report.xlsx`,
     );
     const workbook = await this.reportMonthService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
@@ -84,14 +92,18 @@ export class ReportController {
     @Res() res: Response,
     @Query('operationId') operationId: number,
   ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+    const op = await this.operationRepository.findOne({
+      where: { id: operationId },
+    });
+    const name = translitFromRuToEn(
+      `приход ${op?.numberTTN ?? 'empty'}-${date}`,
+    );
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
-    res.setHeader(
-      'Content-disposition',
-      `attachment;filename=drawback-report-${Date.now()}.xlsx`,
-    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportDrawbackService.generate(operationId);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
@@ -103,14 +115,18 @@ export class ReportController {
     @Res() res: Response,
     @Query('operationId') operationId: number,
   ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+    const op = await this.operationRepository.findOne({
+      where: { id: operationId },
+    });
+    const name = translitFromRuToEn(
+      `отпуск ${op?.numberTTN ?? 'empty'}-${date}`,
+    );
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
-    res.setHeader(
-      'Content-disposition',
-      `attachment;filename=topup-report-${Date.now()}.xlsx`,
-    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportTopUpService.generate(operationId);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
