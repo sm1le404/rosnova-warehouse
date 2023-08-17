@@ -158,6 +158,14 @@ export class DeviceDispenserService implements OnModuleDestroy {
       await this.deviceTankService.readCommand(operation.tank.addressId);
     }
 
+    //Запись реально залитого количества
+    let litresStatus: Array<any> = await this.callCommand({
+      command: DispenserCommand.GET_CURRENT_STATUS,
+      addressId: addressId,
+      comId: operation.dispenser.comId,
+    });
+    const countLitres = DispenserHelper.getLitres(litresStatus);
+
     const approveResult = await this.callCommand({
       command: DispenserCommand.APPROVE_LITRES,
       addressId: operation.dispenser.addressId,
@@ -189,6 +197,8 @@ export class DeviceDispenserService implements OnModuleDestroy {
         status: OperationStatus.FINISHED,
         counterAfter: summaryLitres,
         volumeAfter: tankState.volume,
+        factVolume: countLitres,
+        factWeight: countLitres * operation.tank.density,
       },
     );
 
@@ -319,26 +329,15 @@ export class DeviceDispenserService implements OnModuleDestroy {
         //ТРК выключена . Отпуск топлива закончен
         if (status[2] == DispenserStatus.DONE) {
           clearInterval(intervalCheckCompileStatus);
-          if (countLitres >= payload.litres) {
-            await this.operationRepository.update(
-              {
-                id: operation.id,
-              },
-              {
-                status: OperationStatus.STOPPED,
-              },
-            );
-          } else {
-            await this.operationRepository.update(
-              {
-                id: operation.id,
-              },
-              {
-                status: OperationStatus.INTERRUPTED,
-              },
-            );
-          }
 
+          await this.operationRepository.update(
+            {
+              id: operation.id,
+            },
+            {
+              status: OperationStatus.STOPPED,
+            },
+          );
           await this.dispenserRepository.update(
             {
               id: operation.dispenser.id,
