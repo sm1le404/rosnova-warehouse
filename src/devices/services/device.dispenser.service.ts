@@ -108,7 +108,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
               id: operation.id,
             },
             {
-              status: OperationStatus.FINISHED,
+              status: OperationStatus.STOPPED,
             },
           );
           await this.dispenserRepository.update(
@@ -130,11 +130,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
   }
 
-  async drainFuel(payload: DispenserGetFuelDto) {
+  async doneOperation(payload: DispenserGetFuelDto) {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: OperationStatus.CREATED,
+        status: OperationStatus.STOPPED,
         type: OperationType.OUTCOME,
       },
       relations: {
@@ -142,7 +142,53 @@ export class DeviceDispenserService implements OnModuleDestroy {
         tank: true,
       },
     });
-    if (!operation?.dispenser?.addressId) {
+
+    if (!operation?.dispenser?.addressId || !operation?.dispenser?.comId) {
+      throw new BadRequestException(`На колонке не установлен адрес`);
+    }
+
+    await this.callCommand({
+      command: DispenserCommand.APPROVE_LITRES,
+      addressId: operation.dispenser.addressId,
+      comId: operation.dispenser.comId,
+    });
+    let summaryStatus = await this.callCommand({
+      command: DispenserCommand.GET_SUMMARY_STATE,
+      addressId: operation.dispenser.addressId,
+      comId: operation.dispenser.comId,
+    });
+    const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
+    await this.operationRepository.update(
+      {
+        id: operation.id,
+      },
+      {
+        status: OperationStatus.FINISHED,
+        counterAfter: summaryLitres,
+      },
+    );
+
+    await this.dispenserRepository.update(
+      {
+        id: operation.dispenser.id,
+      },
+      { currentCounter: summaryLitres },
+    );
+  }
+
+  async drainFuel(payload: DispenserGetFuelDto) {
+    const operation = await this.operationRepository.findOneOrFail({
+      where: {
+        id: payload.operationId,
+        status: Not(OperationStatus.FINISHED),
+        type: OperationType.OUTCOME,
+      },
+      relations: {
+        dispenser: true,
+        tank: true,
+      },
+    });
+    if (!operation?.dispenser?.addressId || !operation?.dispenser?.comId) {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
     const addressId = operation.dispenser.addressId;
@@ -159,41 +205,43 @@ export class DeviceDispenserService implements OnModuleDestroy {
       { isBlocked: true },
     );
 
-    await this.callCommand({
-      command: DispenserCommand.FLUSH,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
+    if (operation.status === OperationStatus.CREATED) {
+      await this.callCommand({
+        command: DispenserCommand.FLUSH,
+        addressId: addressId,
+        comId: operation.dispenser.comId,
+      });
 
-    await this.callCommand({
-      command: DispenserCommand.STATUS,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
+      await this.callCommand({
+        command: DispenserCommand.STATUS,
+        addressId: addressId,
+        comId: operation.dispenser.comId,
+      });
 
-    await this.callCommand({
-      command: DispenserCommand.SET_PRICE,
-      addressId: addressId,
-      data: Buffer.from(`0100`),
-      comId: operation.dispenser.comId,
-    });
+      await this.callCommand({
+        command: DispenserCommand.SET_PRICE,
+        addressId: addressId,
+        data: Buffer.from(`0100`),
+        comId: operation.dispenser.comId,
+      });
 
-    let litres = payload.litres.toString().split('');
-    for (let i = litres.length; i < 5; i++) {
-      litres.unshift(`0`);
+      let litres = payload.litres.toString().split('');
+      for (let i = litres.length; i < 5; i++) {
+        litres.unshift(`0`);
+      }
+      await this.callCommand({
+        command: DispenserCommand.SET_LITRES,
+        addressId: addressId,
+        data: Buffer.from(litres.join('')),
+        comId: operation.dispenser.comId,
+      });
+
+      await this.callCommand({
+        command: DispenserCommand.INIT,
+        addressId: addressId,
+        comId: operation.dispenser.comId,
+      });
     }
-    await this.callCommand({
-      command: DispenserCommand.SET_LITRES,
-      addressId: addressId,
-      data: Buffer.from(litres.join('')),
-      comId: operation.dispenser.comId,
-    });
-
-    await this.callCommand({
-      command: DispenserCommand.INIT,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
 
     let summaryStatus: Array<any> = await this.callCommand({
       command: DispenserCommand.GET_SUMMARY_STATE,
@@ -242,32 +290,19 @@ export class DeviceDispenserService implements OnModuleDestroy {
         //ТРК выключена . Отпуск топлива закончен
         if (status[2] == DispenserStatus.DONE) {
           clearInterval(intervalCheckCompileStatus);
-          await this.callCommand({
-            command: DispenserCommand.APPROVE_LITRES,
-            addressId: addressId,
-            comId: operation.dispenser.comId,
-          });
-          summaryStatus = await this.callCommand({
-            command: DispenserCommand.GET_SUMMARY_STATE,
-            addressId: addressId,
-            comId: operation.dispenser.comId,
-          });
-          const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
           await this.operationRepository.update(
             {
               id: operation.id,
             },
             {
-              status: OperationStatus.FINISHED,
-              finishedAt: Math.floor(Date.now() / 1000),
-              counterAfter: summaryLitres,
+              status: OperationStatus.STOPPED,
             },
           );
           await this.dispenserRepository.update(
             {
               id: operation.dispenser.id,
             },
-            { isBlocked: false, currentCounter: summaryLitres },
+            { isBlocked: false },
           );
           await this.tankRepository.update(
             {
