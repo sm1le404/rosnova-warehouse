@@ -23,6 +23,7 @@ import { EventService } from '../../event/services/event.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { DeviceEvents } from '../enums/device-events.enum';
+import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -107,7 +108,7 @@ export class DevicesContoller {
   @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   @Post('dispenser/done')
   async fixDispenserrCommand(
-    @Body() payload: DispenserGetFuelDto,
+    @Body() payload: DispenserFixOperationDto,
     @CurrentUser() user: ICurrentUser,
   ) {
     await this.eventService.create({

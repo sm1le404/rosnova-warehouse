@@ -9,10 +9,14 @@ import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DeviceDispenser } from '../classes/device.dispenser';
-import { DispenserCommand, DispenserStatus } from '../enums/dispenser.enum';
+import {
+  DispenserBytes,
+  DispenserCommand,
+  DispenserStatus,
+} from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
-import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Not, Repository } from 'typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { OperationStatus, OperationType } from '../../operations/enums';
@@ -20,6 +24,8 @@ import { Tank } from '../../tank/entities/tank.entity';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 import { LogDirection, logInRoot } from '../../common/utility/rootpath';
 import { DispenserHelper } from '../classes/dispenser.helper';
+import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
+import { DeviceTankService } from './device.tank.service';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -29,6 +35,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
+    private readonly deviceTankService: DeviceTankService,
     @InjectRepository(Dispenser)
     private readonly dispenserRepository: Repository<Dispenser>,
     @InjectRepository(Operation)
@@ -61,7 +68,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: OperationStatus.CREATED,
+        status: Not(OperationStatus.FINISHED),
         type: OperationType.OUTCOME,
       },
       relations: {
@@ -130,11 +137,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
   }
 
-  async doneOperation(payload: DispenserGetFuelDto) {
+  async doneOperation(payload: DispenserFixOperationDto) {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: OperationStatus.STOPPED,
+        status: In([OperationStatus.INTERRUPTED, OperationStatus.STOPPED]),
         type: OperationType.OUTCOME,
       },
       relations: {
@@ -147,17 +154,33 @@ export class DeviceDispenserService implements OnModuleDestroy {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
 
-    await this.callCommand({
+    if (operation?.tank?.addressId) {
+      await this.deviceTankService.readCommand(operation.tank.addressId);
+    }
+
+    const approveResult = await this.callCommand({
       command: DispenserCommand.APPROVE_LITRES,
       addressId: operation.dispenser.addressId,
       comId: operation.dispenser.comId,
     });
+
+    if (approveResult[1] != DispenserBytes.ACK) {
+      throw new BadRequestException(
+        `Не удалось зафиксировать результат операции`,
+      );
+    }
+
     let summaryStatus = await this.callCommand({
       command: DispenserCommand.GET_SUMMARY_STATE,
       addressId: operation.dispenser.addressId,
       comId: operation.dispenser.comId,
     });
     const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
+
+    const tankState = await this.tankRepository.findOne({
+      where: { id: operation.tank.id },
+    });
+
     await this.operationRepository.update(
       {
         id: operation.id,
@@ -165,6 +188,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       {
         status: OperationStatus.FINISHED,
         counterAfter: summaryLitres,
+        volumeAfter: tankState.volume,
       },
     );
 
@@ -205,6 +229,10 @@ export class DeviceDispenserService implements OnModuleDestroy {
       { isBlocked: true },
     );
 
+    const tankState = await this.tankRepository.findOne({
+      where: { id: operation.tank.id },
+    });
+
     if (operation.status === OperationStatus.CREATED) {
       await this.callCommand({
         command: DispenserCommand.FLUSH,
@@ -241,25 +269,26 @@ export class DeviceDispenserService implements OnModuleDestroy {
         addressId: addressId,
         comId: operation.dispenser.comId,
       });
+
+      let summaryStatus: Array<any> = await this.callCommand({
+        command: DispenserCommand.GET_SUMMARY_STATE,
+        addressId: addressId,
+        comId: operation.dispenser.comId,
+      });
+      const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
+
+      await this.operationRepository.update(
+        {
+          id: operation.id,
+        },
+        {
+          startedAt: Math.floor(Date.now() / 1000),
+          status: OperationStatus.STARTED,
+          counterBefore: summaryLitres,
+          volumeBefore: tankState.volume,
+        },
+      );
     }
-
-    let summaryStatus: Array<any> = await this.callCommand({
-      command: DispenserCommand.GET_SUMMARY_STATE,
-      addressId: addressId,
-      comId: operation.dispenser.comId,
-    });
-    const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
-
-    await this.operationRepository.update(
-      {
-        id: operation.id,
-      },
-      {
-        startedAt: Math.floor(Date.now() / 1000),
-        status: OperationStatus.STARTED,
-        counterBefore: summaryLitres,
-      },
-    );
 
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
@@ -290,14 +319,26 @@ export class DeviceDispenserService implements OnModuleDestroy {
         //ТРК выключена . Отпуск топлива закончен
         if (status[2] == DispenserStatus.DONE) {
           clearInterval(intervalCheckCompileStatus);
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              status: OperationStatus.STOPPED,
-            },
-          );
+          if (countLitres === payload.litres) {
+            await this.operationRepository.update(
+              {
+                id: operation.id,
+              },
+              {
+                status: OperationStatus.STOPPED,
+              },
+            );
+          } else {
+            await this.operationRepository.update(
+              {
+                id: operation.id,
+              },
+              {
+                status: OperationStatus.INTERRUPTED,
+              },
+            );
+          }
+
           await this.dispenserRepository.update(
             {
               id: operation.dispenser.id,
