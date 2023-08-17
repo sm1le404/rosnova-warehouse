@@ -112,7 +112,7 @@ export class DevicesContoller {
     @CurrentUser() user: ICurrentUser,
   ) {
     await this.eventService.create({
-      collection: EventCollectionType.DRAIN_FUEL_DONE,
+      collection: EventCollectionType.DRAIN_FUEL,
       type: EventType.DEFAULT,
       dataBefore: '',
       dataAfter: JSON.stringify(payload),

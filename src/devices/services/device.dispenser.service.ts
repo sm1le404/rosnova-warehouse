@@ -319,7 +319,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         //ТРК выключена . Отпуск топлива закончен
         if (status[2] == DispenserStatus.DONE) {
           clearInterval(intervalCheckCompileStatus);
-          if (countLitres === payload.litres) {
+          if (countLitres >= payload.litres) {
             await this.operationRepository.update(
               {
                 id: operation.id,
