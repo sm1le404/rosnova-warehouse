@@ -16,6 +16,7 @@ import { ShiftService } from '../shift/services/shift.service';
 import { Shift } from '../shift/entities/shift.entity';
 import { DevicesModule } from '../devices/devices.module';
 import { DispenserModule } from '../dispenser/dispenser.module';
+import { AuthListener } from './listeners/auth.listener';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DispenserModule } from '../dispenser/dispenser.module';
     JwtRefreshStrategy,
     UserService,
     ShiftService,
+    AuthListener,
   ],
   exports: [TokensService, EncryptionService],
 })

@@ -26,8 +26,9 @@ import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-r
 import { ResponseDto } from '../../common/dto';
 import { ICurrentUser } from '../interface/current-user.interface';
 import { ShiftService } from '../../shift/services/shift.service';
-import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
-import { DispenserService } from '../../dispenser/services/dispenser.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AuthEvent } from '../events/auth.event';
+import { AuthEventsEnum } from '../enums/auth.events.enum';
 
 @ApiTags('Auth')
 @ApiExtraModels(User)
@@ -37,8 +38,7 @@ export class AuthController {
     private readonly authService: AuthService,
     protected readonly tokensService: TokensService,
     protected readonly shiftService: ShiftService,
-    private readonly deviceDispenserService: DeviceDispenserService,
-    private readonly dispenserService: DispenserService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   @Post('login')
@@ -52,33 +52,9 @@ export class AuthController {
     @Body() body: AuthLoginRequestDto,
     @Res() response: Response,
   ): Promise<Response<ResponseDto<User>>> {
-    try {
-      await this.deviceDispenserService.updateDispenserSummary();
-    } catch (e) {}
-
     const user: ICurrentUser = (await this.authService.login(
       body,
     )) as ICurrentUser;
-
-    const dispensers = await this.dispenserService.find({
-      select: { id: true, currentCounter: true },
-    });
-
-    await this.shiftService.update(
-      {
-        where: { id: user.lastShift.id },
-      },
-      {
-        startDispensersState: JSON.stringify(
-          dispensers.map((item) => {
-            return {
-              id: item.id,
-              summary: item.currentCounter,
-            };
-          }),
-        ),
-      },
-    );
 
     const access = this.tokensService.getJwtAccessToken({
       id: user.id,
@@ -91,6 +67,13 @@ export class AuthController {
       role: user.role,
       shift: user.lastShift.id,
     });
+
+    if (user?.lastShift?.id) {
+      this.eventEmitter.emit(
+        AuthEventsEnum.LOGIN_EVENT,
+        new AuthEvent(user.lastShift.id),
+      );
+    }
 
     await this.authService.updateUserRefreshToken(refresh.token, user.id);
 
@@ -140,6 +123,12 @@ export class AuthController {
       shift: user.lastShift.id,
     });
 
+    if (user?.lastShift?.id) {
+      this.eventEmitter.emit(
+        AuthEventsEnum.LOGIN_EVENT,
+        new AuthEvent(user.lastShift.id),
+      );
+    }
     await this.authService.updateUserRefreshToken(refresh.token, user.id);
 
     response.cookie('Authentication', token, {
@@ -158,10 +147,6 @@ export class AuthController {
       secure: true,
     });
 
-    try {
-      await this.deviceDispenserService.updateDispenserSummary();
-    } catch (e) {}
-
     return response.send(user);
   }
 
@@ -171,29 +156,18 @@ export class AuthController {
     summary: 'Logout',
   })
   async logout(@Req() request: Request, @Res() response: Response) {
-    try {
-      await this.deviceDispenserService.updateDispenserSummary();
-    } catch (e) {}
-
     const token = request.cookies.Refresh;
     if (token) {
-      const dispensers = await this.dispenserService.find({
-        select: { id: true, currentCounter: true },
-      });
       const payload = this.tokensService.decode(token);
       await this.shiftService.update(
         { where: { id: payload.shift } },
         {
           closedAt: Math.floor(Date.now() / 1000),
-          finishDispensersState: JSON.stringify(
-            dispensers.map((item) => {
-              return {
-                id: item.id,
-                summary: item.currentCounter,
-              };
-            }),
-          ),
         },
+      );
+      this.eventEmitter.emit(
+        AuthEventsEnum.LOGOUT_EVENT,
+        new AuthEvent(payload.shift),
       );
       await this.authService.updateUserRefreshToken(token, payload.id);
     }

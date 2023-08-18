@@ -107,7 +107,7 @@ export class DevicesContoller {
   @UseGuards(JwtAuthGuard, HasRole)
   @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
   @Post('dispenser/done')
-  async fixDispenserrCommand(
+  async doneDispenserCommand(
     @Body() payload: DispenserFixOperationDto,
     @CurrentUser() user: ICurrentUser,
   ) {
@@ -138,5 +138,23 @@ export class DevicesContoller {
       shift: user.lastShift,
     });
     return this.deviceDispenserService.drainFuelTest(payload);
+  }
+
+  @UseGuards(JwtAuthGuard, HasRole)
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
+  @Post('dispenser/done/test')
+  async doneDispenserTestCommand(
+    @Body() payload: DispenserFixOperationDto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    await this.eventService.create({
+      collection: EventCollectionType.DRAIN_FUEL,
+      type: EventType.DEFAULT,
+      dataBefore: '',
+      dataAfter: JSON.stringify(payload),
+      name: `Вызов команды на фиксацию результата`,
+      shift: user.lastShift,
+    });
+    return this.deviceDispenserService.doneOperationTest(payload);
   }
 }

@@ -68,7 +68,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: Not(OperationStatus.FINISHED),
+        status: Not(In([OperationStatus.STOPPED, OperationStatus.FINISHED])),
         type: OperationType.OUTCOME,
       },
       relations: {
@@ -80,6 +80,21 @@ export class DeviceDispenserService implements OnModuleDestroy {
     if (!operation?.dispenser?.addressId) {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
+
+    const dispenser = await this.dispenserRepository.findOne({
+      where: { id: operation.dispenser.id },
+    });
+
+    await this.operationRepository.update(
+      {
+        id: operation.id,
+      },
+      {
+        startedAt: Math.floor(Date.now() / 1000),
+        status: OperationStatus.STARTED,
+        counterBefore: dispenser.currentCounter,
+      },
+    );
 
     await this.dispenserRepository.update(
       {
@@ -107,6 +122,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
             status: OperationStatus.PROGRESS,
             factVolume: counter,
             factWeight: counter * operation.tank.density,
+            counterAfter: dispenser.currentCounter + counter,
           },
         );
         if (counter === payload.litres) {
@@ -121,6 +137,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           await this.dispenserRepository.update(
             {
               id: operation.dispenser.id,
+              currentCounter: dispenser.currentCounter + counter,
             },
             { isBlocked: false },
           );
@@ -161,7 +178,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     //Запись реально залитого количества
     let litresStatus: Array<any> = await this.callCommand({
       command: DispenserCommand.GET_CURRENT_STATUS,
-      addressId: addressId,
+      addressId: operation.dispenser.addressId,
       comId: operation.dispenser.comId,
     });
     const countLitres = DispenserHelper.getLitres(litresStatus);
@@ -207,6 +224,45 @@ export class DeviceDispenserService implements OnModuleDestroy {
         id: operation.dispenser.id,
       },
       { currentCounter: summaryLitres },
+    );
+  }
+
+  async doneOperationTest(payload: DispenserFixOperationDto) {
+    const operation = await this.operationRepository.findOneOrFail({
+      where: {
+        id: payload.operationId,
+        status: In([OperationStatus.INTERRUPTED, OperationStatus.STOPPED]),
+        type: OperationType.OUTCOME,
+      },
+      relations: {
+        dispenser: true,
+        tank: true,
+      },
+    });
+
+    if (!operation?.dispenser?.addressId || !operation?.dispenser?.comId) {
+      throw new BadRequestException(`На колонке не установлен адрес`);
+    }
+
+    const tankState = await this.tankRepository.findOne({
+      where: { id: operation.tank.id },
+    });
+
+    await this.operationRepository.update(
+      {
+        id: operation.id,
+      },
+      {
+        status: OperationStatus.FINISHED,
+        volumeAfter: tankState.volume,
+      },
+    );
+
+    await this.dispenserRepository.update(
+      {
+        id: operation.dispenser.id,
+      },
+      { currentCounter: operation.counterAfter },
     );
   }
 
