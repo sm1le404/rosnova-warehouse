@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { Injectable } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from '../entities/event.entity';
 import {

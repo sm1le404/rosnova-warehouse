@@ -22,7 +22,7 @@ import { HasRole } from '../../auth/guard/has-role.guard';
 @ApiTags('Event')
 @Controller('event')
 @UseInterceptors(ClassSerializerInterceptor)
-//@UseGuards(JwtAuthGuard, HasRole)
+@UseGuards(JwtAuthGuard, HasRole)
 @SetRoles(RoleType.ADMIN)
 export class EventController {
   constructor(private readonly eventService: EventService) {}
