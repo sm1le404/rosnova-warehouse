@@ -37,6 +37,13 @@ export class Shift extends CommonEntity {
   user: User;
 
   @ApiProperty({
+    required: true,
+    description: 'Связный пользователь ID',
+  })
+  @Column({ type: 'int', nullable: false })
+  userId: number;
+
+  @ApiProperty({
     type: () => DispenserSummaryInterface,
     required: true,
     description: 'Объект, содержащий номер и состояние колонок в начале смены',

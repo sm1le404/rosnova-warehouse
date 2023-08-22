@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from '../entities/event.entity';
 import {
@@ -32,6 +32,7 @@ export class EventService extends CommonService<Event> {
       filterableColumns: PaginationEventParams.filterableColumns,
       defaultSortBy: PaginationEventParams.defaultSortBy,
       maxLimit: PaginationEventParams.maxLimit,
+      loadEagerRelations: true,
     });
   }
 }
