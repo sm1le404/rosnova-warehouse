@@ -67,7 +67,7 @@ export class TankService extends CommonService<Tank> {
       const connector = new MysqlSender();
 
       const shifts: Array<any> = await connector.makeQuery(`SELECT *
-                                                FROM shift WHERE ShopKey = '1' 
+                                                FROM shift WHERE ShopKey = '${shopKey}' 
                                                 ORDER BY ShiftKey DESC  LIMIT 1`);
       const lastShift = shifts[0];
 
