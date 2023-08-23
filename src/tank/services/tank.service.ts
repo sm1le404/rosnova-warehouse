@@ -117,18 +117,19 @@ export class TankService extends CommonService<Tank> {
            LevelgageInfoMask, Flags, PosAcquirerID)
           VALUES ('${dateWithTimeZone().toISOString()}', 0, ${shopKey}, ${
             lastShift.ShiftKey
-          }, ${tank.sortIndex}, ${tank.level}, ${tank.totalVolume}, 0, ${
+          }, ${tank.sortIndex}, ${tank.level}, ${tank.volume}, 0, ${
             tank.density
-          }, ${tank.temperature}, ${tank.weight}, 0, ${Number(
-            tank.level.toFixed(2),
-          )}, 0, ${tank.density}, ${tank.temperature}, ${tank.weight.toFixed(
-            2,
-          )}, 31, 2, 172);`);
+          }, ${tank.temperature}, ${tank.weight / 1000}, ${
+            tank.volume
+          }, ${Number(tank.level.toFixed(2))}, 0, ${tank.density}, ${
+            tank.temperature
+          }, ${tank.weight.toFixed(2)}, 31, 2, 172);`);
         }
       }
 
       connector.destroy();
     } catch (e) {
+      console.error(e);
       this.logger.error(e);
     }
   }
