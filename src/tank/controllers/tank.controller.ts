@@ -27,6 +27,15 @@ import { RoleType } from '../../user/enums';
 export class TankController {
   constructor(private readonly tankService: TankService) {}
 
+  @Post('stat')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
+  @ApiOperation({
+    summary: 'Send info to stat',
+  })
+  async sentToStat(): Promise<void> {
+    await this.tankService.sendToStatistic();
+  }
+
   @Get()
   @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({

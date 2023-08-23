@@ -49,6 +49,7 @@
     "cyrillic-to-translit-js": "^3.2.1",
     "dotenv": "^16.2.0",
     "exceljs": "^4.3.0",
+    "iconv-lite": "^0.6.3",
     "mysql2": "^3.6.0",
     "nest-winston": "^1.9.3",
     "nestjs-paginate": "^8.1.4",

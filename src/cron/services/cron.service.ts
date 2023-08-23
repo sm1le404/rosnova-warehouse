@@ -5,6 +5,7 @@ import { DeviceTankService } from '../../devices/services/device.tank.service';
 import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 import { ConfigService } from '@nestjs/config';
 import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
+import { TankService } from '../../tank/services/tank.service';
 
 @Injectable()
 export class CronService {
@@ -14,6 +15,7 @@ export class CronService {
     private readonly deviceTankService: DeviceTankService,
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly configService: ConfigService,
+    private readonly tankService: TankService,
   ) {}
 
   isDev(): boolean {
@@ -58,6 +60,20 @@ export class CronService {
     }
     try {
       await this.deviceDispenserService.updateDispenserStatuses();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_5_MINUTES, {
+    name: 'sendTankData',
+  })
+  async sendTankData() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.tankService.sendToStatistic();
     } catch (e) {
       this.logger.error(e);
     }

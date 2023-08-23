@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../entities/tank.entity';
 import { DeviceInfoType } from '../../devices/types/device.info.type';
@@ -10,6 +10,8 @@ import { DeviceTankUpdateType } from '../interfaces';
 import { MysqlSender } from '../../devices/classes/mysql.sender';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { dateWithTimeZone } from '../../common/utility/date';
+import * as iconv from 'iconv-lite';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
@@ -54,21 +56,34 @@ export class TankService extends CommonService<Tank> {
     );
     if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
       await this.tankHistoryService.create({
-        ...tankData,
         fuel: tank.fuel,
         fuelHolder: tank.fuelHolder,
         refinery: tank.refinery,
         tank: { id: tank.id },
+        volume: tankData.volume,
+        temperature: tankData.temperature,
+        density: tankData.density,
+        weight: tankData.weight,
       });
     } else {
       await this.update({ where: { id: tank.id } }, { isBlocked: false });
     }
+  }
+
+  async sendToStatistic() {
+    const tankList = await this.tankRepository.find({
+      where: { addressId: Not(IsNull()), isEnabled: true },
+      relations: {
+        fuelHolder: true,
+        fuel: true,
+        refinery: true,
+      },
+    });
 
     //Лютая дичь, нужна на переходный период
-    //Отправляем раз в 5 минут
     try {
-      const shopKey = Number(this.configService.get('SHOP_KEY')) ?? 1;
       const connector = new MysqlSender();
+      const shopKey = Number(this.configService.get('SHOP_KEY')) ?? 1;
 
       const shifts: Array<any> = await connector.makeQuery(`SELECT *
                                                 FROM shift WHERE ShopKey = '${shopKey}' 
@@ -76,35 +91,40 @@ export class TankService extends CommonService<Tank> {
       const lastShift = shifts[0];
 
       if (lastShift?.ShiftKey) {
-        await connector.makeQuery(`INSERT INTO fuelbalance 
-    (ShopKey, ShiftKey, CreateDatetime, COD_L, COD_Q, COD_NB, COD_AZS, CollectionKey,
-    ResourceCode, WarehouseKey, VolumeBalance, MassBalance, FreeVolumeBalance, VolumeSelling,
-    MassSelling, CurrentPrice, VolumeMaximum, ResourceName, VolumeReal, MassReal)
-    VALUES (${shopKey}, ${
-          lastShift.ShiftKey
-        }, '${new Date().toISOString()}', 1, 1, 1, 1, 6, 139, ${
-          tank.sortIndex
-        }, ${payload.VOLUME}, ${payload.WEIGHT}, ${
-          tank.totalVolume - payload.VOLUME
-        }, 0, 0, 0 , ${tank.totalVolume}, '${tank.refinery.shortName} ${
-          tank.fuelHolder.shortName
-        } ${tank.fuel.name}', ${payload.VOLUME}, ${payload.WEIGHT});`);
+        for (const tank of tankList) {
+          let fuelName: string;
+          fuelName = `${tank.fuel.name} ${tank.refinery.shortName} ${tank.fuelHolder.shortName}`;
+          fuelName = iconv.decode(iconv.encode(fuelName, 'win1251'), 'latin1');
+          await connector.makeQuery(`INSERT INTO fuelbalance
+          (ShopKey, ShiftKey, CreateDatetime, COD_L, COD_Q, COD_NB, COD_AZS, CollectionKey,
+          ResourceCode, WarehouseKey, VolumeBalance, MassBalance, FreeVolumeBalance, VolumeSelling,
+          MassSelling, CurrentPrice, VolumeMaximum, ResourceName, VolumeReal, MassReal)
+          VALUES (${shopKey}, ${
+            lastShift.ShiftKey
+          }, '${dateWithTimeZone().toISOString()}', 1, 1, 1, 1, 6, 139, ${
+            tank.sortIndex
+          }, ${tank.volume}, ${tank.weight}, ${
+            tank.totalVolume - tank.volume
+          }, 0, 0, 0 , ${tank.totalVolume}, '${fuelName}', ${tank.volume}, ${
+            tank.weight
+          });`);
 
-        await connector.makeQuery(`INSERT INTO warehousemeasurement 
-        (MeasurementDateTime, MeasurementType, 
-         ShopKey, ShiftKey,WarehouseKey, Level, TotalVolume, 
-         WaterVolume, Density, Temperature, Mass, CalcLevel,
-         CalcTotalVolume, CalcWaterVolume, CalcDensity, CalcTemperature, CalcMass,
-         LevelgageInfoMask, Flags, PosAcquirerID)
-        VALUES ('${new Date().toISOString()}', 0, ${shopKey}, ${
-          lastShift.ShiftKey
-        }, ${tank.sortIndex}, ${payload.LAYER_LIQUID}, ${payload.VOLUME}, ${
-          payload.LAYER_LIQUID
-        }, ${payload.DENSITY}, ${payload.TEMP}, ${payload.WEIGHT}, 0, ${Number(
-          payload.VOLUME.toFixed(2),
-        )}, 0, ${payload.DENSITY}, ${payload.TEMP}, ${
-          payload.WEIGHT
-        }, 31, 2, 172);`);
+          await connector.makeQuery(`INSERT INTO warehousemeasurement
+          (MeasurementDateTime, MeasurementType,
+           ShopKey, ShiftKey,WarehouseKey, Level, TotalVolume,
+           WaterVolume, Density, Temperature, Mass, CalcLevel,
+           CalcTotalVolume, CalcWaterVolume, CalcDensity, CalcTemperature, CalcMass,
+           LevelgageInfoMask, Flags, PosAcquirerID)
+          VALUES ('${dateWithTimeZone().toISOString()}', 0, ${shopKey}, ${
+            lastShift.ShiftKey
+          }, ${tank.sortIndex}, ${tank.level}, ${tank.totalVolume}, 0, ${
+            tank.density
+          }, ${tank.temperature}, ${tank.weight}, 0, ${Number(
+            tank.level.toFixed(2),
+          )}, 0, ${tank.density}, ${tank.temperature}, ${tank.weight.toFixed(
+            2,
+          )}, 31, 2, 172);`);
+        }
       }
 
       connector.destroy();

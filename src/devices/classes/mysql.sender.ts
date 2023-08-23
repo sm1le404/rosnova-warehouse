@@ -10,6 +10,7 @@ export class MysqlSender {
       user: 'ferr',
       password: 'superpass',
       database: 'ocw',
+      charset: 'latin1_swedish_ci',
     });
   }
 
