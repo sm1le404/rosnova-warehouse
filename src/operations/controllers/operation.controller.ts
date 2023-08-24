@@ -96,6 +96,7 @@ export class OperationController {
       dataAfter: JSON.stringify(createOperationDto),
       name: `Создание операции, накладная: ${createOperationDto.numberTTN}`,
       shift: user.lastShift,
+      user,
     });
 
     return response;
@@ -129,6 +130,7 @@ export class OperationController {
       dataAfter: JSON.stringify(updateOperationDto),
       name: `Изменение операции ${id}, накладная: ${dataBefore.numberTTN}`,
       shift: user.lastShift,
+      user,
     });
 
     return updated;
@@ -153,6 +155,7 @@ export class OperationController {
       dataAfter: '',
       name: `Удаление операции ${id}, накладная: ${dataBefore.numberTTN}`,
       shift: user.lastShift,
+      user,
     });
     return this.operationService.delete({ where: { id } });
   }

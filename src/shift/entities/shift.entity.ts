@@ -1,10 +1,9 @@
-import { AfterLoad, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { AfterLoad, Column, Entity, OneToMany } from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Event } from '../../event/entities/event.entity';
 import { Operation } from '../../operations/entities/operation.entity';
-import { User } from '../../user/entities/user.entity';
 import { DispenserSummaryInterface } from '../interfaces/dispenser.summary.interface';
 import { TankSummaryInterface } from '../interfaces/tank.summary.interface';
 
@@ -28,21 +27,6 @@ export class Shift extends CommonEntity {
 
   @OneToMany(() => Operation, (operation) => operation.shift)
   operation: Operation[];
-
-  @ApiProperty({
-    type: () => User,
-    required: true,
-    description: 'Связный пользователь',
-  })
-  @ManyToOne(() => User, (user) => user.shift, { eager: true })
-  user: User;
-
-  @ApiProperty({
-    required: true,
-    description: 'Связный пользователь ID',
-  })
-  @Column({ type: 'int', nullable: false })
-  userId: number;
 
   @ApiProperty({
     type: () => DispenserSummaryInterface,

@@ -1,9 +1,9 @@
 import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
-
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+import { Event } from '../../event/entities/event.entity';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
-import { Shift } from '../../shift/entities/shift.entity';
 import { EncryptionService } from '../../auth/services/encryption.service';
 
 const crypto = new EncryptionService();
@@ -35,12 +35,12 @@ export class User extends CommonEntity {
   isEnabled?: boolean;
 
   @ApiProperty({
-    type: () => Shift,
+    type: () => Event,
     isArray: true,
-    description: 'Связные смены',
+    description: 'Связное событие',
   })
-  @OneToMany(() => Shift, (shift) => shift.user, { cascade: true })
-  shift: Shift[];
+  @OneToMany(() => Event, (event) => event.user)
+  event: Event[];
 
   @BeforeInsert()
   async hashPassword() {

@@ -32,8 +32,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       },
     });
 
-    const lastshift = await this.shiftService.getLastShift(user.id);
-    (user as ICurrentUser).lastShift = lastshift;
+    const lastShift = await this.shiftService.getLastShift();
+    (user as ICurrentUser).lastShift = lastShift;
 
     return user;
   }

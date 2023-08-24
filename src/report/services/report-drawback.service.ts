@@ -6,6 +6,7 @@ import * as ExcelJS from 'exceljs';
 import path from 'path';
 import { dateFormatter, timeFormatter } from '../utils';
 import { IVehicleTank } from '../../vehicle/types';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @Injectable()
 export class ReportDrawbackService {
@@ -14,7 +15,10 @@ export class ReportDrawbackService {
     private operationRepository: Repository<Operation>,
   ) {}
 
-  async generate(operationId: number): Promise<ExcelJS.Workbook> {
+  async generate(
+    operationId: number,
+    user: ICurrentUser,
+  ): Promise<ExcelJS.Workbook> {
     const operation = await this.operationRepository.findOne({
       where: { id: operationId },
     });
@@ -157,8 +161,7 @@ export class ReportDrawbackService {
     };
 
     // ФИО оператора и водителя
-    worksheet.getCell(`H${56 - (5 - len)}`).value =
-      operation.shift?.user?.login ?? '';
+    worksheet.getCell(`H${56 - (5 - len)}`).value = user?.login ?? '';
     worksheet.getCell(`H${58 - (5 - len)}`).value =
       `${operation.driver?.lastName} ${operation.driver?.firstName?.slice(
         0,
