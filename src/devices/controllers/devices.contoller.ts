@@ -79,6 +79,7 @@ export class DevicesContoller {
       dataAfter: JSON.stringify(payload),
       name: `Вызов произвольной команды`,
       shift: user.lastShift,
+      user,
     });
     if (payload?.data && Array.isArray(payload.data)) {
       payload.data = Buffer.from(payload.data.join(''));
@@ -100,6 +101,7 @@ export class DevicesContoller {
       dataAfter: JSON.stringify(payload),
       name: `Вызов команды на слив топлива`,
       shift: user.lastShift,
+      user,
     });
     return this.deviceDispenserService.drainFuel(payload);
   }
@@ -118,6 +120,7 @@ export class DevicesContoller {
       dataAfter: JSON.stringify(payload),
       name: `Вызов команды на фиксацию результата`,
       shift: user.lastShift,
+      user,
     });
     return this.deviceDispenserService.doneOperation(payload);
   }
@@ -136,6 +139,7 @@ export class DevicesContoller {
       dataAfter: JSON.stringify(payload),
       name: `Вызов команды на слив топлива`,
       shift: user.lastShift,
+      user,
     });
     return this.deviceDispenserService.drainFuelTest(payload);
   }
@@ -154,6 +158,7 @@ export class DevicesContoller {
       dataAfter: JSON.stringify(payload),
       name: `Вызов команды на фиксацию результата`,
       shift: user.lastShift,
+      user,
     });
     return this.deviceDispenserService.doneOperationTest(payload);
   }

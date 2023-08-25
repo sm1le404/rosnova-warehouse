@@ -102,6 +102,7 @@ export class ShiftController {
       dataAfter: JSON.stringify(createShiftDto),
       name: 'Создание смены',
       shift: user.lastShift,
+      user,
     });
 
     return response;
@@ -136,6 +137,7 @@ export class ShiftController {
       dataAfter: JSON.stringify(updateShiftDto),
       name: 'Изменение смены',
       shift: user.lastShift,
+      user,
     });
 
     return updated;
@@ -160,6 +162,7 @@ export class ShiftController {
       dataAfter: '',
       name: 'Удаление смены',
       shift: user.lastShift,
+      user,
     });
 
     return this.shiftService.delete({ where: { id } });
@@ -218,6 +221,7 @@ export class ShiftController {
       dataAfter: '',
       name: 'Закрытие смены',
       shift: user.lastShift,
+      user,
     });
 
     return updated;
