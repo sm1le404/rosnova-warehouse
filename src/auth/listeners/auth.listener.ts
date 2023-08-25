@@ -40,31 +40,4 @@ export class AuthListener {
       },
     );
   }
-
-  @OnEvent(AuthEventsEnum.LOGIN_EVENT)
-  async handleLogoutEvent(event: AuthEvent) {
-    try {
-      await this.deviceDispenserService.updateDispenserSummary();
-    } catch (e) {}
-
-    const dispensers = await this.dispenserService.find({
-      select: { id: true, currentCounter: true },
-    });
-
-    await this.shiftService.update(
-      {
-        where: { id: event.shiftId },
-      },
-      {
-        finishDispensersState: JSON.stringify(
-          dispensers.map((item) => {
-            return {
-              id: item.id,
-              summary: item.currentCounter,
-            };
-          }),
-        ),
-      },
-    );
-  }
 }

@@ -25,7 +25,6 @@ import { ApiOkResponse } from '../../common/decorators/api-ok-response.decorator
 import { ApiBadRequestResponse } from '../../common/decorators/api-bad-request-response.decorator';
 import { ResponseDto } from '../../common/dto';
 import { ICurrentUser } from '../interface/current-user.interface';
-import { ShiftService } from '../../shift/services/shift.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AuthEvent } from '../events/auth.event';
 import { AuthEventsEnum } from '../enums/auth.events.enum';
@@ -37,7 +36,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     protected readonly tokensService: TokensService,
-    protected readonly shiftService: ShiftService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -159,16 +157,6 @@ export class AuthController {
     const token = request.cookies.Refresh;
     if (token) {
       const payload = this.tokensService.decode(token);
-      await this.shiftService.update(
-        { where: { id: payload.shift } },
-        {
-          closedAt: Math.floor(Date.now() / 1000),
-        },
-      );
-      this.eventEmitter.emit(
-        AuthEventsEnum.LOGOUT_EVENT,
-        new AuthEvent(payload.shift),
-      );
       await this.authService.updateUserRefreshToken(token, payload.id);
     }
 

@@ -34,6 +34,9 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
+import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
+import { DispenserService } from '../../dispenser/services/dispenser.service';
+import { TankService } from '../../tank/services/tank.service';
 
 @ApiTags('Shift')
 @Controller('shift')
@@ -44,6 +47,9 @@ export class ShiftController {
   constructor(
     private readonly shiftService: ShiftService,
     private readonly eventService: EventService,
+    private readonly deviceDispenserService: DeviceDispenserService,
+    private readonly dispenserService: DispenserService,
+    private readonly tankService: TankService,
   ) {}
 
   @Get()
@@ -94,7 +100,7 @@ export class ShiftController {
       type: EventType.CREATE,
       dataBefore: '',
       dataAfter: JSON.stringify(createShiftDto),
-      name: '',
+      name: 'Создание смены',
       shift: user.lastShift,
     });
 
@@ -128,7 +134,7 @@ export class ShiftController {
       type: EventType.UPDATE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateShiftDto),
-      name: '',
+      name: 'Изменение смены',
       shift: user.lastShift,
     });
 
@@ -152,10 +158,68 @@ export class ShiftController {
       type: EventType.DELETE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
-      name: '',
+      name: 'Удаление смены',
       shift: user.lastShift,
     });
 
     return this.shiftService.delete({ where: { id } });
+  }
+
+  @Post('close')
+  @ApiOperation({
+    summary: 'Close current shift',
+  })
+  @ApiResponse({ type: () => Shift })
+  async close(@CurrentUser() user: ICurrentUser): Promise<Shift> {
+    try {
+      await this.deviceDispenserService.updateDispenserSummary();
+    } catch (e) {}
+
+    const dispensers = await this.dispenserService.find({
+      select: { id: true, currentCounter: true },
+    });
+
+    const tanks = await this.tankService.find({ where: { isEnabled: true } });
+
+    const updated = await this.shiftService.update(
+      {
+        where: {
+          id: user.lastShift.id,
+        },
+      },
+      {
+        closedAt: Math.floor(Date.now() / 1000),
+        finishDispensersState: JSON.stringify(
+          dispensers.map((item) => {
+            return {
+              id: item.id,
+              summary: item.currentCounter,
+            };
+          }),
+        ),
+        finishTankState: JSON.stringify(
+          tanks.map((item) => {
+            return {
+              id: item.id,
+              volume: item.volume,
+              weight: item.weight,
+              docVolume: item.docVolume,
+              docWeight: item.docWeight,
+            };
+          }),
+        ),
+      },
+    );
+
+    await this.eventService.create({
+      collection: EventCollectionType.SHIFT,
+      type: EventType.DEFAULT,
+      dataBefore: '',
+      dataAfter: '',
+      name: 'Закрытие смены',
+      shift: user.lastShift,
+    });
+
+    return updated;
   }
 }

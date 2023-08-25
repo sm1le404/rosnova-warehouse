@@ -94,7 +94,7 @@ export class OperationController {
       type: EventType.CREATE,
       dataBefore: '',
       dataAfter: JSON.stringify(createOperationDto),
-      name: createOperationDto?.numberTTN || `Операция без номера накладной`,
+      name: `Создание операции, накладная: ${createOperationDto.numberTTN}`,
       shift: user.lastShift,
     });
 
@@ -127,7 +127,7 @@ export class OperationController {
       type: EventType.UPDATE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: JSON.stringify(updateOperationDto),
-      name: `Операция ${id}`,
+      name: `Изменение операции ${id}, накладная: ${dataBefore.numberTTN}`,
       shift: user.lastShift,
     });
 
@@ -151,7 +151,7 @@ export class OperationController {
       type: EventType.DELETE,
       dataBefore: JSON.stringify(dataBefore),
       dataAfter: '',
-      name: `Операция ${id}`,
+      name: `Удаление операции ${id}, накладная: ${dataBefore.numberTTN}`,
       shift: user.lastShift,
     });
     return this.operationService.delete({ where: { id } });
