@@ -9,12 +9,13 @@ export const PaginationEventParams = new PaginationEvent();
 PaginationEventParams.selectedColumns = [];
 PaginationEventParams.searchableColumns = ['name', 'dataBefore', 'dataAfter'];
 PaginationEventParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
-PaginationEventParams.relationList = ['shift'];
+PaginationEventParams.relationList = ['shift', 'user'];
 
 PaginationEventParams.filterableColumns = {
   id: [FilterOperator.IN, FilterOperator.EQ],
   createdAt: [FilterOperator.GTE, FilterOperator.LTE],
   shift: [FilterOperator.IN, FilterOperator.EQ],
+  user: [FilterOperator.IN, FilterOperator.EQ],
   type: [FilterOperator.IN, FilterOperator.EQ],
   collection: [FilterOperator.IN, FilterOperator.EQ],
 };

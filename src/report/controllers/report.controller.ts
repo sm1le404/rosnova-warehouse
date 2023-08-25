@@ -18,6 +18,8 @@ import { dateFormatter, translitFromRuToEn } from '../utils';
 import { Operation } from '../../operations/entities/operation.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CurrentUser } from '../../auth/decorators/current-user.decorator';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @ApiTags('Report')
 @Controller('report')
@@ -91,6 +93,7 @@ export class ReportController {
   async drawbackReport(
     @Res() res: Response,
     @Query('operationId') operationId: number,
+    @CurrentUser() user: ICurrentUser,
   ) {
     const date = dateFormatter(Math.floor(Date.now() / 1000));
     const op = await this.operationRepository.findOne({
@@ -104,7 +107,10 @@ export class ReportController {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
-    const workbook = await this.reportDrawbackService.generate(operationId);
+    const workbook = await this.reportDrawbackService.generate(
+      operationId,
+      user,
+    );
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });

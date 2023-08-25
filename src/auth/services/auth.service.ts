@@ -25,15 +25,14 @@ export class AuthService {
       select: { password: true, isEnabled: true, id: true, role: true },
     });
 
-    let lastShift = await this.shiftService.getLastShift(user.id);
+    let lastShift = await this.shiftService.getLastShift();
 
     if (!lastShift) {
       await this.shiftService.create({
         startedAt: Math.floor(Date.now() / 1000),
-        user,
       });
 
-      lastShift = await this.shiftService.getLastShift(user.id);
+      lastShift = await this.shiftService.getLastShift();
     }
 
     if (!user) {

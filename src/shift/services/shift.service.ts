@@ -36,9 +36,9 @@ export class ShiftService extends CommonService<Shift> {
     });
   }
 
-  async getLastShift(userId: number): Promise<Shift> {
+  async getLastShift(): Promise<Shift> {
     return this.shiftRepository.findOne({
-      where: { user: { id: userId }, closedAt: IsNull() },
+      where: { closedAt: IsNull() },
       order: { id: 'DESC' },
     });
   }

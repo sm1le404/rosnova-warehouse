@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { EventType, EventCollectionType } from '../enums';
 import { Shift } from '../../shift/entities/shift.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Event extends CommonEntity {
@@ -38,4 +39,8 @@ export class Event extends CommonEntity {
   @ApiProperty({ type: () => Shift, description: 'Связная смена' })
   @ManyToOne(() => Shift, (shift) => shift.event, { eager: true })
   shift: Shift;
+
+  @ApiProperty({ type: () => User, description: 'Связный пользователь' })
+  @ManyToOne(() => User, (user) => user.event, { eager: true })
+  user: User;
 }
