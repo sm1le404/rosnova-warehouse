@@ -70,6 +70,7 @@ export class TankController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update tank by id',
   })

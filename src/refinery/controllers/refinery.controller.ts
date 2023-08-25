@@ -64,6 +64,7 @@ export class RefineryController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update refinery by id',
   })

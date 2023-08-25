@@ -170,7 +170,7 @@ export class Operation extends CommonEntity {
   trailer?: Trailer;
 
   @ApiProperty({
-    type: () => Trailer,
+    type: () => Vehicle,
     required: false,
     description: 'ТС',
   })

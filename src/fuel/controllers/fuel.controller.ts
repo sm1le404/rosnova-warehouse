@@ -62,6 +62,7 @@ export class FuelController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update fuel by id',
   })

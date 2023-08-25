@@ -64,6 +64,8 @@ export class TankService extends CommonService<Tank> {
         temperature: tankData.temperature,
         density: tankData.density,
         weight: tankData.weight,
+        docWeight: tank.docWeight,
+        docVolume: tank.docVolume,
       });
     } else {
       await this.update({ where: { id: tank.id } }, { isBlocked: false });

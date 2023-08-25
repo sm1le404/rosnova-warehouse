@@ -36,6 +36,14 @@ export class Tank extends CommonEntity {
   @Column({ type: 'float', nullable: false, default: 0 })
   weight?: number;
 
+  @ApiProperty({ required: true, description: 'Документальный объем' })
+  @Column({ type: 'float', nullable: false, default: 0 })
+  docVolume?: number;
+
+  @ApiProperty({ required: true, description: 'Документальный вес' })
+  @Column({ type: 'float', nullable: false, default: 0 })
+  docWeight?: number;
+
   @ApiProperty({ required: true, description: 'Плотность' })
   @Column({ type: 'float', nullable: false, default: 0 })
   density?: number;

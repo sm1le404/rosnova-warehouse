@@ -61,6 +61,7 @@ export class VehicleController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update vehicle by id',
   })

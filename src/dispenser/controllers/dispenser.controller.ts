@@ -64,6 +64,7 @@ export class DispenserController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update dispenser by id',
   })

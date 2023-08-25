@@ -61,6 +61,7 @@ export class TrailerController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update trailer by id',
   })

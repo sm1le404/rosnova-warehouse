@@ -62,6 +62,7 @@ export class DriverController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update driver by id',
   })

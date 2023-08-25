@@ -13,3 +13,7 @@ export enum OperationType {
   INTERNAL = 'internal',
   RETURN = 'return',
 }
+
+export enum OperationEvent {
+  FINISH = 'FINISH',
+}

@@ -19,13 +19,19 @@ import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { FindOptionsWhere, In, IsNull, Not, Repository } from 'typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
-import { OperationStatus, OperationType } from '../../operations/enums';
+import {
+  OperationEvent,
+  OperationStatus,
+  OperationType,
+} from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 import { LogDirection, logInRoot } from '../../common/utility/rootpath';
 import { DispenserHelper } from '../classes/dispenser.helper';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { DeviceTankService } from './device.tank.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -42,6 +48,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     private readonly operationRepository: Repository<Operation>,
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
+    private eventEmitter: EventEmitter2,
   ) {
     this.dispenserRepository
       .createQueryBuilder(`dispenser`)
@@ -217,6 +224,16 @@ export class DeviceDispenserService implements OnModuleDestroy {
         factVolume: countLitres,
         factWeight: countLitres * operation.tank.density,
       },
+    );
+
+    this.eventEmitter.emit(
+      OperationEvent.FINISH,
+      new TankOperationStateEvent(
+        operation.tank.id,
+        operation.type,
+        countLitres,
+        countLitres * operation.tank.density,
+      ),
     );
 
     await this.dispenserRepository.update(

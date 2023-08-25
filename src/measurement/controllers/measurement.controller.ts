@@ -77,6 +77,7 @@ export class MeasurementController {
   }
 
   @Put(':id')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Update measurement by id',
   })
