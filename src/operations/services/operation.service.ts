@@ -105,8 +105,10 @@ export class OperationService extends CommonService<Operation> {
     const tankState = await this.tankService.findOne({
       where: { id: tankId },
     });
-    let currentVolume = tankState.docVolume;
-    let currentWeight = tankState.docWeight;
+    let currentVolume =
+      tankState.docVolume > 0 ? tankState.docVolume : tankState.volume;
+    let currentWeight =
+      tankState.docWeight > 0 ? tankState.docWeight : tankState.weight;
 
     switch (operationType) {
       case OperationType.INTERNAL:
@@ -121,10 +123,6 @@ export class OperationService extends CommonService<Operation> {
         break;
     }
 
-    console.log(currentVolume);
-    console.log(currentWeight);
-    console.log(operationVolume);
-    console.log(operationWeight);
     await this.tankService.update(
       {
         where: {
