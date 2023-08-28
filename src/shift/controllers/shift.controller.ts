@@ -169,6 +169,7 @@ export class ShiftController {
   }
 
   @Post('close')
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Close current shift',
   })

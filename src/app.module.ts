@@ -113,7 +113,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ReportModule,
   ],
   controllers: [],
-  providers: [CronService],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

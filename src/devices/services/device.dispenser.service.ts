@@ -526,13 +526,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
         comId: Not(IsNull()),
       },
     });
-    dispensers.forEach((dispenser) => {
-      this.callCommand({
+    for (const dispenser of dispensers) {
+      await this.callCommand({
         addressId: dispenser.addressId,
         comId: dispenser.comId,
         command: DispenserCommand.STATUS,
       });
-    });
+    }
   }
 
   async updateDispenserSummary() {
