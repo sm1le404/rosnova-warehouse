@@ -6,6 +6,7 @@ import { Event } from '../../event/entities/event.entity';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserSummaryInterface } from '../interfaces/dispenser.summary.interface';
 import { TankSummaryInterface } from '../interfaces/tank.summary.interface';
+import { TankSummaryManualInterface } from '../interfaces/tank.summary.manual.interface';
 
 @Entity()
 export class Shift extends CommonEntity {
@@ -56,6 +57,16 @@ export class Shift extends CommonEntity {
   @Column({ type: 'text', nullable: true })
   finishTankState?: string;
 
+  @ApiProperty({
+    type: () => TankSummaryManualInterface,
+    required: true,
+    description:
+      'Объект, содержащий номер и состояние резевуаров в конце смены при ручных замераз',
+    isArray: true,
+  })
+  @Column({ type: 'text', nullable: true })
+  manualTankState?: string;
+
   @AfterLoad()
   afterLoad() {
     if (this?.startDispensersState) {
@@ -78,6 +89,14 @@ export class Shift extends CommonEntity {
         this.finishTankState = JSON.parse(this.finishTankState);
       } catch (e) {
         this.finishTankState = null;
+      }
+    }
+
+    if (this?.manualTankState) {
+      try {
+        this.manualTankState = JSON.parse(this.manualTankState);
+      } catch (e) {
+        this.manualTankState = null;
       }
     }
   }

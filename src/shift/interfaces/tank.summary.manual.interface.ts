@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class TankSummaryInterface {
+export class TankSummaryManualInterface {
   @ApiProperty({ description: 'ID резевуара' })
   tankId: number;
 
@@ -9,10 +9,4 @@ export class TankSummaryInterface {
 
   @ApiProperty({ description: 'Значение веса' })
   weight: number;
-
-  @ApiProperty({ description: 'Документальное значение объема' })
-  docVolume: number;
-
-  @ApiProperty({ description: 'Документальное значение веса' })
-  docWeight: number;
 }

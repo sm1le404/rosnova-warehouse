@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiExcludeEndpoint,
   ApiOperation,
   ApiResponse,
@@ -37,6 +38,7 @@ import { RoleType } from '../../user/enums';
 import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { DispenserService } from '../../dispenser/services/dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
+import { CloseShiftDto } from '../dto/close.shift.dto';
 
 @ApiTags('Shift')
 @Controller('shift')
@@ -173,8 +175,14 @@ export class ShiftController {
   @ApiOperation({
     summary: 'Close current shift',
   })
+  @ApiBody({
+    type: () => CloseShiftDto,
+  })
   @ApiResponse({ type: () => Shift })
-  async close(@CurrentUser() user: ICurrentUser): Promise<Shift> {
+  async close(
+    @CurrentUser() user: ICurrentUser,
+    @Body() closeShiftDto: CloseShiftDto,
+  ): Promise<Shift> {
     try {
       await this.deviceDispenserService.updateDispenserSummary();
     } catch (e) {}
@@ -212,6 +220,7 @@ export class ShiftController {
             };
           }),
         ),
+        manualTankState: JSON.stringify(closeShiftDto.manualMeasurements),
       },
     );
 
