@@ -27,7 +27,10 @@ export class ReportDrawbackService {
     const timeStart = timeFormatter(new Date(operation.startedAt));
     const dateEnd = dateFormatter(operation.finishedAt);
     const timeEnd = timeFormatter(new Date(operation.finishedAt));
-    const vehicleState = operation.vehicleState as unknown as IVehicleTank[];
+    const vehicleState = [
+      ...operation.vehicle?.sectionVolumes,
+      ...operation.vehicle?.trailer?.sectionVolumes,
+    ] as unknown as IVehicleTank[];
 
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
@@ -65,13 +68,19 @@ export class ReportDrawbackService {
     // Сведения о грузе
     worksheet.getCell('B34').value = operation.docWeight ?? '';
     worksheet.getCell('B35').value = operation.docDensity ?? '';
+    worksheet.getCell('B36').value = operation.docTemperature ?? '';
 
     // Данные по отсекам
     vehicleState?.map((state, index) => {
       worksheet.getCell(`B${39 + index}`).value = state?.volume ?? '';
-      worksheet.getCell(`C${39 + index}`).value = state?.density ?? '';
-      worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
     });
+
+    (operation.vehicleState as unknown as IVehicleTank[])?.map(
+      (state, index) => {
+        worksheet.getCell(`C${39 + index}`).value = state?.density ?? '';
+        worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
+      },
+    );
 
     const len = vehicleState?.length ?? 0;
 
@@ -156,7 +165,13 @@ export class ReportDrawbackService {
       date1904: true,
     };
     worksheet.getCell(`G${51 - (5 - len)}`).value = {
-      formula: `IF(B34+O${39 + len}>B34;B34;B34+O${39 + len})`,
+      formula: `IF(B34+O${39 + len}>B34,B34,B34+O${39 + len})`,
+      date1904: true,
+    };
+    worksheet.getCell(`Q${51 - (5 - len)}`).value = {
+      formula: `IF(AND(O${39 + len}<0,P${
+        39 + len
+      }<0),"ТРЕБУЕТСЯ АКТ НЕДОСТАЧИ","")`,
       date1904: true,
     };
 
