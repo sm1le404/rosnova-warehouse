@@ -168,7 +168,7 @@ export class ReportDrawbackService {
       formula: `IF(B34+O${39 + len}>B34,B34,B34+O${39 + len})`,
       date1904: true,
     };
-    worksheet.getCell(`Q${51 - (5 - len)}`).value = {
+    worksheet.getCell(`Q${39 + len}`).value = {
       formula: `IF(AND(O${39 + len}<0,P${
         39 + len
       }<0),"ТРЕБУЕТСЯ АКТ НЕДОСТАЧИ","")`,
