@@ -28,7 +28,6 @@ import { rootpath } from './common/utility/rootpath';
 import { DevicesModule } from './devices/devices.module';
 import { CronModule } from './cron/cron.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronService } from './cron/services/cron.service';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 

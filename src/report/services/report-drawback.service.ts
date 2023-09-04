@@ -79,6 +79,7 @@ export class ReportDrawbackService {
       (state, index) => {
         worksheet.getCell(`C${39 + index}`).value = state?.density ?? '';
         worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
+        worksheet.getCell(`I${39 + index}`).value = state?.volume ?? '';
       },
     );
 
