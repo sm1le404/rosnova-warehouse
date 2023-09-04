@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
 import { Operation } from '../../operations/entities/operation.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -30,10 +31,8 @@ export class ReportOutcomeService {
     dateStart,
     dateEnd,
   }: GetOutcomeReportDto): Promise<ExcelJS.Workbook> {
-    const formattedDate = dateFormatter(dateStart, dateEnd);
-
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.OUTCOME,
+      type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
     };
 
     if (shiftId) {
@@ -48,6 +47,8 @@ export class ReportOutcomeService {
       filter.startedAt = LessThanOrEqual(dateEnd);
     }
 
+    const shiftOpertaion: Record<number, Array<Operation>> = {};
+
     const operations = await this.operationRepository.find({
       where: filter,
       order: {
@@ -58,22 +59,17 @@ export class ReportOutcomeService {
       },
     });
 
-    const reportRows = outcomeReportMapper(operations);
-    const indices = findDispenserIndices(operations).slice(1);
+    operations.forEach((item) => {
+      if (Array.isArray(shiftOpertaion[item.shift.id])) {
+        shiftOpertaion[item.shift.id].push(item);
+      } else {
+        shiftOpertaion[item.shift.id] = [item];
+      }
+    });
 
-    for (let i = 0; i < indices.length; i++) {
-      const index = indices[i];
-      const elementToAdd = operations[index].dispenser?.id
-        ? `${operations[index].dispenser.id} трк`
-        : '';
-
-      reportRows.splice(index, 0, ['', elementToAdd]);
+    if (Object.keys(shiftOpertaion).length === 0) {
+      throw new BadRequestException(`Операции для генерации отчета отсутсвуют`);
     }
-
-    reportRows.unshift([
-      '',
-      operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
-    ]);
 
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
@@ -87,8 +83,36 @@ export class ReportOutcomeService {
       ),
     );
     const worksheet = workbook.getWorksheet('page');
-    worksheet.name = formattedDate;
-    worksheet.addRows(reportRows);
+
+    Object.keys(shiftOpertaion).forEach((shiftId) => {
+      let copySheet = workbook.addWorksheet(`${shiftId}`);
+      copySheet.model = worksheet.model;
+
+      const operations = shiftOpertaion[shiftId];
+      const reportRows = outcomeReportMapper(operations);
+      const indices = findDispenserIndices(operations).slice(1);
+      const formattedDate = dateFormatter(operations[0].shift.startedAt);
+
+      for (let i = 0; i < indices.length; i++) {
+        const index = indices[i];
+        const elementToAdd = operations[index].dispenser?.id
+          ? `${operations[index].dispenser.id} трк`
+          : '';
+
+        reportRows.splice(index, 0, ['', elementToAdd]);
+      }
+
+      reportRows.unshift([
+        '',
+        operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
+      ]);
+
+      copySheet.name = formattedDate;
+      copySheet.addRows(reportRows);
+    });
+
+    worksheet.destroy();
+
     return workbook;
   }
 }

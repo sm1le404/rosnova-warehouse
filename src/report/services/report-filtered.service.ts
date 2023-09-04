@@ -5,13 +5,14 @@ import { Operation } from '../../operations/entities/operation.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
 import { OperationType } from '../../operations/enums';
 import path from 'path';
-import { monthReportMapper } from '../utils';
+import { addFormulas, monthReportMapper } from '../utils';
 import { GetMonthReportDto } from '../dto/get-month-report.dto';
 
 @Injectable()
@@ -27,7 +28,7 @@ export class ReportFilteredService {
     dateEnd,
   }: GetMonthReportDto): Promise<ExcelJS.Workbook> {
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.OUTCOME,
+      type: In([OperationType.SUPPLY, OperationType.RETURN]),
     };
 
     if (shiftId) {
@@ -73,6 +74,7 @@ export class ReportFilteredService {
     );
 
     for (const i in operations) {
+      const shiftCell = Number(i);
       /*eslint-disable*/
       const name = `${operations[i].fuel?.name} ${operations[i].fuelHolder?.shortName} ${operations[i].refinery?.shortName}`;
       let worksheet = workbook.getWorksheet('page');
@@ -81,11 +83,14 @@ export class ReportFilteredService {
         if (!worksheet) {
           worksheet = workbook.addWorksheet(name);
           worksheet.addRow(reportRows[i]);
+          addFormulas(worksheet, shiftCell);
         }
         worksheet.addRow(reportRows[i]);
+        addFormulas(worksheet, shiftCell);
       }
       worksheet.name = name;
       worksheet.addRow(reportRows[i]);
+      addFormulas(worksheet, shiftCell);
     }
 
     return workbook;
