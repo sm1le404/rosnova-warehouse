@@ -5,6 +5,7 @@ import { Operation } from '../../operations/entities/operation.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -33,7 +34,7 @@ export class ReportOutcomeService {
     const formattedDate = dateFormatter(dateStart, dateEnd);
 
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.OUTCOME,
+      type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
     };
 
     if (shiftId) {

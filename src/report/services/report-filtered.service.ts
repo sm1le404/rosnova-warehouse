@@ -5,6 +5,7 @@ import { Operation } from '../../operations/entities/operation.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -27,7 +28,7 @@ export class ReportFilteredService {
     dateEnd,
   }: GetMonthReportDto): Promise<ExcelJS.Workbook> {
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.OUTCOME,
+      type: In([OperationType.SUPPLY, OperationType.RETURN]),
     };
 
     if (shiftId) {

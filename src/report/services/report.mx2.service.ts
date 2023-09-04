@@ -63,13 +63,15 @@ export class ReportMx2Service {
       if (item.docWeight * 0.0065 < weightDiff) {
         realWeight = realWeight - (weightDiff - item.docWeight * 0.0065);
       }
+      realWeight = realWeight * 100;
+
       worksheetMain.addRow([
         `${number}`,
         `${startedDateFormatted}`,
         `${item.fuelHolder.fullName}`,
         `${item.fuel.name} ${item.refinery.shortName}`,
         `т`,
-        `${realWeight.toFixed(2)}`,
+        `${realWeight.toFixed(0)}`,
         ``,
         ``,
         `Склад ГСМ ООО "Регион Трейд"`,
