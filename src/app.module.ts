@@ -11,6 +11,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import AppDataSource from './ormconfig';
 import { DataSource } from 'typeorm';
 import { DriverModule } from './driver/driver.module';
+import { KafkaModule } from './kafka/kafka.module';
 import { MeasurementModule } from './measurement/measurement.module';
 import { FuelHolderModule } from './fuel-holder/fuel-holder.module';
 import { UserModule } from './user/user.module';
@@ -28,12 +29,12 @@ import { rootpath } from './common/utility/rootpath';
 import { DevicesModule } from './devices/devices.module';
 import { CronModule } from './cron/cron.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronService } from './cron/services/cron.service';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    KafkaModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', path.join(rootpath(), '.env')],

@@ -24,6 +24,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
+import { KafkaProducerService } from '../../kafka/services';
+import { CompressionTypes } from 'kafkajs';
+import * as flatbuffers from 'flatbuffers';
+import { Weapon } from '../../kafka/fbs/my-game/sample/weapon';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -33,7 +37,25 @@ export class DevicesContoller {
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly eventService: EventService,
     private eventEmitter: EventEmitter2,
+    private readonly kafkaProducerService: KafkaProducerService,
   ) {}
+
+  @Get('kafka')
+  async testKafka() {
+    let builder = new flatbuffers.Builder(1024);
+    let weaponOne = builder.createString('Sword s');
+    // Create the first `Weapon` ('Sword').
+    Weapon.startWeapon(builder);
+    Weapon.addName(builder, weaponOne);
+    Weapon.addDamage(builder, 100);
+    let sword = Weapon.endWeapon(builder);
+    builder.finish(sword);
+    await this.kafkaProducerService.sendMessage({
+      compression: CompressionTypes.None,
+      messages: [{ value: Buffer.from(builder.asUint8Array()) }],
+      topic: 'test.topic',
+    });
+  }
 
   @ApiExcludeEndpoint()
   @Get('tank')

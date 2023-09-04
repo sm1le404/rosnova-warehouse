@@ -6,6 +6,7 @@ import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum
 import { ConfigService } from '@nestjs/config';
 import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
+import { KafkaExt } from '../../kafka/classes/kafka.ext';
 
 @Injectable()
 export class CronService {
@@ -74,6 +75,23 @@ export class CronService {
     }
     try {
       await this.tankService.sendToStatistic();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    name: 'checkKafkaState',
+  })
+  async checkKafkaState() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      const kafka = KafkaExt.getInstance();
+      if (!kafka.producerConnected) {
+        await kafka.producer().connect();
+      }
     } catch (e) {
       this.logger.error(e);
     }
