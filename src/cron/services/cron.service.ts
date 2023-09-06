@@ -6,7 +6,7 @@ import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum
 import { ConfigService } from '@nestjs/config';
 import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
-import { KafkaExt } from '../../kafka/classes/kafka.ext';
+import { KafkaService } from '../../kafka/services';
 
 @Injectable()
 export class CronService {
@@ -17,6 +17,7 @@ export class CronService {
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly configService: ConfigService,
     private readonly tankService: TankService,
+    private readonly kafkaService: KafkaService,
   ) {}
 
   isDev(): boolean {
@@ -88,10 +89,7 @@ export class CronService {
       return;
     }
     try {
-      const kafka = KafkaExt.getInstance();
-      if (!kafka.producerConnected) {
-        await kafka.producer().connect();
-      }
+      await this.kafkaService.initService();
     } catch (e) {
       this.logger.error(e);
     }
