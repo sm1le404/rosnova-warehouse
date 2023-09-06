@@ -31,7 +31,7 @@ import { FindOptionsWhere } from 'typeorm';
 @ApiTags('Calibration')
 @Controller('calibration')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard, HasRole)
+//@UseGuards(JwtAuthGuard, HasRole)
 @SetRoles(RoleType.ADMIN)
 export class CalibrationController {
   constructor(private readonly calibrationService: CalibrationService) {}
@@ -84,14 +84,11 @@ export class CalibrationController {
   @ApiOperation({
     summary: 'Add calibrations',
   })
-  @ApiResponse({ type: () => Calibration, isArray: true })
   @ApiBody({ type: CreateCalibrationDto, isArray: true })
   async create(
     @Body() createCalibrationDto: CreateCalibrationDto[],
-  ): Promise<Calibration[]> {
-    return Promise.all(
-      createCalibrationDto.map((item) => this.calibrationService.create(item)),
-    );
+  ): Promise<void> {
+    await this.calibrationService.createMany(createCalibrationDto);
   }
 
   @Put(':id')
@@ -127,9 +124,7 @@ export class CalibrationController {
     summary: 'Delete calibration by tank id',
   })
   @ApiResponse({ type: () => Calibration, isArray: true })
-  async deleteByTankId(
-    @Query('filter.tank') id: number,
-  ): Promise<Calibration[]> {
-    return this.calibrationService.deleteMany({ where: { tank: { id } } });
+  async deleteByTankId(@Query('filter.tank') id: number): Promise<void> {
+    await this.calibrationService.deleteHardMany({ tank: { id } });
   }
 }
