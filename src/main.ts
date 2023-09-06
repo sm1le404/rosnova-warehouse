@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { json, urlencoded } from 'express';
 
 async function bootstrap() {

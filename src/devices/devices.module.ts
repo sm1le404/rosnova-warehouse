@@ -8,7 +8,6 @@ import { Operation } from '../operations/entities/operation.entity';
 import { Tank } from '../tank/entities/tank.entity';
 import { EventService } from '../event/services/event.service';
 import { Event } from '../event/entities/event.entity';
-import { KafkaService } from '../kafka/services';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Dispenser, Operation, Tank, Event])],
