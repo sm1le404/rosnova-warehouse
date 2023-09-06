@@ -11,7 +11,13 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { HasRole } from '../../auth/guard/has-role.guard';
@@ -19,6 +25,8 @@ import { RoleType } from '../../user/enums';
 import { CalibrationService } from '../services/calibration.service';
 import { Calibration } from '../entities/calibration.entity';
 import { CreateCalibrationDto, UpdateCalibrationDto } from '../dto';
+import { GetCalibrationDto } from '../dto/get-calibration.dto';
+import { FindOptionsWhere } from 'typeorm';
 
 @ApiTags('Calibration')
 @Controller('calibration')
@@ -34,16 +42,27 @@ export class CalibrationController {
     summary: 'Get calibration list',
   })
   @ApiResponse({ type: () => Calibration, isArray: true })
-  async findAll(@Query('filter.tank') tankId: number): Promise<Calibration[]> {
+  async findAll(@Query() payload: GetCalibrationDto): Promise<Calibration[]> {
+    const filter: FindOptionsWhere<Calibration> = {
+      tank: {
+        id: payload.tankId,
+      },
+    };
+    if (payload.volume !== undefined) {
+      filter.volume = payload.volume;
+    }
+    if (payload.level !== undefined) {
+      filter.level = payload.level;
+    }
+    if (!payload.sortByVolume) {
+      payload.sortByVolume = 'desc';
+    }
     return this.calibrationService.find({
-      where: {
-        tank: {
-          id: tankId,
-        },
+      where: filter,
+      order: {
+        level: payload.sortByVolume,
       },
-      relations: {
-        tank: true,
-      },
+      select: ['volume', 'level'],
     });
   }
 
