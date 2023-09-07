@@ -106,23 +106,13 @@ export class Tank extends CommonEntity {
   @ManyToOne(() => Refinery, (refinery) => refinery.tank, { eager: true })
   refinery?: Refinery;
 
-  @ApiPropertyOptional({
-    type: () => Calibration,
-    required: false,
-    description: 'Связный калибр',
-  })
   @OneToMany(() => Calibration, (calibration) => calibration.tank, {
-    eager: true,
+    eager: false,
   })
   calibration?: Calibration[];
 
-  @ApiProperty({
-    type: () => TankHistory,
-    required: false,
-    description: 'История состояний резервуара',
-  })
   @OneToMany(() => TankHistory, (tankHistory) => tankHistory.tank, {
-    eager: true,
+    eager: false,
   })
   tankHistory?: TankHistory[];
 }
