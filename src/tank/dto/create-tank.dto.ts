@@ -16,21 +16,9 @@ export class CreateTankDto {
   })
   fuel?: Pick<Fuel, 'id'>;
 
-  @ApiProperty({
-    required: false,
-    description: 'История состояния резервуара',
-    isArray: true,
-    type: () => CommonId,
-  })
   @Transform(({ value }) => value.map((item) => ({ id: item.toString() })))
   tankHistory?: Pick<TankHistory, 'id'>[];
 
-  @ApiProperty({
-    required: false,
-    description: 'Калибровочная таблица',
-    isArray: true,
-    type: () => CommonId,
-  })
   @Transform(({ value }) => value.map((item) => ({ id: item.toString() })))
   calibration?: Pick<Calibration, 'id'>[];
 
