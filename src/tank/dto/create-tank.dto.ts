@@ -36,7 +36,7 @@ export class CreateTankDto {
   })
   refinery?: Pick<Refinery, 'id'>;
 
-  @ApiProperty({ required: true, description: 'Порядок сортировки' })
+  @ApiProperty({ required: true, description: '№ РГС' })
   @IsInt()
   @Min(0)
   sortIndex: number;
@@ -63,7 +63,7 @@ export class CreateTankDto {
 
   @ApiProperty({
     required: false,
-    description: 'Критический баланс',
+    description: 'Критический остаток',
     default: 0,
   })
   @IsNumber()

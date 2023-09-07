@@ -11,13 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { HasRole } from '../../auth/guard/has-role.guard';
@@ -31,7 +25,7 @@ import { FindOptionsWhere } from 'typeorm';
 @ApiTags('Calibration')
 @Controller('calibration')
 @UseInterceptors(ClassSerializerInterceptor)
-//@UseGuards(JwtAuthGuard, HasRole)
+@UseGuards(JwtAuthGuard, HasRole)
 @SetRoles(RoleType.ADMIN)
 export class CalibrationController {
   constructor(private readonly calibrationService: CalibrationService) {}

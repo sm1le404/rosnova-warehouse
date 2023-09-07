@@ -1,0 +1,21 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+/*eslint-disable*/
+export class AddDateTTNinOperations1694101286241 implements MigrationInterface {
+  name = 'AddDateTTNinOperations1694101286241';
+
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `CREATE TABLE "temporary_operation" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "createdAt" integer NOT NULL DEFAULT (strftime('%s', 'now')), "updatedAt" integer NOT NULL DEFAULT (strftime('%s', 'now')), "deletedAt" datetime, "type" varchar CHECK( "type" IN ('outcome','supply','internal','return') ) NOT NULL, "status" varchar CHECK( "status" IN ('created','started','progress','interrupted','stopped','finished') ) NOT NULL DEFAULT ('created'), "vehicleState" text, "destination" text, "numberTTN" text, "startedAt" integer NOT NULL DEFAULT (strftime('%s', 'now')), "finishedAt" integer NOT NULL DEFAULT (strftime('%s', 'now')), "docVolume" float NOT NULL, "factVolume" float, "factWeight" float, "docWeight" float NOT NULL, "docDensity" float NOT NULL, "docTemperature" float NOT NULL, "counterBefore" float DEFAULT (0), "counterAfter" float DEFAULT (0), "volumeBefore" float DEFAULT (0), "volumeAfter" float DEFAULT (0), "levelBefore" float DEFAULT (0), "levelAfter" float DEFAULT (0), "dispenserError" boolean DEFAULT (0), "dispenserId" integer, "driverId" integer, "fuelId" integer, "fuelHolderId" integer, "refineryId" integer, "trailerId" integer, "vehicleId" integer, "tankId" integer, "shiftId" integer, "dateTTN" integer NOT NULL DEFAULT (strftime('%s', 'now')), CONSTRAINT "FK_44a506978936572278194b22c22" FOREIGN KEY ("dispenserId") REFERENCES "dispenser" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_4fe00161ef48138bfa3f434d1e2" FOREIGN KEY ("driverId") REFERENCES "driver" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_1ec7313173df4fe9b3d0cd9ff56" FOREIGN KEY ("fuelId") REFERENCES "fuel" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_2a95009217197ba57060423fc00" FOREIGN KEY ("fuelHolderId") REFERENCES "fuel_holder" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_4fa6456e8465dc3738f18ade562" FOREIGN KEY ("refineryId") REFERENCES "refinery" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_92a920d504d3057fbca9e0acb81" FOREIGN KEY ("trailerId") REFERENCES "trailer" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_289c58cdde3f9e5e7d1c9111b6f" FOREIGN KEY ("vehicleId") REFERENCES "vehicle" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_7c627c969c9eeccceb4b290806c" FOREIGN KEY ("tankId") REFERENCES "tank" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION, CONSTRAINT "FK_0fe8d164f8e00199fff3a1ab00e" FOREIGN KEY ("shiftId") REFERENCES "shift" ("id") ON DELETE NO ACTION ON UPDATE NO ACTION)`,
+    );
+    await queryRunner.query(
+      `INSERT INTO "temporary_operation"("id", "createdAt", "updatedAt", "deletedAt", "type", "status", "vehicleState", "destination", "numberTTN", "startedAt", "finishedAt", "docVolume", "factVolume", "factWeight", "docWeight", "docDensity", "docTemperature", "counterBefore", "counterAfter", "volumeBefore", "volumeAfter", "levelBefore", "levelAfter", "dispenserError", "dispenserId", "driverId", "fuelId", "fuelHolderId", "refineryId", "trailerId", "vehicleId", "tankId", "shiftId", "dateTTN") SELECT "id", "createdAt", "updatedAt", "deletedAt", "type", "status", "vehicleState", "destination", "numberTTN", "startedAt", "finishedAt", "docVolume", "factVolume", "factWeight", "docWeight", "docDensity", "docTemperature", "counterBefore", "counterAfter", "volumeBefore", "volumeAfter", "levelBefore", "levelAfter", "dispenserError", "dispenserId", "driverId", "fuelId", "fuelHolderId", "refineryId", "trailerId", "vehicleId", "tankId", "shiftId", "createdAt" FROM "operation"`,
+    );
+    await queryRunner.query(`DROP TABLE "operation"`);
+    await queryRunner.query(
+      `ALTER TABLE "temporary_operation" RENAME TO "operation"`,
+    );
+  }
+
+  async down(queryRunner: QueryRunner): Promise<void> {}
+}

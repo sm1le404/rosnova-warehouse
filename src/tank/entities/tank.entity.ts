@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Measurement } from '../../measurement/entities/measurement.entity';
 import { Operation } from '../../operations/entities/operation.entity';
@@ -12,7 +12,7 @@ import { TankHistory } from './tank-history.entity';
 
 @Entity()
 export class Tank extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Порядок сортировки' })
+  @ApiProperty({ required: true, description: '№ РГС' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 
@@ -20,7 +20,7 @@ export class Tank extends CommonEntity {
   @Column({ type: 'float', nullable: false })
   totalVolume: number;
 
-  @ApiProperty({ required: true, description: 'Критический баланс' })
+  @ApiProperty({ required: true, description: 'Критический остаток' })
   @Column({ type: 'float', nullable: false, default: 0 })
   deathBalance?: number;
 
