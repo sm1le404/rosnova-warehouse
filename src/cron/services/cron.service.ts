@@ -94,4 +94,18 @@ export class CronService {
       this.logger.error(e);
     }
   }
+
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    name: 'sendKafkaQueue',
+  })
+  async sendKafkaQueue() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.kafkaService.executeSender();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
 }

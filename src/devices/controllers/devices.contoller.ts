@@ -39,7 +39,7 @@ export class DevicesContoller {
     private readonly kafkaService: KafkaService,
   ) {}
 
-  //@ApiExcludeEndpoint()
+  @ApiExcludeEndpoint()
   @Get('kafka')
   async testKafka() {
     let data = { test: 1, num: 'string' };

@@ -10,6 +10,9 @@ import { Consumer, Kafka, logLevel, Producer, ProducerRecord } from 'kafkajs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { Warehouse } from 'rs-dto/lib/warehouse/kafka/topics';
+import { Repository } from 'typeorm';
+import { KafkaMessage } from '../entities/kafka.message.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
@@ -27,30 +30,36 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     private readonly eventEmitter: EventEmitter2,
     private readonly configService: ConfigService,
+    @InjectRepository(KafkaMessage)
+    private readonly kafkaMessageRepository: Repository<KafkaMessage>,
   ) {
-    this.kafka = new Kafka({
-      clientId: 'rs-wh-client',
-      brokers: process?.env?.KAFKA_BROKERS_LIST
-        ? process.env.KAFKA_BROKERS_LIST.split(',')
-        : [],
-      retry: {
-        initialRetryTime: 5000,
-        retries: 1,
-        multiplier: 1,
-        maxRetryTime: 5000,
-      },
-      logLevel: logLevel.ERROR,
-    });
+    const brokersList = process?.env?.KAFKA_BROKERS_LIST
+      ? process.env.KAFKA_BROKERS_LIST.split(',')
+      : [];
 
-    this.producer = this.kafka.producer();
+    if (brokersList.length > 0) {
+      this.kafka = new Kafka({
+        clientId: 'rs-wh-client',
+        brokers: brokersList,
+        retry: {
+          initialRetryTime: 5000,
+          retries: 1,
+          multiplier: 1,
+          maxRetryTime: 5000,
+        },
+        logLevel: logLevel.ERROR,
+      });
 
-    this.producer.on(`producer.connect`, () => {
-      this.producerConnected = true;
-    });
+      this.producer = this.kafka.producer();
 
-    this.producer.on(`producer.disconnect`, () => {
-      this.producerConnected = false;
-    });
+      this.producer.on(`producer.connect`, () => {
+        this.producerConnected = true;
+      });
+
+      this.producer.on(`producer.disconnect`, () => {
+        this.producerConnected = false;
+      });
+    }
   }
 
   async initConsumer() {
@@ -94,6 +103,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async initService() {
+    if (!this.kafka) {
+      return;
+    }
     try {
       if (!this.producerConnected) {
         await this.producer.connect();
@@ -111,6 +123,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
+    if (!this.kafka) {
+      return;
+    }
     try {
       await this.consumer.disconnect();
       await this.producer.disconnect();
@@ -120,6 +135,38 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async sendMessage(payload: ProducerRecord) {
-    await this.producer.send(payload);
+    if (this.kafka) {
+      await this.producer.send(payload);
+    }
+  }
+
+  async addMessage(payload: ProducerRecord) {
+    const message = await this.kafkaMessageRepository.create({
+      data: JSON.stringify(payload),
+    });
+    await this.kafkaMessageRepository.save(message);
+  }
+
+  async deleteMessage(id: number) {
+    await this.kafkaMessageRepository.delete({ id });
+  }
+
+  async executeSender() {
+    const messagesList = await this.kafkaMessageRepository.find({
+      take: 100,
+      order: { id: 'asc' },
+    });
+    for (const message of messagesList) {
+      let data: ProducerRecord;
+      try {
+        data = JSON.parse(message.data);
+      } catch (e) {}
+
+      if (!!data) {
+        await this.sendMessage(data);
+      }
+
+      await this.deleteMessage(message.id);
+    }
   }
 }
