@@ -1,5 +1,9 @@
 import {
+  AfterInsert,
   AfterLoad,
+  AfterUpdate,
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -78,6 +82,8 @@ export class Vehicle extends CommonEntity {
   trailer?: Trailer;
 
   @AfterLoad()
+  @AfterUpdate()
+  @AfterInsert()
   afterLoad() {
     if (this?.currentState) {
       try {
@@ -92,6 +98,17 @@ export class Vehicle extends CommonEntity {
       } catch (e) {
         this.sectionVolumes = null;
       }
+    }
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeUpdate() {
+    if (this?.currentState) {
+      this.currentState = JSON.stringify(this.currentState);
+    }
+    if (this?.sectionVolumes) {
+      this.sectionVolumes = JSON.stringify(this.sectionVolumes);
     }
   }
 }
