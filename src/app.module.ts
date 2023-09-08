@@ -30,6 +30,7 @@ import { CronModule } from './cron/cron.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ScheduleModule.forRoot(),
     CronModule,
     ReportModule,
+    SettingsModule,
   ],
   controllers: [],
   providers: [],
