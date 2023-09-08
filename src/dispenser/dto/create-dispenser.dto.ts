@@ -2,7 +2,7 @@ import { IsBoolean, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDispenserDto {
-  @ApiProperty({ required: true, description: 'Сортировка' })
+  @ApiProperty({ required: true, description: '№ Поста' })
   @IsInt()
   @Min(0)
   sortIndex: number;

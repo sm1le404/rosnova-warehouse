@@ -22,7 +22,11 @@ export class ReportDrawbackService {
     const operation = await this.operationRepository.findOne({
       where: { id: operationId },
     });
-    const docDate = dateFormatter(Math.floor(Date.now() / 1000));
+    const docDate = dateFormatter(
+      Math.floor(
+        operation?.dateTTN > 0 ? operation?.dateTTN : operation.createdAt,
+      ),
+    );
     const dateStart = dateFormatter(operation.startedAt);
     const timeStart = timeFormatter(new Date(operation.startedAt));
     const dateEnd = dateFormatter(operation.finishedAt);
@@ -62,7 +66,9 @@ export class ReportDrawbackService {
     worksheet.getCell('F29').value = timeEnd;
 
     // Автомобиль и прицеп
-    worksheet.getCell('B30:C30').value = operation.vehicle?.regNumber ?? '';
+    worksheet.getCell('B30:C30').value = `${
+      operation.vehicle?.carModel ?? ''
+    } ${operation.vehicle?.regNumber ?? ''}`;
     worksheet.getCell('B31:C31').value = operation.trailer?.regNumber ?? '';
 
     // Сведения о грузе

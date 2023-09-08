@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
 import { KafkaService } from '../../kafka/services';
+import { OperationService } from '../../operations/services/operation.service';
 
 @Injectable()
 export class CronService {
@@ -18,13 +19,14 @@ export class CronService {
     private readonly configService: ConfigService,
     private readonly tankService: TankService,
     private readonly kafkaService: KafkaService,
+    private readonly operationService: OperationService,
   ) {}
 
   isDev(): boolean {
     return !!this.configService.get('DEV');
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_10_SECONDS, {
     name: 'readTankState',
   })
   async readTankState() {
@@ -76,6 +78,20 @@ export class CronService {
     }
     try {
       await this.tankService.sendToStatistic();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE, {
+    name: 'checkProgressOperation',
+  })
+  async checkProgressOperation() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.operationService.fixProgressOperations();
     } catch (e) {
       this.logger.error(e);
     }

@@ -15,6 +15,14 @@ import { CommonId } from '../../common/types/common-id.type';
 
 export class CreateVehicleDto {
   @ApiProperty({
+    required: true,
+    description: 'Тип ТС',
+    enum: VehicleType,
+  })
+  @IsEnum(VehicleType)
+  type: VehicleType;
+
+  @ApiProperty({
     type: () => CommonId,
     required: false,
     description: 'Водитель',
@@ -49,14 +57,6 @@ export class CreateVehicleDto {
   @IsNotEmpty()
   @IsString()
   sectionVolumes?: string;
-
-  @ApiProperty({
-    required: true,
-    description: 'Тип ТС',
-    enum: VehicleType,
-  })
-  @IsEnum(VehicleType)
-  type: VehicleType;
 
   @ApiProperty({ required: true, description: 'Модель ТС' })
   @IsNotEmpty()

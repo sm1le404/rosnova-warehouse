@@ -51,6 +51,13 @@ export class Operation extends CommonEntity {
   @Column({ type: 'text', nullable: true })
   numberTTN?: string;
 
+  @ApiProperty({ description: 'Дата по накладной' })
+  @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
+  dateTTN?: number;
+
+  @ApiProperty({ description: 'Дата по накладной ISO' })
+  dateTTNAtIso?: string;
+
   @ApiProperty({ description: 'Дата начала операции' })
   @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
   startedAt?: number;

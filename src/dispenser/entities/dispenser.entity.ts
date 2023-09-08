@@ -7,7 +7,7 @@ import { DispenserStatus } from '../../devices/enums/dispenser.enum';
 
 @Entity()
 export class Dispenser extends CommonEntity {
-  @ApiProperty({ required: true, description: 'Сортировка' })
+  @ApiProperty({ required: true, description: '№ Поста' })
   @Column({ type: 'int', nullable: false })
   sortIndex: number;
 

@@ -119,6 +119,11 @@ export class CreateOperationDto {
   @IsString()
   numberTTN?: string;
 
+  @ApiProperty({ required: false, description: 'Дата в накладной' })
+  @IsOptional()
+  @IsNumber()
+  dateTTN?: number;
+
   startedAt?: number;
 
   finishedAt?: number;

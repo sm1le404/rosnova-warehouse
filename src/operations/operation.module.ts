@@ -12,5 +12,6 @@ import { OperationListener } from './listeners/operation.listener';
   imports: [TypeOrmModule.forFeature([Operation, Event]), TankModule],
   controllers: [OperationController],
   providers: [OperationService, OperationListener, EventService],
+  exports: [OperationService],
 })
 export class OperationModule {}

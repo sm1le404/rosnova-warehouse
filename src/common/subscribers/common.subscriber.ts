@@ -30,6 +30,10 @@ export class CommonSubscriber implements EntitySubscriberInterface {
     if (entity?.finishedAt) {
       entity.finishedAtIso = new Date(entity.finishedAt * 1000).toISOString();
     }
+
+    if (entity?.dateTTN) {
+      entity.dateTTNAtIso = new Date(entity.dateTTN * 1000).toISOString();
+    }
   }
 
   /**
@@ -57,6 +61,12 @@ export class CommonSubscriber implements EntitySubscriberInterface {
     if (event?.entity?.finishedAt) {
       event.entity.finishedAtIso = new Date(
         event.entity.finishedAt * 1000,
+      ).toISOString();
+    }
+
+    if (event?.entity?.dateTTN) {
+      event.entity.dateTTNAtIso = new Date(
+        event.entity.dateTTN * 1000,
       ).toISOString();
     }
   }

@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DeepPartial, FindOneOptions, Repository } from 'typeorm';
+import { DeepPartial, FindOneOptions, In, LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../entities/operation.entity';
 import {
@@ -50,6 +50,10 @@ export class OperationService extends CommonService<Operation> {
     ) {
       updateCommon.factWeight = updateCommon.docWeight;
       updateCommon.factVolume = updateCommon.docVolume;
+    }
+
+    if (!updateCommon?.vehicleState) {
+      updateCommon.vehicleState = JSON.stringify(common.vehicleState);
     }
 
     Object.assign(common, updateCommon);
@@ -134,5 +138,29 @@ export class OperationService extends CommonService<Operation> {
         docWeight: currentWeight,
       },
     );
+  }
+
+  async fixProgressOperations(waitMinutes: number = 30) {
+    const date = Date.now() / 1000 - waitMinutes * 60;
+    const operations = await this.operationRepository.find({
+      where: {
+        status: OperationStatus.PROGRESS,
+        updatedAt: LessThan(date),
+      },
+    });
+    if (operations.length) {
+      for (const operation of operations) {
+        await this.update(
+          {
+            where: {
+              id: operation.id,
+            },
+          },
+          {
+            status: OperationStatus.FINISHED,
+          },
+        );
+      }
+    }
   }
 }
