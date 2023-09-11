@@ -108,10 +108,7 @@ export class CreateOperationDto {
     type: () => IVehicleTank,
     isArray: true,
   })
-  @Transform(({ value }) => JSON.stringify(value))
   @IsOptional()
-  @IsNotEmpty()
-  @IsString()
   vehicleState?: string;
 
   @ApiProperty({ required: false, description: 'Номер накладной' })

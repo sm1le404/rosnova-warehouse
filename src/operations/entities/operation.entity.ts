@@ -1,4 +1,13 @@
-import { AfterLoad, Column, Entity, ManyToOne } from 'typeorm';
+import {
+  AfterInsert,
+  AfterLoad,
+  AfterUpdate,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToOne,
+} from 'typeorm';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
@@ -193,6 +202,8 @@ export class Operation extends CommonEntity {
   shift: Shift;
 
   @AfterLoad()
+  @AfterUpdate()
+  @AfterInsert()
   afterLoad() {
     if (this?.vehicleState) {
       try {
@@ -200,6 +211,14 @@ export class Operation extends CommonEntity {
       } catch (e) {
         this.vehicleState = null;
       }
+    }
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeUpdate() {
+    if (this?.vehicleState) {
+      this.vehicleState = JSON.stringify(this.vehicleState);
     }
   }
 }

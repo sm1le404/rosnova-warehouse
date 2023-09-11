@@ -7,7 +7,6 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { TrailerType } from '../enums';
-import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../types';
 
 export class CreateTrailerDto {
@@ -22,9 +21,7 @@ export class CreateTrailerDto {
     type: () => PickType(IVehicleTank, ['index', 'volume']),
     isArray: true,
   })
-  @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
-  @IsString()
   currentState?: string;
 
   @ApiProperty({
@@ -33,9 +30,7 @@ export class CreateTrailerDto {
     type: () => PickType(IVehicleTank, ['index', 'volume']),
     isArray: true,
   })
-  @Transform(({ value }) => JSON.stringify(value))
   @IsNotEmpty()
-  @IsString()
   sectionVolumes: string;
 
   @ApiProperty({ required: false, description: 'Доступность', default: true })
