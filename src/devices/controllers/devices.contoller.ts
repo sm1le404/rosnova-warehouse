@@ -43,7 +43,7 @@ export class DevicesContoller {
   @Get('kafka')
   async testKafka() {
     let data = { test: 1, num: 'string' };
-    await this.kafkaService.sendMessage({
+    await this.kafkaService.addMessage({
       compression: CompressionTypes.GZIP,
       messages: [
         {

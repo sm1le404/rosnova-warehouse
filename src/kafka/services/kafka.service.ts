@@ -20,7 +20,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
   consumerConnected?: boolean = false;
 
-  private kafka: Kafka;
+  private readonly kafka: Kafka;
 
   private producer: Producer;
 
@@ -152,6 +152,9 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async executeSender() {
+    if (!this.producerConnected) {
+      return;
+    }
     const messagesList = await this.kafkaMessageRepository.find({
       take: 100,
       order: { id: 'asc' },
