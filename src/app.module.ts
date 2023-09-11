@@ -11,6 +11,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import AppDataSource from './ormconfig';
 import { DataSource } from 'typeorm';
 import { DriverModule } from './driver/driver.module';
+import { KafkaModule } from './kafka/kafka.module';
 import { MeasurementModule } from './measurement/measurement.module';
 import { FuelHolderModule } from './fuel-holder/fuel-holder.module';
 import { UserModule } from './user/user.module';
@@ -34,6 +35,7 @@ import { SettingsModule } from './settings/settings.module';
 
 @Module({
   imports: [
+    KafkaModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', path.join(rootpath(), '.env')],

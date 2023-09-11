@@ -24,6 +24,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
+import { CompressionTypes } from 'kafkajs';
+import { Warehouse } from 'rs-dto/lib/warehouse/kafka/topics';
+import { KafkaService } from '../../kafka/services';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -33,7 +36,26 @@ export class DevicesContoller {
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly eventService: EventService,
     private eventEmitter: EventEmitter2,
+    private readonly kafkaService: KafkaService,
   ) {}
+
+  @ApiExcludeEndpoint()
+  @Get('kafka')
+  async testKafka() {
+    let data = { test: 1, num: 'string' };
+    await this.kafkaService.addMessage({
+      compression: CompressionTypes.GZIP,
+      messages: [
+        {
+          value: JSON.stringify(data),
+          headers: {
+            TO: `WH_1`,
+          },
+        },
+      ],
+      topic: Warehouse.Topics.TANK_STATE,
+    });
+  }
 
   @ApiExcludeEndpoint()
   @Get('tank')
