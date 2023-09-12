@@ -52,7 +52,7 @@ export class TankService extends CommonService<Tank> {
 
     await this.update(
       { where: { id: tank.id } },
-      { ...tankData, isBlocked: true, error: '' },
+      { ...tankData, isBlocked: true, error: null },
     );
     if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
       await this.tankHistoryService.create({
@@ -70,7 +70,7 @@ export class TankService extends CommonService<Tank> {
     } else {
       await this.update(
         { where: { id: tank.id } },
-        { isBlocked: false, error: '' },
+        { isBlocked: false, error: null },
       );
     }
   }
