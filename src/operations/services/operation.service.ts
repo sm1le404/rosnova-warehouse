@@ -44,19 +44,8 @@ export class OperationService extends CommonService<Operation> {
       updateCommon.docVolume = common.docVolume;
     }
 
-    if (
-      updateCommon?.status === OperationStatus.FINISHED &&
-      common.type !== OperationType.OUTCOME
-    ) {
-      updateCommon.factWeight = updateCommon.docWeight;
-      updateCommon.factVolume = updateCommon.docVolume;
-    }
-
-    if (!updateCommon?.vehicleState) {
-      updateCommon.vehicleState = JSON.stringify(common.vehicleState);
-    }
-
     Object.assign(common, updateCommon);
+
     const updateResult = await this.getRepository().save(common);
     if (updateResult?.id && updateCommon?.status === OperationStatus.FINISHED) {
       await this.changeTankState(

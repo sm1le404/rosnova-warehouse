@@ -135,6 +135,18 @@ export class CreateOperationDto {
   @Min(0)
   docWeight: number;
 
+  @ApiProperty({ required: false, description: 'Объём фактически' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  factVolume?: number;
+
+  @ApiProperty({ required: false, description: 'Вес фактически' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  factWeight?: number;
+
   @ApiProperty({ required: true, description: 'Плотность по документам' })
   @IsNumber()
   @Min(0)
