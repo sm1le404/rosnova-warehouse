@@ -121,7 +121,7 @@ export class DeviceTankService implements OnModuleDestroy {
           response[DeviceNames.TEMP] = param.readFloatLE(0);
           break;
         case TankDeviceParams.LAYER_FLOAT:
-          response[DeviceNames.LAYER_FLOAT] = param.readFloatLE(0);
+          response[DeviceNames.LAYER_FLOAT] = param.readFloatLE(0) * 1000;
           break;
         case TankDeviceParams.LAYER_LIQUID:
           response[DeviceNames.LAYER_LIQUID] = param.readFloatLE(0);
