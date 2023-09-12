@@ -19,7 +19,13 @@ import { DeviceEvents } from '../enums/device-events.enum';
 import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../tank/entities/tank.entity';
-import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  IsNull,
+  LessThanOrEqual,
+  Not,
+  Repository,
+} from 'typeorm';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -161,9 +167,13 @@ export class DeviceTankService implements OnModuleDestroy {
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
     this.serialPort.write(buffData, (data) => {
+      //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {
         this.logger.error(data);
-        this.blockTanks(data, { addressId });
+        this.blockTanks(data, {
+          addressId,
+          updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 60 * 2),
+        });
       } else {
         this.unblockTanks({ addressId });
       }
