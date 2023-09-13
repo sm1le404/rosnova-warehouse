@@ -237,6 +237,12 @@ export class DeviceDispenserService implements OnModuleDestroy {
       ),
     );
 
+    await this.callCommand({
+      addressId: operation.dispenser.addressId,
+      comId: operation.dispenser.comId,
+      command: DispenserCommand.STATUS,
+    });
+
     await this.dispenserRepository.update(
       {
         id: operation.dispenser.id,
