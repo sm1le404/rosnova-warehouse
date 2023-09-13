@@ -166,7 +166,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: {
         id: payload.operationId,
         status: In([OperationStatus.INTERRUPTED, OperationStatus.STOPPED]),
-        type: OperationType.OUTCOME,
+        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
       },
       relations: {
         dispenser: true,
@@ -444,11 +444,28 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const dispenser = DeviceDispenser.getInstance(
       this.serialPortList[payload.comId],
     );
+
+    if (payload.command === DispenserCommand.APPROVE_LITRES) {
+      const operation = await this.operationRepository.findOne({
+        where: {
+          type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+          status: OperationStatus.PROGRESS,
+        },
+      });
+      if (operation.id) {
+        await this.doneOperation({
+          operationId: operation.id,
+        });
+        return [];
+      }
+    }
+
     const commandResult = await dispenser.callCommand(
       payload.addressId,
       payload.command,
       payload.data,
     );
+
     if (payload.command === DispenserCommand.STATUS) {
       const statusNumber = parseInt(commandResult[2], 10);
       if (DispenserStatus[statusNumber]) {
