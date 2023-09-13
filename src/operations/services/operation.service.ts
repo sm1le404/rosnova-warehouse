@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DeepPartial, FindOneOptions, In, LessThan, Repository } from 'typeorm';
+import { DeepPartial, FindOneOptions, LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../entities/operation.entity';
 import {
