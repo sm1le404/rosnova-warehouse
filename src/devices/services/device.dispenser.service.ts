@@ -221,6 +221,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         status: OperationStatus.FINISHED,
         counterAfter: summaryLitres,
         volumeAfter: tankState.volume,
+        levelAfter: tankState.level,
         factVolume: countLitres,
         factWeight: countLitres * operation.tank.density,
       },
@@ -369,6 +370,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           status: OperationStatus.STARTED,
           counterBefore: summaryLitres,
           volumeBefore: tankState.volume,
+          levelBefore: tankState.level,
         },
       );
     }

@@ -8,7 +8,7 @@ export class DispenserHelper {
 
   static getSummaryLitres = (responseStatus: Array<any>): number => {
     const litresPacket = Buffer.from(responseStatus)
-      .slice(4, 17)
+      .slice(2, 17)
       .filter((e, index) => index % 2 == 0);
     return parseInt(litresPacket.toString());
   };

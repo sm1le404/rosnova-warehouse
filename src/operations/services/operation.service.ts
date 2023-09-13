@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DeepPartial, FindOneOptions, In, LessThan, Repository } from 'typeorm';
+import { DeepPartial, FindOneOptions, LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../entities/operation.entity';
 import {
@@ -26,6 +26,21 @@ export class OperationService extends CommonService<Operation> {
     return this.operationRepository;
   }
 
+  async create(createCommonEntity: DeepPartial<Operation>): Promise<Operation> {
+    if (
+      createCommonEntity.type !== OperationType.OUTCOME &&
+      createCommonEntity?.tank?.id > 0
+    ) {
+      const tankState = await this.tankService.findOne({
+        where: { id: createCommonEntity.tank.id },
+      });
+      createCommonEntity.volumeBefore = tankState.volume;
+      createCommonEntity.levelBefore = tankState.level;
+    }
+    const common = this.getRepository().create(createCommonEntity);
+    return this.getRepository().save(common);
+  }
+
   async update(
     filter: FindOneOptions<Operation>,
     updateCommon: DeepPartial<Operation>,
@@ -45,6 +60,17 @@ export class OperationService extends CommonService<Operation> {
     }
 
     Object.assign(common, updateCommon);
+
+    if (
+      common.type !== OperationType.OUTCOME &&
+      updateCommon?.status === OperationStatus.FINISHED
+    ) {
+      const tankState = await this.tankService.findOne({
+        where: { id: common.tank.id },
+      });
+      updateCommon.volumeAfter = tankState.volume;
+      updateCommon.levelAfter = tankState.level;
+    }
 
     const updateResult = await this.getRepository().save(common);
     if (updateResult?.id && updateCommon?.status === OperationStatus.FINISHED) {

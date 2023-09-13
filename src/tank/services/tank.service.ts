@@ -50,28 +50,36 @@ export class TankService extends CommonService<Tank> {
       level: Number(payload.LAYER_FLOAT.toFixed(4)),
     };
 
-    await this.update(
-      { where: { id: tank.id } },
-      { ...tankData, isBlocked: true, error: null },
-    );
-    if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
-      await this.tankHistoryService.create({
-        fuel: tank.fuel,
-        fuelHolder: tank.fuelHolder,
-        refinery: tank.refinery,
-        tank: { id: tank.id },
-        volume: tankData.volume,
-        temperature: tankData.temperature,
-        density: tankData.density,
-        weight: tankData.weight,
-        docWeight: tank.docWeight,
-        docVolume: tank.docVolume,
-      });
-    } else {
+    //Костылим проскакивающие нули
+    if (
+      (tankData.volume === 0 && tankData.weight === 0) ||
+      (tankData.volume !== 0 && tankData.weight !== 0)
+    ) {
+      //Ожидаем что идет пролив
       await this.update(
         { where: { id: tank.id } },
-        { isBlocked: false, error: null },
+        { ...tankData, isBlocked: true, error: null },
       );
+      //Если diff больше порога, то записываем историю, иначе пролив закончился и записываем стейт
+      if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
+        await this.tankHistoryService.create({
+          fuel: tank.fuel,
+          fuelHolder: tank.fuelHolder,
+          refinery: tank.refinery,
+          tank: { id: tank.id },
+          volume: tankData.volume,
+          temperature: tankData.temperature,
+          density: tankData.density,
+          weight: tankData.weight,
+          docWeight: tank.docWeight,
+          docVolume: tank.docVolume,
+        });
+      } else {
+        await this.update(
+          { where: { id: tank.id } },
+          { isBlocked: false, error: null },
+        );
+      }
     }
   }
 

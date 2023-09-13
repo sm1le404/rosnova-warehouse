@@ -12,7 +12,6 @@ import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Tank } from '../../tank/entities/tank.entity';
 import { Driver } from '../../driver/entities/driver.entity';
 import { Shift } from '../../shift/entities/shift.entity';
-import { Transform } from 'class-transformer';
 import { IVehicleTank } from '../../vehicle/types';
 import { CommonId } from '../../common/types/common-id.type';
 import { OperationStatus, OperationType } from '../enums';
