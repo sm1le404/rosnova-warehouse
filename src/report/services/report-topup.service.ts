@@ -18,7 +18,8 @@ export class ReportTopUpService {
       where: { id: operationId },
     });
 
-    const vehicleState = operation.vehicleState as unknown as IVehicleTank[];
+    const vehicleState = operation.vehicle
+      ?.sectionVolumes as unknown as IVehicleTank[];
 
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
@@ -60,6 +61,18 @@ export class ReportTopUpService {
 
     // Очистка формы
     printSheet.spliceRows(12 + len, 5 - len);
+
+    workbook.views = [
+      {
+        x: 0,
+        y: 0,
+        width: 10000,
+        height: 20000,
+        firstSheet: 0,
+        activeTab: 0,
+        visibility: 'visible',
+      },
+    ];
 
     return workbook;
   }

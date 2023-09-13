@@ -44,7 +44,8 @@ export class ReportDrawbackService {
 
     const worksheet = workbook.getWorksheet('page');
     // Номер накладной
-    worksheet.getCell('D1').value = operation.numberTTN ?? 'бн';
+    worksheet.getCell('D1').value =
+      `${operation.numberTTN} от ${docDate}` ?? 'бн';
     worksheet.getCell('D32').value = operation.numberTTN ?? 'бн';
 
     // Тестируемое топливо

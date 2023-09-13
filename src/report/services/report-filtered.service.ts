@@ -81,7 +81,31 @@ export class ReportFilteredService {
       if (!worksheet) {
         worksheet = workbook.getWorksheet(name);
         if (!worksheet) {
+          const original = workbook.worksheets[0];
           worksheet = workbook.addWorksheet(name);
+          for (let i = 1; i <= 2; i++) {
+            const sourceRow = original.getRow(i);
+            const targetRow = worksheet.addRow(sourceRow.values);
+            sourceRow.eachCell(
+              { includeEmpty: true },
+              (sourceCell, colNumber) => {
+                const targetCell = targetRow.getCell(colNumber);
+                targetCell.font = { ...sourceCell.font };
+                targetCell.alignment = { ...sourceCell.alignment };
+                targetCell.border = { ...sourceCell.border };
+                targetCell.fill = { ...sourceCell.fill };
+
+                const columnNumber = sourceCell.col;
+                const rowNumber = +sourceCell.row;
+                
+                const columnWidth = original.getColumn(columnNumber).width;
+                const rowHeight = original.getRow(rowNumber).height;
+                
+                worksheet.getColumn(columnNumber).width = columnWidth;
+                worksheet.getRow(rowNumber).height = rowHeight;
+              },
+            );
+          }
           worksheet.addRow(reportRows[i]);
           addFormulas(worksheet, shiftCell);
         }
