@@ -25,8 +25,8 @@ import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event'
 import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { CompressionTypes } from 'kafkajs';
-import { Warehouse } from 'rs-dto/lib/warehouse/kafka/topics';
 import { KafkaService } from '../../kafka/services';
+import { WarehouseTopics } from 'rs-dto';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -53,7 +53,7 @@ export class DevicesContoller {
           },
         },
       ],
-      topic: Warehouse.Topics.TANK_STATE,
+      topic: WarehouseTopics.TANK_STATE,
     });
   }
 

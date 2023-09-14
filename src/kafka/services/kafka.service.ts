@@ -9,7 +9,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Consumer, Kafka, logLevel, Producer, ProducerRecord } from 'kafkajs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
-import { Warehouse } from 'rs-dto/lib/warehouse/kafka/topics';
+import { WarehouseTopicEvent, WarehouseTopics } from 'rs-dto';
 import { Repository } from 'typeorm';
 import { KafkaMessage } from '../entities/kafka.message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -63,7 +63,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async initConsumer() {
-    const topicList = Object.values(Warehouse.Topics as object);
+    const topicList = Object.values(WarehouseTopics as object);
     this.consumer = this.kafka.consumer({
       groupId: 'rs-wh',
       allowAutoTopicCreation: true,
@@ -92,8 +92,8 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
         }
         this.eventEmitter.emit(
           topic,
-          new Warehouse.TopicEvent(
-            topic as Warehouse.Topics,
+          new WarehouseTopicEvent(
+            topic as WarehouseTopics,
             message.value,
             message.value.toString(),
           ),
