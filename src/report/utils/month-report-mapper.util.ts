@@ -67,7 +67,8 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
         if (vehicleState) {
           /*eslint-disable-line no-param-reassign*/
           return vehicleState.reduce(
-            (acc: number, item: IVehicleTank) => (acc += item.weight ?? 0),
+            (acc: number, item: IVehicleTank) =>
+              (acc += item.volume * item.density ?? 0),
             0,
           );
           /* eslint-disable no-param-reassign */

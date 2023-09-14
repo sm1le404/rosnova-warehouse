@@ -6,11 +6,6 @@ export class IVehicleTank {
   @IsInt()
   index: number;
 
-  @ApiProperty({ required: true, description: 'Объём' })
-  @IsNumber()
-  @Min(0)
-  volume: number;
-
   @ApiProperty({ required: true, description: 'Плотность' })
   @IsNumber()
   @Min(0)
@@ -21,8 +16,13 @@ export class IVehicleTank {
   @Min(0)
   temperature: number;
 
-  @ApiProperty({ required: true, description: 'Вес' })
+  @ApiProperty({ required: true, description: 'Объём' })
   @IsNumber()
   @Min(0)
-  weight: number;
+  volume: number;
+
+  @ApiProperty({ required: true, description: 'Максимальный объём' })
+  @IsNumber()
+  @Min(0)
+  maxVolume: number;
 }
