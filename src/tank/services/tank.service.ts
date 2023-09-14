@@ -12,6 +12,10 @@ import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { dateWithTimeZone } from '../../common/utility/date';
 import * as iconv from 'iconv-lite';
+import { KafkaService } from '../../kafka/services';
+import { WhTankStateDto } from 'rs-dto/lib/warehouse/dto/tank.state.dto';
+import { CompressionTypes } from 'kafkajs';
+import { HubTopics } from 'rs-dto';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
@@ -22,6 +26,7 @@ export class TankService extends CommonService<Tank> {
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
+    private readonly kafkaService: KafkaService,
   ) {
     super();
   }
@@ -80,6 +85,30 @@ export class TankService extends CommonService<Tank> {
           { isBlocked: false, error: null },
         );
       }
+
+      const kafkaMessage: WhTankStateDto = {
+        id: tank.id,
+        updatedAt: Math.floor(Date.now() / 1000),
+        sortIndex: tank.sortIndex,
+        temperature: tankData.temperature,
+        volume: tankData.volume,
+        weight: tankData.weight,
+        docVolume: tank.docVolume,
+        docWeight: tank.docWeight,
+        density: tankData.density,
+        level: tankData.level,
+        fuelName: `${tank.fuel.name} ${tank.refinery.shortName} ${tank.fuelHolder.shortName}`,
+        whExternalCode: this.configService.get('SHOP_KEY'),
+      };
+      await this.kafkaService.addMessage({
+        compression: CompressionTypes.GZIP,
+        messages: [
+          {
+            value: JSON.stringify(kafkaMessage),
+          },
+        ],
+        topic: HubTopics.TANK_STATE,
+      });
     }
   }
 
