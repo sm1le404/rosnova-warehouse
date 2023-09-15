@@ -18,6 +18,7 @@ export class ReportTopUpService {
       where: { id: operationId },
     });
 
+    const operationState = operation.vehicleState as unknown as IVehicleTank[];
     const vehicleState = operation.vehicle
       ?.sectionVolumes as unknown as IVehicleTank[];
 
@@ -50,14 +51,15 @@ export class ReportTopUpService {
     worksheet.getCell('B7').value = operation.vehicle?.regNumber ?? '';
 
     // Данные по отсекам
-    vehicleState?.map((state, index) => {
+    operationState?.map((state, index) => {
       worksheet.getCell(`E${3 + index}`).value = operation.fuel?.fullName ?? '';
-      worksheet.getCell(`F${3 + index}`).value = state?.volume ?? '';
+      worksheet.getCell(`F${3 + index}`).value =
+        vehicleState[index]?.volume - state?.volume ?? '';
       worksheet.getCell(`G${3 + index}`).value = state?.temperature ?? '';
       worksheet.getCell(`H${3 + index}`).value = state?.density ?? '';
     });
 
-    const len = vehicleState?.length ?? 0;
+    const len = operationState?.length ?? 0;
 
     // Очистка формы
     printSheet.spliceRows(12 + len, 5 - len);
