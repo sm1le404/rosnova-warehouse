@@ -452,7 +452,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           status: OperationStatus.PROGRESS,
         },
       });
-      if (operation.id) {
+      if (operation?.id) {
         await this.doneOperation({
           operationId: operation.id,
         });
