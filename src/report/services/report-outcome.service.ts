@@ -84,6 +84,8 @@ export class ReportOutcomeService {
     );
     const worksheet = workbook.getWorksheet('page');
 
+    let lastDate;
+
     Object.keys(shiftOpertaion).forEach((shiftId) => {
       let copySheet = workbook.addWorksheet(`${shiftId}`);
       copySheet.model = worksheet.model;
@@ -107,7 +109,11 @@ export class ReportOutcomeService {
         operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
       ]);
 
-      copySheet.name = formattedDate;
+      copySheet.name =
+        lastDate === formattedDate
+          ? `Смена ${operations[0]?.shift?.id} ${formattedDate}`
+          : formattedDate;
+      lastDate = formattedDate;
       copySheet.addRows(reportRows);
     });
 
