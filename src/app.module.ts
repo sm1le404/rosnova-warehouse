@@ -32,6 +32,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SettingsModule } from './settings/settings.module';
+import { dateFormatter } from './report/utils';
 
 @Module({
   imports: [
@@ -80,11 +81,21 @@ import { SettingsModule } from './settings/settings.module';
               ),
             }),
             new winston.transports.File({
-              filename: path.join(rootpath(), `logs`, `errors.log`),
+              filename: path.join(
+                rootpath(),
+                `logs`,
+                `${dateFormatter(Math.floor(Date.now() / 1000))}-errors.log`,
+              ),
               level: 'error',
               format: winston.format.combine(
+                winston.format.prettyPrint(),
                 winston.format.timestamp(),
-                winston.format.json(),
+                winston.format.ms(),
+                winston.format.align(),
+                winston.format.printf((info) => {
+                  console.log(info);
+                  return `[${info.timestamp}] [${info.level}]: ${info.stack}`;
+                }),
               ),
             }),
           );
