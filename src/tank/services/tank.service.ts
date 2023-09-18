@@ -14,7 +14,7 @@ import { dateWithTimeZone } from '../../common/utility/date';
 import * as iconv from 'iconv-lite';
 import { KafkaService } from '../../kafka/services';
 import { WhTankStateDto } from 'rs-dto/lib/warehouse/dto/tank.state.dto';
-import { CompressionTypes } from 'kafkajs';
+import { CompressionTypes, Message } from 'kafkajs';
 import { HubTopics } from 'rs-dto';
 
 @Injectable()
@@ -63,50 +63,46 @@ export class TankService extends CommonService<Tank> {
       //Ожидаем что идет пролив
       await this.update(
         { where: { id: tank.id } },
-        { ...tankData, isBlocked: true, error: null },
+        {
+          ...tankData,
+          isBlocked: Math.abs(tank.volume - tankData.volume) >= MIN_DIFF_VOLUME,
+          error: null,
+        },
       );
-      //Если diff больше порога, то записываем историю, иначе пролив закончился и записываем стейт
-      if (Math.abs(tank.volume - payload.VOLUME) >= MIN_DIFF_VOLUME) {
-        await this.tankHistoryService.create({
-          fuel: tank.fuel,
-          fuelHolder: tank.fuelHolder,
-          refinery: tank.refinery,
-          tank: { id: tank.id },
-          volume: tankData.volume,
-          temperature: tankData.temperature,
-          density: tankData.density,
-          weight: tankData.weight,
-          docWeight: tank.docWeight,
-          docVolume: tank.docVolume,
-        });
-      } else {
-        await this.update(
-          { where: { id: tank.id } },
-          { isBlocked: false, error: null },
-        );
-      }
+    }
+  }
 
+  async sendToHubStatistic() {
+    const tankList = await this.tankRepository.find({
+      where: { addressId: Not(IsNull()), isEnabled: true },
+      relations: {
+        fuelHolder: true,
+        fuel: true,
+        refinery: true,
+      },
+    });
+    const messages: Array<Message> = [];
+    for (const tank of tankList) {
       const kafkaMessage: WhTankStateDto = {
         id: tank.id,
-        updatedAt: Math.floor(Date.now() / 1000),
+        updatedAt: Date.now(),
         sortIndex: tank.sortIndex,
-        temperature: tankData.temperature,
-        volume: tankData.volume,
-        weight: tankData.weight,
+        temperature: tank.temperature,
+        volume: tank.volume,
+        weight: tank.weight,
         docVolume: tank.docVolume,
         docWeight: tank.docWeight,
-        density: tankData.density,
-        level: tankData.level,
+        density: tank.density,
+        level: tank.level,
         fuelName: `${tank.fuel.name} ${tank.refinery.shortName} ${tank.fuelHolder.shortName}`,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
+      messages.push({ value: JSON.stringify(kafkaMessage) });
+    }
+    if (messages.length) {
       await this.kafkaService.addMessage({
         compression: CompressionTypes.GZIP,
-        messages: [
-          {
-            value: JSON.stringify(kafkaMessage),
-          },
-        ],
+        messages,
         topic: HubTopics.TANK_STATE,
       });
     }

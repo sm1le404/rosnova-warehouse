@@ -124,4 +124,18 @@ export class CronService {
       this.logger.error(e);
     }
   }
+
+  @Cron(CronExpression.EVERY_10_MINUTES, {
+    name: 'sendTankDataToHub',
+  })
+  async sendTankDataToHub() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      await this.tankService.sendToHubStatistic();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
 }
