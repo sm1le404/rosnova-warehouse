@@ -60,10 +60,9 @@ export class ReportMx2Service {
       const createdFormatted = formatDate(new Date(item.createdAt * 1000));
       const weightDiff = item.docWeight - item.factWeight;
       let realWeight = item.docWeight;
-      if (item.docWeight * 0.0065 < weightDiff) {
+      if (item.docWeight * 0.0065 < weightDiff && item.factWeight > 0) {
         realWeight = realWeight - (weightDiff - item.docWeight * 0.0065);
       }
-
       realWeight = realWeight / 1000;
 
       worksheetMain.addRow([

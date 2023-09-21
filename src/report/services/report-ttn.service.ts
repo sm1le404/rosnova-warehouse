@@ -1,0 +1,81 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Operation } from '../../operations/entities/operation.entity';
+import { In, Repository } from 'typeorm';
+import * as ExcelJS from 'exceljs';
+import path from 'path';
+import { OperationType } from '../../operations/enums';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import date from 'date-and-time';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import ru from 'date-and-time/locale/ru';
+
+@Injectable()
+export class ReportTtnService {
+  constructor(
+    @InjectRepository(Operation)
+    private operationRepository: Repository<Operation>,
+  ) {}
+
+  async generate(operationId: number): Promise<ExcelJS.Workbook> {
+    const operation = await this.operationRepository.findOneOrFail({
+      where: {
+        id: operationId,
+        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+      },
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.created = new Date();
+    await workbook.xlsx.readFile(
+      path.join(__dirname, '..', '..', 'assets', 'ttn-template.xlsx'),
+    );
+    const worksheet = workbook.getWorksheet('page');
+
+    // Номер накладной
+    worksheet.getCell('FM6').value = operation.numberTTN ?? 'бн';
+
+    //Данные по операции
+    worksheet.getCell('AS17').value = operation.factVolume ?? '';
+    worksheet.getCell('EO17').value = operation.factWeight ?? '';
+
+    // Владелец топлива
+    worksheet.getCell('V8').value = operation?.fuelHolder?.fullName ?? '';
+
+    // Водитель
+    worksheet.getCell('FB29').value =
+      `${operation.driver?.lastName} ${operation.driver?.firstName?.slice(
+        0,
+        1,
+      )} ${operation.driver?.middleName?.slice(0, 1)}` ?? '';
+
+    // Марка автомобиля
+    worksheet.getCell('N53').value = operation.vehicle?.carModel ?? '';
+
+    // ГРЗ
+    worksheet.getCell('DI53').value = operation.vehicle?.regNumber ?? '';
+
+    // Нейминг топлива
+    worksheet.getCell(
+      'BU17',
+      // eslint-disable-next-line max-len
+    ).value = `${operation?.fuel?.name} плотность ${operation.docDensity}, T° = ${operation.docTemperature}`;
+
+    const dateParam = new Date(
+      (operation.dateTTN ?? operation.createdAt) * 1000,
+    );
+
+    date.locale(ru);
+
+    worksheet.getCell('FM7').value = date.format(dateParam, 'DD');
+    worksheet.getCell('X50').value = date.format(dateParam, 'DD');
+
+    worksheet.getCell('FS7').value = date.format(dateParam, 'MM');
+    worksheet.getCell('AD50').value = date.format(dateParam, 'MMMM');
+
+    worksheet.getCell('FZ7').value = date.format(dateParam, 'YY');
+    worksheet.getCell('AW50').value = date.format(dateParam, 'YYYY');
+
+    return workbook;
+  }
+}

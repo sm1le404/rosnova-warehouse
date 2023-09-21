@@ -53,7 +53,7 @@ export class DevicesContoller {
           },
         },
       ],
-      topic: WarehouseTopics.TANK_STATE,
+      topic: WarehouseTopics.FUEL_REF_INSERT,
     });
   }
 
