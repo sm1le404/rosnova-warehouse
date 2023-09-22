@@ -28,13 +28,23 @@ export class ReportMx1Service {
 
     const filter: FindOptionsWhere<Operation> = {
       type: OperationType.SUPPLY,
-      fuelHolder: {
-        id: payload.fuelHolderId,
-      },
-      shift: {
-        id: payload.shiftId,
-      },
     };
+
+    if (payload.operationId) {
+      filter.id = payload.operationId;
+    }
+
+    if (payload.shiftId) {
+      filter.shift = {
+        id: payload.shiftId,
+      };
+    }
+
+    if (payload.fuelHolderId) {
+      filter.fuelHolder = {
+        id: payload.fuelHolderId,
+      };
+    }
 
     const data = await this.operationRepository.find({
       where: filter,

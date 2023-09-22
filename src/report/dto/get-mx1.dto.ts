@@ -2,14 +2,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class GetMx1Dto {
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Фильтрация по смене',
   })
-  shiftId: number;
+  shiftId?: number;
 
   @ApiProperty({
-    required: true,
+    required: false,
     description: 'Владелец топлива (id)',
   })
-  fuelHolderId: number;
+  fuelHolderId?: number;
+
+  @ApiProperty({
+    required: false,
+    description: 'Операция (id)',
+  })
+  operationId?: number;
 }
