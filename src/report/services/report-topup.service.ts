@@ -14,7 +14,7 @@ export class ReportTopUpService {
   ) {}
 
   async generate(operationId: number): Promise<ExcelJS.Workbook> {
-    const operation = await this.operationRepository.findOne({
+    const operation = await this.operationRepository.findOneOrFail({
       where: { id: operationId },
     });
 

@@ -47,6 +47,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "cyrillic-to-translit-js": "^3.2.1",
+    "date-and-time": "^3.0.3",
     "dotenv": "^16.2.0",
     "exceljs": "^4.3.0",
     "iconv-lite": "^0.6.3",

@@ -1,5 +1,5 @@
 import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReportMx2Service } from '../services/report.mx2.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Response } from 'express';
@@ -20,6 +20,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { ReportTtnService } from '../services/report-ttn.service';
+import { GetMx1Dto } from '../dto/get-mx1.dto';
+import { ReportMx1Service } from '../services/report.mx1.service';
 
 @ApiTags('Report')
 @Controller('report')
@@ -32,10 +35,34 @@ export class ReportController {
     private readonly reportMonthService: ReportFilteredService,
     private readonly reportDrawbackService: ReportDrawbackService,
     private readonly reportTopUpService: ReportTopUpService,
+    private readonly reportTtnService: ReportTtnService,
+    private readonly reportMx1Service: ReportMx1Service,
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
   ) {}
 
+  @ApiOperation({
+    summary: 'Mx1 report',
+  })
+  @Get('mx1')
+  async getMx1(@Res() res: Response, @Query() payload: GetMx1Dto) {
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-disposition',
+      `attachment;filename=mx1report-${Date.now()}.xlsx`,
+    );
+    const workbook = await this.reportMx1Service.generate(payload);
+    return workbook.xlsx.write(res).then(() => {
+      res.status(200).end();
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Mx2 report',
+  })
   @Get('mx2')
   async getMx2(@Res() res: Response, @Query() payload: GetMx2Dto) {
     res.setHeader(
@@ -52,6 +79,9 @@ export class ReportController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Outcome report by shift or date',
+  })
   @Get('outcome')
   async outcomeReport(
     @Res() res: Response,
@@ -71,6 +101,9 @@ export class ReportController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Income report by shift or date',
+  })
   @Get('month')
   async monthReport(@Res() res: Response, @Query() payload: GetMonthReportDto) {
     res.setHeader(
@@ -89,6 +122,9 @@ export class ReportController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Drawback report by operation',
+  })
   @Get('drawback')
   async drawbackReport(
     @Res() res: Response,
@@ -116,6 +152,9 @@ export class ReportController {
     });
   }
 
+  @ApiOperation({
+    summary: 'Internal displacement report by operation',
+  })
   @Get('topup')
   async topUpReport(
     @Res() res: Response,
@@ -134,6 +173,30 @@ export class ReportController {
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportTopUpService.generate(operationId);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @ApiOperation({
+    summary: 'TTN report by operation',
+  })
+  @Get('ttn')
+  async ttnReport(
+    @Res() res: Response,
+    @Query('operationId') operationId: number,
+  ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+    const op = await this.operationRepository.findOne({
+      where: { id: operationId },
+    });
+    const name = translitFromRuToEn(`ттн ${op?.numberTTN ?? 'empty'}-${date}`);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
+    const workbook = await this.reportTtnService.generate(operationId);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
