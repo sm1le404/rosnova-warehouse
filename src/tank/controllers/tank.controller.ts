@@ -97,4 +97,9 @@ export class TankController {
   async delete(@Param('id') id: number): Promise<Tank> {
     return this.tankService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.tankService.uploadAllToKafka();
+  }
 }

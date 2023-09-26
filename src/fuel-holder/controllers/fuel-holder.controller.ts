@@ -91,4 +91,9 @@ export class FuelHolderController {
   async delete(@Param('id') id: number): Promise<FuelHolder> {
     return this.fuelHolderService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.fuelHolderService.uploadAllToKafka();
+  }
 }

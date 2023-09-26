@@ -101,9 +101,9 @@ export class CronService {
     name: 'checkKafkaState',
   })
   async checkKafkaState() {
-    if (this.isDev()) {
-      return;
-    }
+    // if (this.isDev()) {
+    //   return;
+    // }
     try {
       await this.kafkaService.initService();
     } catch (e) {
@@ -115,9 +115,9 @@ export class CronService {
     name: 'sendKafkaQueue',
   })
   async sendKafkaQueue() {
-    if (this.isDev()) {
-      return;
-    }
+    // if (this.isDev()) {
+    //   return;
+    // }
     try {
       await this.kafkaService.executeSender();
     } catch (e) {

@@ -88,4 +88,9 @@ export class VehicleController {
   async delete(@Param('id') id: number): Promise<Vehicle> {
     return this.vehicleService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.vehicleService.uploadAllToKafka();
+  }
 }

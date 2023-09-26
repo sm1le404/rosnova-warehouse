@@ -58,4 +58,19 @@ export abstract class CommonService<T extends CommonEntity> {
     const common = await this.findOne({ ...filter, withDeleted: true });
     await this.getRepository().recover(common);
   }
+
+  async uploadAllToKafka() {
+    const entities = await this.find({
+      withDeleted: false,
+    });
+    for (const ent of entities) {
+      const filter: any = {
+        id: ent.id,
+      };
+      const data: any = {
+        updatedAt: Date.now() / 1000,
+      };
+      await this.update({ where: filter }, { ...data });
+    }
+  }
 }

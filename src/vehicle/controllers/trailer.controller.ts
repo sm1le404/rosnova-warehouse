@@ -88,4 +88,9 @@ export class TrailerController {
   async delete(@Param('id') id: number): Promise<Trailer> {
     return this.trailerService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.trailerService.uploadAllToKafka();
+  }
 }

@@ -89,4 +89,9 @@ export class DriverController {
   async delete(@Param('id') id: number): Promise<Driver> {
     return this.driverService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.driverService.uploadAllToKafka();
+  }
 }
