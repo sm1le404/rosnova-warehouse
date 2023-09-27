@@ -26,7 +26,7 @@ import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { CompressionTypes } from 'kafkajs';
 import { KafkaService } from '../../kafka/services';
-import { WarehouseTopics } from 'rs-dto';
+import { HubTopics } from 'rs-dto';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -53,7 +53,7 @@ export class DevicesContoller {
           },
         },
       ],
-      topic: WarehouseTopics.FUEL_REF_INSERT,
+      topic: HubTopics.TANK_STATE,
     });
   }
 

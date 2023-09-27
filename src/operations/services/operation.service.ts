@@ -35,8 +35,10 @@ export class OperationService extends CommonService<Operation> {
     filter: FindOneOptions<Operation>,
     updateCommon: DeepPartial<Operation>,
   ): Promise<Operation> {
+    const kafkaUpdate =
+      Object.values(updateCommon).length === 1 && updateCommon.updatedAt;
     const common = await this.findOne(filter);
-    if (common.status === OperationStatus.FINISHED) {
+    if (common.status === OperationStatus.FINISHED && !kafkaUpdate) {
       throw new BadRequestException(
         `Нельзя перевести операцию в другой статус`,
       );
@@ -66,7 +68,8 @@ export class OperationService extends CommonService<Operation> {
 
     if (
       common.type !== OperationType.OUTCOME &&
-      updateCommon?.status === OperationStatus.FINISHED
+      updateCommon?.status === OperationStatus.FINISHED &&
+      !kafkaUpdate
     ) {
       const tankState = await this.tankService.findOne({
         where: { id: common.tank.id },
@@ -76,7 +79,11 @@ export class OperationService extends CommonService<Operation> {
     }
 
     const updateResult = await this.getRepository().save(common);
-    if (updateResult?.id && updateCommon?.status === OperationStatus.FINISHED) {
+    if (
+      updateResult?.id &&
+      updateCommon?.status === OperationStatus.FINISHED &&
+      !kafkaUpdate
+    ) {
       await this.changeTankState(
         common.tank.id,
         common.type,

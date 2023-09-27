@@ -91,4 +91,9 @@ export class RefineryController {
   async delete(@Param('id') id: number): Promise<Refinery> {
     return this.refineryService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.refineryService.uploadAllToKafka();
+  }
 }
