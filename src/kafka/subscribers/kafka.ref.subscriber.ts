@@ -15,6 +15,7 @@ import {
   FuelDataDto,
   FuelHolderDataDto,
   TrailerCurrentState,
+  OperationDataDto,
 } from 'rs-dto';
 import { ConfigService } from '@nestjs/config';
 import { Trailer } from '../../vehicle/entities/trailer.entity';
@@ -25,6 +26,8 @@ import { TankDataDto } from 'rs-dto/lib/warehouse/dto/tank.data.dto';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { VehicleCurrentState } from 'rs-dto/lib/warehouse/dto/vehicle.data.dto';
+import { Operation } from '../../operations/entities/operation.entity';
+import { VehicleState } from 'rs-dto/lib/warehouse/dto/operation.data.dto';
 
 @Injectable()
 export class KafkaRefSubscriber implements EntitySubscriberInterface {
@@ -44,9 +47,29 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       topic: '',
     };
 
-    if (event.entity instanceof Vehicle) {
+    if (event.entity instanceof Operation) {
+      kafkaPayload.topic = HubTopics.OPERATION_INSERT;
+      const operationDataDto: OperationDataDto = {
+        ...event.entity,
+        whExternalCode: this.configService.get('SHOP_KEY'),
+        fuelExtId: event.entity?.fuel?.name,
+        fuelHolderExtId: event.entity?.fuelHolder?.shortName,
+        refineryExtId: event.entity?.refinery?.shortName,
+        vehicleExtId: event.entity?.vehicle?.regNumber,
+        trailerExtId: event.entity?.trailer?.regNumber,
+        tankExtId: event.entity?.tank?.id.toString(),
+        type: event?.entity?.type,
+        status: event?.entity?.status,
+        vehicleState: JSON.parse(
+          JSON.stringify(event?.entity?.vehicleState),
+        ) as VehicleState[],
+      };
+      kafkaPayload.messages.push({
+        value: JSON.stringify(operationDataDto),
+      });
+    } else if (event.entity instanceof Vehicle) {
       kafkaPayload.topic = HubTopics.VEHICLE_REF_INSERT;
-      const data: VehicleDataDto = {
+      const vehicleDataDto: VehicleDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
         driverId: event.entity?.driver?.id,
@@ -59,11 +82,11 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
           : [],
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(vehicleDataDto),
       });
     } else if (event.entity instanceof Trailer) {
       kafkaPayload.topic = HubTopics.TRAILER_REF_INSERT;
-      const data: TrailerDataDto = {
+      const trailerDataDto: TrailerDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
         currentState: Array.isArray(event.entity.currentState)
@@ -74,20 +97,20 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
           : [],
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(trailerDataDto),
       });
     } else if (event.entity instanceof Driver) {
       kafkaPayload.topic = HubTopics.DRIVER_REF_INSERT;
-      const data: DriverDataDto = {
+      const driverDataDto: DriverDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(driverDataDto),
       });
     } else if (event.entity instanceof Tank) {
       kafkaPayload.topic = HubTopics.TANK_REF_INSERT;
-      const data: TankDataDto = {
+      const tankDataDto: TankDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
         fuelExtId: event.entity?.fuel?.name,
@@ -95,37 +118,35 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
         refineryExtId: event.entity?.refinery?.shortName,
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(tankDataDto),
       });
     } else if (event.entity instanceof Refinery) {
       kafkaPayload.topic = HubTopics.REFINERY_REF_INSERT;
-      const data: RefineryDataDto = {
+      const refineryDataDto: RefineryDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(refineryDataDto),
       });
     } else if (event.entity instanceof Fuel) {
       kafkaPayload.topic = HubTopics.FUEL_REF_INSERT;
-      const data: FuelDataDto = {
+      const fuelDataDto: FuelDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(fuelDataDto),
       });
     } else if (event.entity instanceof FuelHolder) {
       kafkaPayload.topic = HubTopics.FUEL_HOLDER_REF_INSERT;
-      const data: FuelHolderDataDto = {
+      const fuelHolderDataDto: FuelHolderDataDto = {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(fuelHolderDataDto),
       });
-    } else {
-      return;
     }
 
     if (kafkaPayload.messages.length) {
@@ -148,77 +169,95 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       topic: '',
     };
 
-    if (event.entity instanceof Vehicle) {
+    if (event.entity instanceof Operation) {
+      kafkaPayload.topic = HubTopics.OPERATION_DELETE;
+      const operationDataDto: OperationDataDto = {
+        ...event.entity,
+        whExternalCode: this.configService.get('SHOP_KEY'),
+        fuelExtId: event.entity?.fuel?.name,
+        fuelHolderExtId: event.entity?.fuelHolder?.shortName,
+        refineryExtId: event.entity?.refinery?.shortName,
+        vehicleExtId: event.entity?.vehicle?.regNumber,
+        trailerExtId: event.entity?.trailer?.regNumber,
+        tankExtId: event.entity?.tank?.id.toString(),
+        type: event?.entity?.type,
+        status: event?.entity?.status,
+        vehicleState: JSON.parse(
+          JSON.stringify(event?.entity?.vehicleState),
+        ) as VehicleState[],
+      };
+      kafkaPayload.messages.push({
+        value: JSON.stringify(operationDataDto),
+      });
+    } else if (event.entity instanceof Vehicle) {
       kafkaPayload.topic = HubTopics.VEHICLE_REF_DELETE;
-      const data: VehicleDataDto = {
+      const vehicleDataDto: VehicleDataDto = {
         id: event.entity.id,
         regNumber: event.entity.regNumber,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(vehicleDataDto),
       });
     } else if (event.entity instanceof Trailer) {
       kafkaPayload.topic = HubTopics.TRAILER_REF_DELETE;
-      const data: TrailerDataDto = {
+      const trailerDataDto: TrailerDataDto = {
         id: event.entity.id,
         regNumber: event.entity.regNumber,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(trailerDataDto),
       });
     } else if (event.entity instanceof Driver) {
       kafkaPayload.topic = HubTopics.DRIVER_REF_DELETE;
-      const data: DriverDataDto = {
+      const driverDataDto: DriverDataDto = {
         id: event.entity.id,
         lastName: event.entity.lastName,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(driverDataDto),
       });
     } else if (event.entity instanceof Tank) {
       kafkaPayload.topic = HubTopics.TANK_REF_DELETE;
-      const data: TankDataDto = {
+      const tankDataDto: TankDataDto = {
         id: event.entity.id,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(tankDataDto),
       });
     } else if (event.entity instanceof Refinery) {
       kafkaPayload.topic = HubTopics.REFINERY_REF_DELETE;
-      const data: RefineryDataDto = {
+      const refineryDataDto: RefineryDataDto = {
         id: event.entity.id,
         shortName: event.entity.shortName,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(refineryDataDto),
       });
     } else if (event.entity instanceof Fuel) {
       kafkaPayload.topic = HubTopics.FUEL_REF_DELETE;
-      const data: FuelDataDto = {
+      const fuelDataDto: FuelDataDto = {
         id: event.entity.id,
         name: event.entity.name,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(fuelDataDto),
       });
     } else if (event.entity instanceof FuelHolder) {
       kafkaPayload.topic = HubTopics.FUEL_HOLDER_REF_DELETE;
-      const data: FuelHolderDataDto = {
+      const fuelHolderDataDto: FuelHolderDataDto = {
         id: event.entity.id,
         shortName: event.entity.shortName,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
-        value: JSON.stringify(data),
+        value: JSON.stringify(fuelHolderDataDto),
       });
-    } else {
-      return;
     }
 
     if (kafkaPayload.messages.length) {

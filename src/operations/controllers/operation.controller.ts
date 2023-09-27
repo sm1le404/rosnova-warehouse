@@ -159,4 +159,9 @@ export class OperationController {
     });
     return this.operationService.delete({ where: { id } });
   }
+
+  @Post('kafka')
+  async sendToKafka() {
+    await this.operationService.uploadAllToKafka();
+  }
 }
