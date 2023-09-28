@@ -14,6 +14,7 @@ import { CommonEntity } from '../../common/entities/common.entity';
 import { TrailerType } from '../enums';
 import { Operation } from '../../operations/entities/operation.entity';
 import { IVehicleTank } from '../types';
+import { Vehicle } from './vehicle.entity';
 
 @Entity()
 export class Trailer extends CommonEntity {
@@ -65,6 +66,9 @@ export class Trailer extends CommonEntity {
 
   @OneToMany(() => Operation, (operation) => operation.trailer)
   operation: Operation[];
+
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.driver)
+  vehicle: Vehicle[];
 
   @AfterLoad()
   @AfterUpdate()

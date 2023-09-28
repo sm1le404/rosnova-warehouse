@@ -6,9 +6,8 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
 } from 'typeorm';
 
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -68,8 +67,7 @@ export class Vehicle extends CommonEntity {
     required: false,
     description: 'Водитель',
   })
-  @OneToOne(() => Driver, { eager: true })
-  @JoinColumn()
+  @ManyToOne(() => Driver, (driver) => driver.vehicle, { eager: true })
   driver?: Driver;
 
   @ApiProperty({
@@ -77,8 +75,7 @@ export class Vehicle extends CommonEntity {
     required: false,
     description: 'Прицеп',
   })
-  @OneToOne(() => Trailer, { eager: true })
-  @JoinColumn()
+  @ManyToOne(() => Trailer, (trailer) => trailer.vehicle, { eager: true })
   trailer?: Trailer;
 
   @AfterLoad()

@@ -3,6 +3,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Operation } from '../../operations/entities/operation.entity';
+import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 
 @Entity()
 export class Driver extends CommonEntity {
@@ -24,6 +25,9 @@ export class Driver extends CommonEntity {
 
   @OneToMany(() => Operation, (operation) => operation.driver)
   operation: Operation[];
+
+  @OneToMany(() => Vehicle, (vehicle) => vehicle.driver)
+  vehicle: Vehicle[];
 
   @Column()
   protected fullName: string;
