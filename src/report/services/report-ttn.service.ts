@@ -9,6 +9,7 @@ import { OperationType } from '../../operations/enums';
 import date from 'date-and-time';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ru from 'date-and-time/locale/ru';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
 
 @Injectable()
 export class ReportTtnService {
@@ -17,7 +18,10 @@ export class ReportTtnService {
     private operationRepository: Repository<Operation>,
   ) {}
 
-  async generate(operationId: number): Promise<ExcelJS.Workbook> {
+  async generate(
+    operationId: number,
+    user: ICurrentUser,
+  ): Promise<ExcelJS.Workbook> {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: operationId,
@@ -31,6 +35,9 @@ export class ReportTtnService {
       path.join(__dirname, '..', '..', 'assets', 'ttn-template.xlsx'),
     );
     const worksheet = workbook.getWorksheet('page');
+
+    //Имя пользователя
+    worksheet.getCell('BE35').value = user.login;
 
     // Номер накладной
     worksheet.getCell('FM6').value = operation.numberTTN ?? 'бн';
@@ -69,12 +76,15 @@ export class ReportTtnService {
 
     worksheet.getCell('FM7').value = date.format(dateParam, 'DD');
     worksheet.getCell('X50').value = date.format(dateParam, 'DD');
+    worksheet.getCell('BE39').value = date.format(dateParam, 'DD');
 
     worksheet.getCell('FS7').value = date.format(dateParam, 'MM');
     worksheet.getCell('AD50').value = date.format(dateParam, 'MMMM');
+    worksheet.getCell('BM39').value = date.format(dateParam, 'MM');
 
     worksheet.getCell('FZ7').value = date.format(dateParam, 'YY');
     worksheet.getCell('AW50').value = date.format(dateParam, 'YYYY');
+    worksheet.getCell('CG39').value = date.format(dateParam, 'YYYY');
 
     return workbook;
   }

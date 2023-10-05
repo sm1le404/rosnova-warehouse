@@ -185,6 +185,7 @@ export class ReportController {
   async ttnReport(
     @Res() res: Response,
     @Query('operationId') operationId: number,
+    @CurrentUser() user: ICurrentUser,
   ) {
     const date = dateFormatter(Math.floor(Date.now() / 1000));
     const op = await this.operationRepository.findOne({
@@ -196,7 +197,7 @@ export class ReportController {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
-    const workbook = await this.reportTtnService.generate(operationId);
+    const workbook = await this.reportTtnService.generate(operationId, user);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
