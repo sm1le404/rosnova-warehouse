@@ -152,22 +152,22 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async executeSender() {
-    if (!this.producerConnected) {
-      return;
-    }
+    // if (!this.producerConnected) {
+    //   return;
+    // }
     const messagesList = await this.kafkaMessageRepository.find({
       take: 100,
       order: { id: 'asc' },
     });
     for (const message of messagesList) {
-      let data: ProducerRecord;
-      try {
-        data = JSON.parse(message.data);
-      } catch (e) {}
-
-      if (!!data) {
-        await this.sendMessage(data);
-      }
+      // let data: ProducerRecord;
+      // try {
+      //   data = JSON.parse(message.data);
+      // } catch (e) {}
+      //
+      // if (!!data) {
+      //   await this.sendMessage(data);
+      // }
 
       await this.deleteMessage(message.id);
     }
