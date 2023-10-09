@@ -9,7 +9,7 @@ export const PaginationShiftParams = new PaginationShift();
 PaginationShiftParams.selectedColumns = [];
 PaginationShiftParams.searchableColumns = ['createdAt', 'closedAt'];
 PaginationShiftParams.sortableColumns = ['id', 'createdAt', 'updatedAt'];
-PaginationShiftParams.relationList = ['event', 'operation'];
+PaginationShiftParams.relationList = [];
 
 PaginationShiftParams.filterableColumns = {
   id: [FilterOperator.IN, FilterOperator.EQ],
