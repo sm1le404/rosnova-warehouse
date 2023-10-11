@@ -6,7 +6,14 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { Consumer, Kafka, logLevel, Producer, ProducerRecord } from 'kafkajs';
+import {
+  Consumer,
+  Kafka,
+  KafkaConfig,
+  logLevel,
+  Producer,
+  ProducerRecord,
+} from 'kafkajs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { WarehouseTopicEvent, WarehouseTopics } from 'rs-dto';
@@ -33,12 +40,12 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     @InjectRepository(KafkaMessage)
     private readonly kafkaMessageRepository: Repository<KafkaMessage>,
   ) {
-    const brokersList = process?.env?.KAFKA_BROKERS_LIST
-      ? process.env.KAFKA_BROKERS_LIST.split(',')
+    const brokersList = this.configService.get('KAFKA_BROKERS_LIST')
+      ? this.configService.get('KAFKA_BROKERS_LIST').split(',')
       : [];
 
     if (brokersList.length > 0) {
-      this.kafka = new Kafka({
+      const config: KafkaConfig = {
         clientId: 'rs-wh-client',
         brokers: brokersList,
         retry: {
@@ -48,7 +55,16 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
           maxRetryTime: 5000,
         },
         logLevel: logLevel.ERROR,
-      });
+      };
+      if (process?.env?.KAFKA_PLAIN_LOGIN && process?.env?.KAFKA_PLAIN_PWD) {
+        config.sasl = {
+          mechanism: 'plain',
+          username: process.env.KAFKA_PLAIN_LOGIN,
+          password: process.env.KAFKA_PLAIN_PWD,
+        };
+      }
+
+      this.kafka = new Kafka(config);
 
       this.producer = this.kafka.producer();
 
