@@ -55,6 +55,7 @@ export class ReportTtnService {
         factVolume += item.factVolume;
       }
 
+      worksheet.getCell(`D${startPosition}`).value = `Секция`;
       worksheet.getCell(`AI${startPosition}`).value = `ТТН`;
       worksheet.getCell(`CM${startPosition}`).value = item.factVolume;
       worksheet.getCell(`FU${startPosition}`).value = (

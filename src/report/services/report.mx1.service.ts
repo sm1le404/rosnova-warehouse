@@ -95,7 +95,7 @@ export class ReportMx1Service {
         firstPageWeight += realWeight;
       }
 
-      worksheet.getCell(`B${startPosition + number}`).value = number;
+      worksheet.getCell(`B${startPosition + number}`).value = number + 1;
       worksheet.getCell(
         `C${startPosition + number}`,
       ).value = `${item.fuel.name} ${item.refinery.shortName}`;
