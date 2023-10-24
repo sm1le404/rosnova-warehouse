@@ -198,7 +198,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
     if (approveResult[1] != DispenserBytes.ACK) {
       throw new BadRequestException(
-        `Не удалось зафиксировать результат операции ${payload.operationId} (${operation.id})`,
+        `Не удалось зафиксировать результат операции ${operation.id}`,
       );
     }
 
@@ -441,32 +441,10 @@ export class DeviceDispenserService implements OnModuleDestroy {
     if (!this.serialPortList[payload.comId]) {
       throw new BadRequestException(`COM порт не обнаружен`);
     }
+
     const dispenser = DeviceDispenser.getInstance(
       this.serialPortList[payload.comId],
     );
-
-    if (payload.command === DispenserCommand.APPROVE_LITRES) {
-      const operation = await this.operationRepository.findOne({
-        where: {
-          type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
-          status: OperationStatus.PROGRESS,
-        },
-      });
-      if (operation?.id) {
-        await this.operationRepository.update(
-          {
-            id: operation.id,
-          },
-          {
-            status: OperationStatus.INTERRUPTED,
-          },
-        );
-        await this.doneOperation({
-          operationId: operation.id,
-        });
-        return [];
-      }
-    }
 
     const commandResult = await dispenser.callCommand(
       payload.addressId,
@@ -488,6 +466,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         );
       }
     }
+
     return commandResult;
   }
 
