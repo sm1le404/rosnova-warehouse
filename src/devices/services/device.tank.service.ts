@@ -147,9 +147,15 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   async readTanks() {
+    //Читаем только те которые обновлялись больше 30 секунд назад, выбираем по 5
     const tankList = await this.tankRepository.find({
       where: {
         addressId: Not(IsNull()),
+        updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 30),
+      },
+      take: 5,
+      order: {
+        updatedAt: 'ASC',
       },
     });
     for (const tank of tankList) {
