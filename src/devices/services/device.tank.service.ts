@@ -187,16 +187,22 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   async start() {
-    if (!this.serialPort.isOpen) {
-      this.serialPort.open((data) => {
-        if (data instanceof Error) {
-          this.logger.error(data);
-          this.blockTanks(data);
-        } else {
-          this.unblockTanks();
-        }
-      });
-    }
+    return new Promise((res, rej) => {
+      if (!this.serialPort.isOpen) {
+        this.serialPort.open((data) => {
+          if (data instanceof Error) {
+            this.logger.error(data);
+            this.blockTanks(data);
+            return rej(data);
+          } else {
+            this.unblockTanks();
+            return res(true);
+          }
+        });
+      } else {
+        return res(true);
+      }
+    });
   }
 
   onModuleDestroy(): any {
