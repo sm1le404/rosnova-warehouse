@@ -176,7 +176,7 @@ export class DeviceTankService implements OnModuleDestroy {
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
     this.serialPort.write(buffData, (data) => {
-      console.log('Попытка чтения');
+      console.log(`Попытка чтения ${addressId}`);
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {
         this.logger.error(data);
