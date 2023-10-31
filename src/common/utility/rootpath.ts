@@ -41,3 +41,24 @@ export const logInRoot = async (
     );
   }
 };
+
+export const logInRootTank = async (
+  data: string,
+  direction: LogDirection = LogDirection.IN,
+) => {
+  if (process.env.LOG_DISPENSERS) {
+    let dateString = new Date().toISOString();
+    dateString = dateString.split('T')[1];
+    const finalString = `${dateString.replace('Z', '')} ${direction} ${
+      data + os.EOL
+    }`;
+    await fs.appendFileSync(
+      `${path.join(
+        rootpath(),
+        'logs',
+        `device-log-tank-${new Date().toLocaleDateString()}.txt`,
+      )}`,
+      `${finalString}`,
+    );
+  }
+};

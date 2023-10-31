@@ -26,6 +26,11 @@ import {
   Not,
   Repository,
 } from 'typeorm';
+import {
+  LogDirection,
+  logInRoot,
+  logInRootTank,
+} from '../../common/utility/rootpath';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -102,6 +107,9 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   private static prepareMessageResult(bufferMessage: Buffer): DeviceInfoType {
+    const testData: any = Buffer.from(bufferMessage);
+    logInRootTank(`${testData.inspect().toString()}`, LogDirection.OUT);
+
     let response: DeviceInfoType = {
       DENSITY: 0,
       LAYER_FLOAT: 0,
