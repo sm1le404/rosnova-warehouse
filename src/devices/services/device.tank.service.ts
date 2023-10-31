@@ -37,6 +37,8 @@ export class DeviceTankService implements OnModuleDestroy {
 
   private currentAddressId: number;
 
+  private isConnected: boolean = false;
+
   constructor(
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -57,6 +59,7 @@ export class DeviceTankService implements OnModuleDestroy {
       try {
         const result = this.readState(data);
         if (!!result && result?.VOLUME !== 0) {
+          console.log(`считал данные`, this.currentAddressId, result);
           this.eventEmitter.emit(
             DeviceEvents.UPDATE_TANK_STATE,
             new TankUpdateStateEvent(this.currentAddressId, result),
@@ -173,6 +176,7 @@ export class DeviceTankService implements OnModuleDestroy {
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
     this.serialPort.write(buffData, (data) => {
+      console.log('Попытка чтения');
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {
         this.logger.error(data);
@@ -188,14 +192,18 @@ export class DeviceTankService implements OnModuleDestroy {
 
   async start() {
     return new Promise((res, rej) => {
-      if (!this.serialPort.isOpen) {
+      if (!this.serialPort.isOpen && !this.isConnected) {
+        console.log('Попытка законектится');
         this.serialPort.open((data) => {
           if (data instanceof Error) {
             this.logger.error(data);
             this.blockTanks(data);
+            console.log('Х на воротник');
             return rej(data);
           } else {
+            this.isConnected = true;
             this.unblockTanks();
+            console.log('Успешный коннект');
             return res(true);
           }
         });
