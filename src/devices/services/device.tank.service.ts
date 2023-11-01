@@ -66,12 +66,13 @@ export class DeviceTankService implements OnModuleDestroy {
           );
         }
       } catch (e) {
-        this.logger.error(e);
+        this.logError(e);
       }
     });
+
     this.serialPort.on('error', (data) => {
       if (data instanceof Error) {
-        this.logger.error(data);
+        this.logError(data);
         this.blockTanks(data);
       }
     });
@@ -178,7 +179,7 @@ export class DeviceTankService implements OnModuleDestroy {
     this.serialPort.write(buffData, (data) => {
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {
-        this.logger.error(data);
+        this.logError(data);
         this.blockTanks(data, {
           addressId,
           updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 60 * 2),
@@ -194,9 +195,7 @@ export class DeviceTankService implements OnModuleDestroy {
       if (!this.serialPort.isOpen) {
         this.serialPort.open((data) => {
           if (data instanceof Error) {
-            if (!this.hideConnectErrors) {
-              this.logger.error(data);
-            }
+            this.logError(data);
             this.blockTanks(data);
             return rej(data);
           } else {
@@ -229,5 +228,11 @@ export class DeviceTankService implements OnModuleDestroy {
 
   private unblockTanks(filter: FindOptionsWhere<Tank> = { isBlocked: true }) {
     this.tankRepository.update(filter, { isBlocked: false, error: null });
+  }
+
+  private logError(data: any) {
+    if (!this.hideConnectErrors) {
+      this.logger.error(data);
+    }
   }
 }
