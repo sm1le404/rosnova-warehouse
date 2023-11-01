@@ -37,7 +37,7 @@ export class CronService {
       await this.deviceTankService.start();
       await this.deviceTankService.readTanks();
     } catch (e) {
-      this.logger.error(e);
+      //this.logger.error(e);
     }
   }
 
