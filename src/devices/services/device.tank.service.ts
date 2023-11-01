@@ -26,11 +26,6 @@ import {
   Not,
   Repository,
 } from 'typeorm';
-import {
-  LogDirection,
-  logInRoot,
-  logInRootTank,
-} from '../../common/utility/rootpath';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -42,7 +37,7 @@ export class DeviceTankService implements OnModuleDestroy {
 
   private currentAddressId: number;
 
-  private isConnected: boolean = false;
+  private hideConnectErrors: boolean = false;
 
   constructor(
     private readonly configService: ConfigService,
@@ -52,6 +47,7 @@ export class DeviceTankService implements OnModuleDestroy {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
   ) {
+    this.hideConnectErrors = !!this.configService.get('HIDE_TANK_ERRORS');
     this.serialPort = new SerialPort({
       path: this.configService.get('TANK_PORT') ?? 'COM1',
       baudRate: 19200,
@@ -64,7 +60,6 @@ export class DeviceTankService implements OnModuleDestroy {
       try {
         const result = this.readState(data);
         if (!!result && result?.VOLUME !== 0) {
-          console.log(`считал данные`, this.currentAddressId, result);
           this.eventEmitter.emit(
             DeviceEvents.UPDATE_TANK_STATE,
             new TankUpdateStateEvent(this.currentAddressId, result),
@@ -107,9 +102,6 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   private static prepareMessageResult(bufferMessage: Buffer): DeviceInfoType {
-    const testData: any = Buffer.from(bufferMessage);
-    logInRootTank(`${testData.inspect().toString()}`, LogDirection.OUT);
-
     let response: DeviceInfoType = {
       DENSITY: 0,
       LAYER_FLOAT: 0,
@@ -184,7 +176,6 @@ export class DeviceTankService implements OnModuleDestroy {
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
     this.serialPort.write(buffData, (data) => {
-      console.log(`Попытка чтения ${addressId}`);
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {
         this.logger.error(data);
@@ -200,18 +191,16 @@ export class DeviceTankService implements OnModuleDestroy {
 
   async start() {
     return new Promise((res, rej) => {
-      if (!this.serialPort.isOpen && !this.isConnected) {
-        console.log('Попытка законектится');
+      if (!this.serialPort.isOpen) {
         this.serialPort.open((data) => {
           if (data instanceof Error) {
-            this.logger.error(data);
+            if (!this.hideConnectErrors) {
+              this.logger.error(data);
+            }
             this.blockTanks(data);
-            console.log('Х на воротник');
             return rej(data);
           } else {
-            this.isConnected = true;
             this.unblockTanks();
-            console.log('Успешный коннект');
             return res(true);
           }
         });
