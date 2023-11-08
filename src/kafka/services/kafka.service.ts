@@ -187,5 +187,6 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
       await this.deleteMessage(message.id);
     }
+    await this.kafkaMessageRepository.query(`VACUUM;`);
   }
 }

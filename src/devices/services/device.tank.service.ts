@@ -59,7 +59,7 @@ export class DeviceTankService implements OnModuleDestroy {
     this.serialPort.on('data', (data) => {
       try {
         const result = this.readState(data);
-        if (!!result && result?.VOLUME !== 0 && result?.DENSITY < 1) {
+        if (!!result && this.checkValues(result)) {
           this.eventEmitter.emit(
             DeviceEvents.UPDATE_TANK_STATE,
             new TankUpdateStateEvent(this.currentAddressId, result),
@@ -76,6 +76,19 @@ export class DeviceTankService implements OnModuleDestroy {
         this.blockTanks(data);
       }
     });
+  }
+
+  checkValues(payload: DeviceInfoType): boolean {
+    Object.keys(payload).forEach((key) => {
+      if (
+        Number(payload[key]) === 0 ||
+        payload[key] > 1000000 ||
+        payload[key] < -1000000
+      ) {
+        return false;
+      }
+    });
+    return true;
   }
 
   readState(data: Buffer): DeviceInfoType | null {
@@ -146,6 +159,16 @@ export class DeviceTankService implements OnModuleDestroy {
           response[DeviceNames.VOLUME] = param.readFloatLE(0) * 1000;
           break;
       }
+    }
+
+    if (
+      response[DeviceNames.DENSITY] > 1 ||
+      Number(response[DeviceNames.DENSITY].toFixed(4)) == 0
+    ) {
+      response[DeviceNames.DENSITY] =
+        Math.floor(
+          (response[DeviceNames.WEIGHT] / response[DeviceNames.VOLUME]) * 1000,
+        ) / 1000;
     }
     return response;
   }
