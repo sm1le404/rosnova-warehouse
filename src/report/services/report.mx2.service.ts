@@ -69,7 +69,7 @@ export class ReportMx2Service {
         `${number}`,
         `${startedDateFormatted}`,
         `${item.fuelHolder.fullName}`,
-        `${item.fuel.name} ${item.refinery.shortName}`,
+        `${item.fuel.name} ${item.refinery?.shortName ?? ''}`,
         `т`,
         `${realWeight.toFixed(3)}`,
         ``,
