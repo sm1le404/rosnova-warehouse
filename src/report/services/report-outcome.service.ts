@@ -83,6 +83,7 @@ export class ReportOutcomeService {
       ),
     );
     const worksheet = workbook.getWorksheet('page');
+    const endColumnIdx = worksheet.columnCount;
 
     let lastDate;
 
@@ -95,6 +96,8 @@ export class ReportOutcomeService {
       const indices = findDispenserIndices(operations).slice(1);
       const formattedDate = dateFormatter(operations[0].shift.startedAt);
 
+      const needToFillIndex = [2];
+
       for (let i = 0; i < indices.length; i++) {
         const index = indices[i];
         const elementToAdd = operations[index].dispenser?.id
@@ -102,6 +105,7 @@ export class ReportOutcomeService {
           : '';
 
         reportRows.splice(index, 0, ['', elementToAdd]);
+        needToFillIndex.push(2 + index + 1);
       }
 
       reportRows.unshift([
@@ -115,6 +119,35 @@ export class ReportOutcomeService {
           : formattedDate;
       lastDate = formattedDate;
       copySheet.addRows(reportRows);
+      for (const idx of needToFillIndex) {
+        const row = copySheet.getRow(idx);
+        copySheet.mergeCells(idx, 3, idx, endColumnIdx);
+        row.eachCell((cell) => {
+          cell.style.fill = {
+            type: 'pattern',
+            pattern: 'lightGray',
+          };
+        });
+      }
+
+      copySheet.eachRow({ includeEmpty: false }, (row) => {
+        row.eachCell({ includeEmpty: false }, (cell) => {
+          cell.border = {
+            top: {
+              style: 'thin',
+            },
+            left: {
+              style: 'thin',
+            },
+            bottom: {
+              style: 'thin',
+            },
+            right: {
+              style: 'thin',
+            },
+          };
+        });
+      });
     });
 
     worksheet.destroy();

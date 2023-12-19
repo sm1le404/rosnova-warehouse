@@ -74,10 +74,13 @@ export class ReportFilteredService {
     );
 
     for (const i in operations) {
-      const shiftCell = Number(i);
       /*eslint-disable*/
-      const name = `${operations[i].fuel?.name} ${operations[i].fuelHolder?.shortName} ${operations[i].refinery?.shortName}`;
+      const name = `${operations[i].fuel?.name} ${
+        operations[i].fuelHolder?.shortName
+      } ${operations[i].refinery?.shortName ?? ''}`;
+
       let worksheet = workbook.getWorksheet('page');
+
       if (!worksheet) {
         worksheet = workbook.getWorksheet(name);
         if (!worksheet) {
@@ -97,25 +100,51 @@ export class ReportFilteredService {
 
                 const columnNumber = sourceCell.col;
                 const rowNumber = +sourceCell.row;
-                
+
                 const columnWidth = original.getColumn(columnNumber).width;
                 const rowHeight = original.getRow(rowNumber).height;
-                
+
                 worksheet.getColumn(columnNumber).width = columnWidth;
                 worksheet.getRow(rowNumber).height = rowHeight;
               },
             );
           }
-          worksheet.addRow(reportRows[i]);
-          addFormulas(worksheet, shiftCell);
+          const nextPosition = worksheet.actualRowCount + 1;
+          worksheet.insertRow(nextPosition, reportRows[i]);
+          addFormulas(worksheet, nextPosition - 3);
+          continue;
         }
-        worksheet.addRow(reportRows[i]);
-        addFormulas(worksheet, shiftCell);
+        const nextPosition = worksheet.actualRowCount + 1;
+        worksheet.insertRow(nextPosition, reportRows[i]);
+        addFormulas(worksheet, nextPosition - 3);
+        continue;
       }
       worksheet.name = name;
-      worksheet.addRow(reportRows[i]);
-      addFormulas(worksheet, shiftCell);
+      const nextPosition = worksheet.actualRowCount + 1;
+      worksheet.insertRow(nextPosition, reportRows[i]);
+      addFormulas(worksheet, nextPosition - 3);
     }
+
+    workbook.worksheets.map((sheet) => {
+      sheet.eachRow({ includeEmpty: false }, (row) => {
+        row.eachCell({ includeEmpty: false }, (cell) => {
+          cell.border = {
+            top: {
+              style: 'thin',
+            },
+            left: {
+              style: 'thin',
+            },
+            bottom: {
+              style: 'thin',
+            },
+            right: {
+              style: 'thin',
+            },
+          };
+        });
+      });
+    });
 
     return workbook;
   }
