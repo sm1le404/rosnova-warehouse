@@ -191,7 +191,14 @@ export class ShiftController {
       select: { id: true, currentCounter: true },
     });
 
-    const tanks = await this.tankService.find({ where: { isEnabled: true } });
+    const tanks = await this.tankService.find({
+      where: { isEnabled: true },
+      relations: {
+        fuel: true,
+        fuelHolder: true,
+        refinery: true,
+      },
+    });
 
     const updated = await this.shiftService.update(
       {
@@ -217,6 +224,9 @@ export class ShiftController {
               weight: item.weight,
               docVolume: item.docVolume,
               docWeight: item.docWeight,
+              fuelId: item.fuel.id,
+              fuelHolderId: item.fuelHolder.id,
+              refineryId: item.refinery.id,
             };
           }),
         ),
