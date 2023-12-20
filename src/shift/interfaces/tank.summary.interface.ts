@@ -4,6 +4,9 @@ export class TankSummaryInterface {
   @ApiProperty({ description: 'ID резевуара' })
   id: number;
 
+  @ApiProperty({ required: true, description: '№ РГС' })
+  sortIndex: number;
+
   @ApiProperty({ description: 'Значение объема' })
   volume: number;
 
