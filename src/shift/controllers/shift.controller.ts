@@ -220,6 +220,7 @@ export class ShiftController {
           tanks.map((item) => {
             return {
               id: item.id,
+              sortIndex: item.sortIndex,
               volume: item.volume,
               weight: item.weight,
               docVolume: item.docVolume,
