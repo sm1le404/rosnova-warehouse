@@ -71,7 +71,7 @@ export class DeviceTankService implements OnModuleDestroy {
         this.serialPort.on('data', (data) => {
           try {
             const result = this.readState(data);
-            if (!!result && this.checkValues(result)) {
+            if (!!result) {
               this.eventEmitter.emit(
                 DeviceEvents.UPDATE_TANK_STATE,
                 new TankUpdateStateEvent(this.currentAddressId, result),
@@ -97,19 +97,6 @@ export class DeviceTankService implements OnModuleDestroy {
       this.serialPort.close();
       this.blockTanks();
     }
-  }
-
-  checkValues(payload: DeviceInfoType): boolean {
-    Object.keys(payload).forEach((key) => {
-      if (
-        Number(payload[key]) === 0 ||
-        payload[key] > 1000000 ||
-        payload[key] < -1000000
-      ) {
-        return false;
-      }
-    });
-    return true;
   }
 
   readState(data: Buffer): DeviceInfoType | null {
