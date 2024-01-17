@@ -195,6 +195,9 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   async readTanks() {
+    if (!this.serialPort) {
+      return;
+    }
     //Читаем только те которые обновлялись больше 30 секунд назад, выбираем по 5
     const tankList = await this.tankRepository.find({
       where: {
@@ -236,7 +239,7 @@ export class DeviceTankService implements OnModuleDestroy {
 
   async start() {
     return new Promise((res, rej) => {
-      if (!this.serialPort.isOpen) {
+      if (this.serialPort && !this.serialPort.isOpen) {
         this.serialPort.open((data) => {
           if (data instanceof Error) {
             this.logError(data);
