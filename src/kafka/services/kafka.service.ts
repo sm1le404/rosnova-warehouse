@@ -78,6 +78,22 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async onModuleInit() {
+    await this.initService();
+  }
+
+  async onModuleDestroy() {
+    if (!this.kafka) {
+      return;
+    }
+    try {
+      await this.consumer.disconnect();
+      await this.producer.disconnect();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
   async initConsumer() {
     const topicList = Object.values(WarehouseTopics as object);
     this.consumer = this.kafka.consumer({
@@ -134,22 +150,6 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async onModuleInit() {
-    await this.initService();
-  }
-
-  async onModuleDestroy() {
-    if (!this.kafka) {
-      return;
-    }
-    try {
-      await this.consumer.disconnect();
-      await this.producer.disconnect();
-    } catch (e) {
-      this.logger.error(e);
-    }
-  }
-
   async sendMessage(payload: ProducerRecord) {
     if (this.kafka) {
       await this.producer.send(payload);
@@ -187,6 +187,15 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
       await this.deleteMessage(message.id);
     }
-    await this.kafkaMessageRepository.query(`VACUUM;`);
+
+    /**
+     * Нельзя посмотреть открытую транзакцию в sqlite
+     */
+    try {
+      await this.kafkaMessageRepository.query(`COMMIT;`);
+    } catch (e) {
+    } finally {
+      await this.kafkaMessageRepository.query(`VACUUM;`);
+    }
   }
 }
