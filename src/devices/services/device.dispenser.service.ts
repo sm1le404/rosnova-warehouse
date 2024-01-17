@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   LoggerService,
+  NotFoundException,
   OnModuleDestroy,
 } from '@nestjs/common';
 import { SerialPort } from 'serialport';
@@ -58,17 +59,46 @@ export class DeviceDispenserService implements OnModuleDestroy {
       .then((result) => {
         result.forEach((dispenser) => {
           if (dispenser.comId > 0 && !this.serialPortList[dispenser.comId]) {
-            this.serialPortList[dispenser.comId] = new SerialPort({
-              path: `COM${dispenser.comId}`,
-              baudRate: 4800,
-              dataBits: 7,
-              parity: 'even',
-              stopBits: 2,
-              autoOpen: false,
-            });
+            SerialPort.list()
+              .then((res) => {
+                const hasPath = res.find(
+                  (port) => port.path === `COM${dispenser.comId}`,
+                );
+
+                if (!hasPath) {
+                  throw new NotFoundException(
+                    `COM${dispenser.comId} порт колонки ${dispenser.id} не найден`,
+                  );
+                }
+
+                this.serialPortList[dispenser.comId] = new SerialPort({
+                  path: `COM${dispenser.comId}`,
+                  baudRate: 4800,
+                  dataBits: 7,
+                  parity: 'even',
+                  stopBits: 2,
+                  autoOpen: false,
+                });
+              })
+              .catch((e) => this.logger.error(e));
           }
         });
       });
+  }
+
+  onModuleDestroy(): any {
+    if (!!this.serialPortList) {
+      const ports = Object.keys(this.serialPortList);
+      if (ports.length > 0) {
+        ports.forEach((portNumber) => {
+          const serialPort: SerialPort = this.serialPortList[portNumber];
+          if (serialPort.isOpen) {
+            serialPort.close();
+          }
+        });
+        this.blockDispenser();
+      }
+    }
   }
 
   async drainFuelTest(payload: DispenserGetFuelDto) {
@@ -495,21 +525,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
             });
           }
         });
-      }
-    }
-  }
-
-  onModuleDestroy(): any {
-    if (!!this.serialPortList) {
-      const ports = Object.keys(this.serialPortList);
-      if (ports.length > 0) {
-        ports.forEach((portNumber) => {
-          const serialPort: SerialPort = this.serialPortList[portNumber];
-          if (serialPort.isOpen) {
-            serialPort.close();
-          }
-        });
-        this.blockDispenser();
       }
     }
   }

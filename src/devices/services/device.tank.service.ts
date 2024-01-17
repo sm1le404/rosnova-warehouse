@@ -2,6 +2,7 @@ import {
   Inject,
   Injectable,
   LoggerService,
+  NotFoundException,
   OnModuleDestroy,
 } from '@nestjs/common';
 import { SerialPort } from 'serialport';
@@ -48,34 +49,54 @@ export class DeviceTankService implements OnModuleDestroy {
     private readonly tankRepository: Repository<Tank>,
   ) {
     this.hideConnectErrors = !!this.configService.get('HIDE_TANK_ERRORS');
-    this.serialPort = new SerialPort({
-      path: this.configService.get('TANK_PORT') ?? 'COM1',
-      baudRate: 19200,
-      dataBits: 8,
-      parity: 'none',
-      stopBits: 2,
-      autoOpen: false,
-    });
-    this.serialPort.on('data', (data) => {
-      try {
-        const result = this.readState(data);
-        if (!!result && this.checkValues(result)) {
-          this.eventEmitter.emit(
-            DeviceEvents.UPDATE_TANK_STATE,
-            new TankUpdateStateEvent(this.currentAddressId, result),
-          );
-        }
-      } catch (e) {
-        this.logError(e);
-      }
-    });
 
-    this.serialPort.on('error', (data) => {
-      if (data instanceof Error) {
-        this.logError(data);
-        this.blockTanks(data);
-      }
-    });
+    SerialPort.list()
+      .then((res) => {
+        const tankPath = this.configService.get('TANK_PORT') ?? 'COM1';
+        const hasPath = res.find((port) => port.path === tankPath);
+
+        if (!hasPath) {
+          throw new NotFoundException(`${tankPath} порт резервуара не найден`);
+        }
+
+        this.serialPort = new SerialPort({
+          path: this.configService.get('TANK_PORT') ?? 'COM1',
+          baudRate: 19200,
+          dataBits: 8,
+          parity: 'none',
+          stopBits: 2,
+          autoOpen: false,
+        });
+
+        this.serialPort.on('data', (data) => {
+          try {
+            const result = this.readState(data);
+            if (!!result && this.checkValues(result)) {
+              this.eventEmitter.emit(
+                DeviceEvents.UPDATE_TANK_STATE,
+                new TankUpdateStateEvent(this.currentAddressId, result),
+              );
+            }
+          } catch (e) {
+            this.logError(e);
+          }
+        });
+
+        this.serialPort.on('error', (data) => {
+          if (data instanceof Error) {
+            this.logError(data);
+            this.blockTanks(data);
+          }
+        });
+      })
+      .catch((e) => this.logError(e));
+  }
+
+  onModuleDestroy(): any {
+    if (this.serialPort && this.serialPort.isOpen) {
+      this.serialPort.close();
+      this.blockTanks();
+    }
   }
 
   checkValues(payload: DeviceInfoType): boolean {
@@ -230,13 +251,6 @@ export class DeviceTankService implements OnModuleDestroy {
         return res(true);
       }
     });
-  }
-
-  onModuleDestroy(): any {
-    if (this.serialPort.isOpen) {
-      this.serialPort.close();
-      this.blockTanks();
-    }
   }
 
   private blockTanks(
