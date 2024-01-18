@@ -33,7 +33,7 @@ export const outcomeReportMapper = (operations: Operation[]): string[][] => {
       }
       if (key.includes('fuelName')) {
         // eslint-disable-next-line max-len
-        return `${operation.fuel.name} ${operation.refinery.shortName} ${operation.fuelHolder.shortName}`;
+        return `${operation.fuel?.name} ${operation.refinery?.shortName} ${operation.fuelHolder?.shortName}`;
       }
       return operation[key] ?? '';
     });
