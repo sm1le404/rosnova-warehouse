@@ -3,6 +3,7 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -32,6 +33,7 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
+import { isOperatorLastShift } from '../../common/utility/is-operator-last-shift';
 
 @ApiTags('Operation')
 @Controller('operation')
@@ -45,7 +47,6 @@ export class OperationController {
   ) {}
 
   @Get()
-  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get operation list',
   })
@@ -62,7 +63,6 @@ export class OperationController {
   }
 
   @Get(':id')
-  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get operation by id',
   })
@@ -113,6 +113,12 @@ export class OperationController {
     @CurrentUser() user: ICurrentUser,
   ): Promise<Operation> {
     const dataBefore = await this.findOne(id);
+
+    if (!isOperatorLastShift(user.role, dataBefore.id, user.lastShift.id)) {
+      throw new ForbiddenException(
+        'Недостаточно прав, чтобы редактировать операцию',
+      );
+    }
 
     const updated = await this.operationService.update(
       {
