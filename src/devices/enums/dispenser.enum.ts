@@ -18,7 +18,7 @@ export enum DispenserCommand {
   SET_PRICE = 0x51, //	Установка цены за топливо
   SET_LITRES = 0x54, //	Установка дозы отпуска топлива в литрах
   START_DROP = 0x56, //	Безусловный старт раздачи
-  CHECK_LITRES = 0x58, // Запрос количества литров
+  CHECK_LITRES = 0x58, // Запрос количества литров, Чтение заданной дозы
 }
 
 export enum DispenserBytes {
@@ -34,10 +34,10 @@ export enum DispenserBytes {
 }
 
 export enum DispenserStatus {
-  TRK_OFF_RK_ON = 0x30,
-  TRK_OFF_RK_OFF = 0x31,
-  INITIALIZE = 0x32,
-  PROCESS = 0x33,
-  DONE = 0x34,
-  MANUAL_MODE = 0x35,
+  TRK_OFF_RK_ON = 0x30, // ТРК выключена. РК установлен.
+  TRK_OFF_RK_OFF = 0x31, // ТРК выключена. РК снят.
+  INITIALIZE = 0x32, // Прошла команда санкционирование ТРК от СУ.
+  PROCESS = 0x33, // ТРК включена. Идет отпуск топлива.
+  DONE = 0x34, // ТРК выключена . Отпуск топлива закончен.
+  MANUAL_MODE = 0x38, // ТРК выключена. Задана доза с БМУ
 }

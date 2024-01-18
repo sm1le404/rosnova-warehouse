@@ -27,6 +27,7 @@ import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { CompressionTypes } from 'kafkajs';
 import { KafkaService } from '../../kafka/services';
 import { HubTopics } from 'rs-dto';
+import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -107,6 +108,29 @@ export class DevicesContoller {
       payload.data = Buffer.from(payload.data.join(''));
     }
     return this.deviceDispenserService.callCommand(payload);
+  }
+
+  @Post('dispenser/callCommandExt')
+  @UseGuards(JwtAuthGuard, HasRole)
+  @UsePipes(new ValidationPipe())
+  @SetRoles(RoleType.OPERATOR, RoleType.ADMIN)
+  async callDispenserCommandExt(
+    @Body() payload: DispenserCommandDtoExt,
+    @CurrentUser() user: ICurrentUser,
+  ) {
+    await this.eventService.create({
+      collection: EventCollectionType.CALL_DISPENSER_COMMAND,
+      type: EventType.DEFAULT,
+      dataBefore: '',
+      dataAfter: JSON.stringify(payload),
+      name: `Вызов произвольной команды`,
+      shift: user.lastShift,
+      user,
+    });
+    if (payload?.data && Array.isArray(payload.data)) {
+      payload.data = Buffer.from(payload.data.join(''));
+    }
+    return this.deviceDispenserService.callCommandExt(payload);
   }
 
   @UseGuards(JwtAuthGuard, HasRole)

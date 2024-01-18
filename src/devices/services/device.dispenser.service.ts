@@ -33,6 +33,7 @@ import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { DeviceTankService } from './device.tank.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
+import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -464,6 +465,25 @@ export class DeviceDispenserService implements OnModuleDestroy {
           resolve('');
         }
       }, 1000);
+    });
+  }
+
+  async callCommandExt(payload: DispenserCommandDtoExt) {
+    if (!payload?.dispenserId && !payload.dispenserNumber) {
+      throw new BadRequestException(`Не выбрана колонка`);
+    }
+    const dispenser = await this.dispenserRepository.findOneOrFail({
+      where: [
+        { id: payload.dispenserId },
+        { sortIndex: payload.dispenserNumber },
+      ],
+    });
+
+    return this.callCommand({
+      command: payload.command,
+      data: payload.data,
+      addressId: dispenser.addressId,
+      comId: dispenser.comId,
     });
   }
 
