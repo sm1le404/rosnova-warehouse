@@ -6,6 +6,7 @@ import {
   utilities as nestWinstonModuleUtilities,
   WinstonModule,
 } from 'nest-winston';
+import 'winston-daily-rotate-file';
 import * as winston from 'winston';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import AppDataSource from './ormconfig';
@@ -32,7 +33,6 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SettingsModule } from './settings/settings.module';
-import { dateFormatter } from './report/utils';
 
 @Module({
   imports: [
@@ -80,12 +80,9 @@ import { dateFormatter } from './report/utils';
                 nestWinstonModuleUtilities.format.nestLike('Rosnova WH'),
               ),
             }),
-            new winston.transports.File({
-              filename: path.join(
-                rootpath(),
-                `logs`,
-                `${dateFormatter(Math.floor(Date.now() / 1000))}-errors.log`,
-              ),
+            new winston.transports.DailyRotateFile({
+              filename: path.join(rootpath(), `logs`, `%DATE%-errors.log`),
+              datePattern: 'YYYY-MM-DD',
               level: 'error',
               format: winston.format.combine(
                 winston.format.prettyPrint(),

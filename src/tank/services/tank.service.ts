@@ -35,6 +35,19 @@ export class TankService extends CommonService<Tank> {
     return this.tankRepository;
   }
 
+  private static checkValues(payload: DeviceInfoType): boolean {
+    Object.keys(payload).forEach((key) => {
+      if (
+        Number(payload[key]) === 0 ||
+        payload[key] > 1000000 ||
+        payload[key] < -1000000
+      ) {
+        return false;
+      }
+    });
+    return true;
+  }
+
   async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
     const tank = await this.tankRepository.findOne({
       where: { addressId },
@@ -44,9 +57,10 @@ export class TankService extends CommonService<Tank> {
         refinery: true,
       },
     });
-    if (!tank) {
+    if (!tank || !TankService.checkValues(payload)) {
       return;
     }
+
     const tankData: DeviceTankUpdateType = {
       volume: Number(payload.VOLUME.toFixed(4)),
       temperature: Number(payload.TEMP.toFixed(4)),
