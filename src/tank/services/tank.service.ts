@@ -38,9 +38,10 @@ export class TankService extends CommonService<Tank> {
   private static checkValues(payload: DeviceInfoType): boolean {
     Object.keys(payload).forEach((key) => {
       if (
-        Number(Math.round(payload[key])) === 0 ||
+        Math.round(payload[key]) === 0 ||
         payload[key] > 1000000 ||
-        payload[key] < -1000000
+        payload[key] < -1000000 ||
+        isNaN(payload[key])
       ) {
         return false;
       }
