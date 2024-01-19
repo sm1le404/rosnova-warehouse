@@ -31,10 +31,16 @@ export class ReportDrawbackService {
     const timeStart = timeFormatter(new Date(operation.startedAt));
     const dateEnd = dateFormatter(operation.finishedAt);
     const timeEnd = timeFormatter(new Date(operation.finishedAt));
-    const vehicleState = [
-      ...operation.vehicle?.sectionVolumes,
-      ...operation.vehicle?.trailer?.sectionVolumes,
-    ] as unknown as IVehicleTank[];
+    const vehicleState = operation.vehicleState as unknown as IVehicleTank[];
+
+    if (operation.vehicle?.trailer?.sectionVolumes) {
+      vehicleState.push(
+        ...(operation.vehicle?.trailer
+          ?.sectionVolumes as unknown as IVehicleTank[]),
+      );
+    }
+
+    const filteredState = vehicleState.filter((state) => state.maxVolume > 0);
 
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
@@ -78,19 +84,17 @@ export class ReportDrawbackService {
     worksheet.getCell('B36').value = operation.docTemperature ?? '';
 
     // Данные по отсекам
-    vehicleState?.map((state, index) => {
-      worksheet.getCell(`B${39 + index}`).value = state?.volume ?? '';
+    filteredState.map((state, index) => {
+      worksheet.getCell(`B${39 + index}`).value = state?.maxVolume ?? '';
     });
 
-    (operation.vehicleState as unknown as IVehicleTank[])?.map(
-      (state, index) => {
-        worksheet.getCell(`C${39 + index}`).value = state?.density ?? '';
-        worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
-        worksheet.getCell(`I${39 + index}`).value = state?.volume ?? '';
-      },
-    );
+    filteredState.map((state, index) => {
+      worksheet.getCell(`C${39 + index}`).value = state?.density ?? '';
+      worksheet.getCell(`D${39 + index}`).value = state?.temperature ?? '';
+      worksheet.getCell(`I${39 + index}`).value = state?.volume ?? '';
+    });
 
-    const len = vehicleState?.length ?? 0;
+    const len = filteredState.length ?? 0;
 
     // Очистка формы
     worksheet.spliceRows(39 + len, 5 - len);
