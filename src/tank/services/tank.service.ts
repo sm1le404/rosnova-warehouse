@@ -38,7 +38,7 @@ export class TankService extends CommonService<Tank> {
   private static checkValues(payload: DeviceInfoType): boolean {
     Object.keys(payload).forEach((key) => {
       if (
-        Number(payload[key]) === 0 ||
+        Number(Math.round(payload[key])) === 0 ||
         payload[key] > 1000000 ||
         payload[key] < -1000000
       ) {
@@ -49,40 +49,45 @@ export class TankService extends CommonService<Tank> {
   }
 
   async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
-    const tank = await this.tankRepository.findOne({
-      where: { addressId },
-      relations: {
-        fuelHolder: true,
-        fuel: true,
-        refinery: true,
-      },
-    });
-    if (!tank || !TankService.checkValues(payload)) {
-      return;
-    }
-
-    const tankData: DeviceTankUpdateType = {
-      volume: Number(payload.VOLUME.toFixed(4)),
-      temperature: Number(payload.TEMP.toFixed(4)),
-      density: Number(payload.DENSITY.toFixed(4)),
-      weight: Number(payload.WEIGHT.toFixed(4)),
-      level: Number(payload.LAYER_FLOAT.toFixed(4)),
-    };
-
-    //Костылим проскакивающие нули
-    if (
-      (tankData.volume === 0 && tankData.weight === 0) ||
-      (tankData.volume !== 0 && tankData.weight !== 0)
-    ) {
-      //Ожидаем что идет пролив
-      await this.update(
-        { where: { id: tank.id } },
-        {
-          ...tankData,
-          isBlocked: Math.abs(tank.volume - tankData.volume) >= MIN_DIFF_VOLUME,
-          error: null,
+    try {
+      const tank = await this.tankRepository.findOne({
+        where: { addressId },
+        relations: {
+          fuelHolder: true,
+          fuel: true,
+          refinery: true,
         },
-      );
+      });
+      if (!tank || !TankService.checkValues(payload)) {
+        return;
+      }
+
+      const tankData: DeviceTankUpdateType = {
+        volume: Number(payload.VOLUME.toFixed(4)),
+        temperature: Number(payload.TEMP.toFixed(4)),
+        density: Number(payload.DENSITY.toFixed(4)),
+        weight: Number(payload.WEIGHT.toFixed(4)),
+        level: Number(payload.LAYER_FLOAT.toFixed(4)),
+      };
+
+      //Костылим проскакивающие нули
+      if (
+        (tankData.volume === 0 && tankData.weight === 0) ||
+        (tankData.volume !== 0 && tankData.weight !== 0)
+      ) {
+        //Ожидаем что идет пролив
+        await this.update(
+          { where: { id: tank.id } },
+          {
+            ...tankData,
+            isBlocked:
+              Math.abs(tank.volume - tankData.volume) >= MIN_DIFF_VOLUME,
+            error: null,
+          },
+        );
+      }
+    } catch (e) {
+      this.logger.error(e);
     }
   }
 
