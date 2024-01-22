@@ -228,8 +228,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
     });
 
     if (approveResult[1] != DispenserBytes.ACK) {
-      throw new BadRequestException(
-        `Не удалось зафиксировать результат операции ${operation.id}`,
+      this.logger.error(
+        `Не удалось зафиксировать результат операции ${operation.id}, 
+            не дает зафиксировать количество литров`,
       );
     }
 
@@ -326,7 +327,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: {
         id: payload.operationId,
         status: Not(OperationStatus.FINISHED),
-        type: OperationType.OUTCOME,
+        type: [OperationType.OUTCOME, OperationType.INTERNAL],
       },
       relations: {
         dispenser: true,
