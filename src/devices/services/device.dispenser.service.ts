@@ -327,7 +327,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: {
         id: payload.operationId,
         status: Not(OperationStatus.FINISHED),
-        type: [OperationType.OUTCOME, OperationType.INTERNAL],
+        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
       },
       relations: {
         dispenser: true,
