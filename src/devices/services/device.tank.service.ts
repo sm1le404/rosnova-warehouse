@@ -38,8 +38,6 @@ export class DeviceTankService implements OnModuleDestroy {
 
   private currentAddressId: number;
 
-  private hideConnectErrors: boolean = false;
-
   constructor(
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -48,8 +46,6 @@ export class DeviceTankService implements OnModuleDestroy {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
   ) {
-    this.hideConnectErrors = !!this.configService.get('HIDE_TANK_ERRORS');
-
     SerialPort.list()
       .then((res) => {
         const tankPath = this.configService.get('TANK_PORT') ?? 'COM1';
@@ -83,10 +79,8 @@ export class DeviceTankService implements OnModuleDestroy {
         });
 
         this.serialPort.on('error', (data) => {
-          if (data instanceof Error) {
-            this.logError(data);
-            this.blockTanks(data);
-          }
+          this.logError(data);
+          this.blockTanks(data);
         });
       })
       .catch((e) => this.logError(e));
@@ -183,6 +177,7 @@ export class DeviceTankService implements OnModuleDestroy {
 
   async readTanks() {
     if (!this.serialPort) {
+      this.logger.error(`Не могу продолжить чтение, порт недоступен`);
       return;
     }
     //Читаем только те которые обновлялись больше 30 секунд назад, выбираем по 5
@@ -199,6 +194,10 @@ export class DeviceTankService implements OnModuleDestroy {
     for (const tank of tankList) {
       await this.readCommand(tank.addressId);
     }
+  }
+
+  async readTankByAddress(addressId: number) {
+    await this.readCommand(addressId);
   }
 
   async readCommand(addressId: number) {
@@ -258,8 +257,6 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   private logError(data: any) {
-    if (!this.hideConnectErrors) {
-      this.logger.error(data);
-    }
+    this.logger.error(data);
   }
 }

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   UseGuards,
   UsePipes,
@@ -58,8 +59,13 @@ export class DevicesContoller {
     });
   }
 
+  @Get('tank/:addressId')
+  async readTankState(@Param('addressId') addressId: number) {
+    await this.deviceTankService.readTankByAddress(addressId);
+  }
+
   @ApiExcludeEndpoint()
-  @Get('tank')
+  @Get('tank/test')
   async testDevices() {
     //example test data b50120af01211740020d11c103d49c42047b6f42056d49420651573f077b6f420800000034
     setTimeout(() => {
