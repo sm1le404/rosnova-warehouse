@@ -114,7 +114,9 @@ export class OperationController {
   ): Promise<Operation> {
     const dataBefore = await this.findOne(id);
 
-    if (!isOperatorLastShift(user.role, dataBefore.id, user.lastShift.id)) {
+    if (
+      !isOperatorLastShift(user.role, dataBefore.shift.id, user.lastShift.id)
+    ) {
       throw new ForbiddenException(
         'Недостаточно прав, чтобы редактировать операцию',
       );
