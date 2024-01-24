@@ -4,4 +4,6 @@ export const isOperatorLastShift = (
   role: RoleType,
   currentShift: number,
   lastShift: number,
-): boolean => role === RoleType.OPERATOR && currentShift === lastShift;
+): boolean =>
+  role === RoleType.ADMIN ||
+  (role === RoleType.OPERATOR && currentShift === lastShift);

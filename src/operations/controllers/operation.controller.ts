@@ -72,6 +72,7 @@ export class OperationController {
       where: {
         id,
       },
+      relations: PaginationOperationParams.relationList,
     });
   }
 
