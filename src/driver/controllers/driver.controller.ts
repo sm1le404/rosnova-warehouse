@@ -53,6 +53,7 @@ export class DriverController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add driver',
   })

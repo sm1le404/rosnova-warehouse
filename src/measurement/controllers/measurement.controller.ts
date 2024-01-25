@@ -66,6 +66,7 @@ export class MeasurementController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add measurement',
   })

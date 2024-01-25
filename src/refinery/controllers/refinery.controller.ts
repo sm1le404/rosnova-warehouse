@@ -53,6 +53,7 @@ export class RefineryController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add refinery',
   })

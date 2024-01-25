@@ -26,12 +26,11 @@ import { FindOptionsWhere } from 'typeorm';
 @Controller('calibration')
 @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthGuard, HasRole)
-@SetRoles(RoleType.ADMIN)
+@SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
 export class CalibrationController {
   constructor(private readonly calibrationService: CalibrationService) {}
 
   @Get()
-  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get calibration list',
   })
@@ -61,7 +60,6 @@ export class CalibrationController {
   }
 
   @Get(':id')
-  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Get calibration by id',
   })

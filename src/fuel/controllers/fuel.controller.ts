@@ -53,6 +53,7 @@ export class FuelController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add fuel type',
   })

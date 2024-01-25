@@ -53,6 +53,7 @@ export class FuelHolderController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add fuel-holder',
   })

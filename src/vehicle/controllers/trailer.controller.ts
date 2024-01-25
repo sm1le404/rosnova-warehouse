@@ -52,6 +52,7 @@ export class TrailerController {
   }
 
   @Post()
+  @SetRoles(RoleType.ADMIN, RoleType.OPERATOR)
   @ApiOperation({
     summary: 'Add trailer',
   })
