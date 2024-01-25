@@ -196,7 +196,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: In([OperationStatus.INTERRUPTED, OperationStatus.STOPPED]),
+        status: In([
+          OperationStatus.INTERRUPTED,
+          OperationStatus.STOPPED,
+          OperationStatus.STARTED,
+        ]),
         type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
       },
       relations: {
@@ -204,6 +208,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
         tank: true,
       },
     });
+
+    if (operation.status === OperationStatus.STARTED) {
+      this.logger.error(
+        `Попытка зафиксировать сломанную операцию ${operation.id}, 
+            зависла в стартовом статусе`,
+      );
+    }
 
     if (!operation?.dispenser?.addressId || !operation?.dispenser?.comId) {
       throw new BadRequestException(`На колонке не установлен адрес`);

@@ -68,6 +68,12 @@ export class DeviceTankService implements OnModuleDestroy {
           try {
             const result = this.readState(data);
             if (!!result) {
+              if (this.configService.get('LOG_TANKS')) {
+                this.logger.log({
+                  ...result,
+                  addressId: this.currentAddressId,
+                });
+              }
               this.eventEmitter.emit(
                 DeviceEvents.UPDATE_TANK_STATE,
                 new TankUpdateStateEvent(this.currentAddressId, result),
