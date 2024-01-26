@@ -129,6 +129,9 @@ export class TankService extends CommonService<Tank> {
   }
 
   async sendToStatistic() {
+    if (this.configService.get('LOG_TANKS')) {
+      return;
+    }
     const tankList = await this.tankRepository.find({
       where: { addressId: Not(IsNull()), isEnabled: true },
       relations: {
