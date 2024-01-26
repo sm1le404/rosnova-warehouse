@@ -34,8 +34,6 @@ export class DeviceTankService implements OnModuleDestroy {
 
   private message: Array<any> = [];
 
-  private messageLen: number;
-
   private currentAddressId: number;
 
   constructor(
@@ -68,12 +66,6 @@ export class DeviceTankService implements OnModuleDestroy {
           try {
             const result = this.readState(data);
             if (!!result) {
-              if (this.configService.get('LOG_TANKS')) {
-                this.logger.log({
-                  ...result,
-                  addressId: this.currentAddressId,
-                });
-              }
               this.eventEmitter.emit(
                 DeviceEvents.UPDATE_TANK_STATE,
                 new TankUpdateStateEvent(this.currentAddressId, result),
@@ -99,27 +91,37 @@ export class DeviceTankService implements OnModuleDestroy {
     }
   }
 
+  private static buffMessLen(buffMess: any[]): number {
+    return Buffer.byteLength(Buffer.from(buffMess));
+  }
+
   readState(data: Buffer): DeviceInfoType | null {
-    let startReadPosition = 0;
-    //Очищаем сообщение и сдвигаем позицию
-    if (data[0] == TANK_FIRST_BYTE && data[2] > 0) {
+    // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
+    // критический случай 100 символов
+    // this.message[2] - длина сообщения
+    if (
+      data[0] == TANK_FIRST_BYTE ||
+      DeviceTankService.buffMessLen(this.message) > 100
+    ) {
       this.message = [];
-      this.currentAddressId = data[1];
-      this.messageLen = data[2];
-      startReadPosition = 4;
     }
 
     let i = 0;
-    while (
-      Buffer.byteLength(Buffer.from(this.message)) < this.messageLen &&
-      data[startReadPosition + i] !== undefined
-    ) {
-      this.message.push(data[startReadPosition + i]);
+    while (!!data[i]) {
+      this.message.push(data[i]);
+      if (
+        this.message[2] > 0 &&
+        this.message[2] == DeviceTankService.buffMessLen(this.message)
+      ) {
+        break;
+      }
       i++;
     }
-    const buffMessage = Buffer.from(this.message);
-    if (this.messageLen == Buffer.byteLength(buffMessage)) {
-      return DeviceTankService.prepareMessageResult(buffMessage);
+
+    if (this.message[2] == DeviceTankService.buffMessLen(this.message)) {
+      return DeviceTankService.prepareMessageResult(
+        Buffer.from(this.message.slice(4)),
+      );
     }
   }
 
@@ -170,8 +172,10 @@ export class DeviceTankService implements OnModuleDestroy {
     }
 
     if (
-      response[DeviceNames.DENSITY] > 1 ||
-      Number(response[DeviceNames.DENSITY].toFixed(4)) == 0
+      (response[DeviceNames.DENSITY] > 1 ||
+        Number(response[DeviceNames.DENSITY].toFixed(4)) == 0) &&
+      response[DeviceNames.WEIGHT] > 0 &&
+      response[DeviceNames.VOLUME] > 0
     ) {
       response[DeviceNames.DENSITY] =
         Math.floor(
@@ -215,9 +219,6 @@ export class DeviceTankService implements OnModuleDestroy {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
-    if (this.configService.get('LOG_TANKS')) {
-      this.logger.log(`Вызов чтения ${addressId}`);
-    }
     this.serialPort.write(buffData, (data) => {
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {

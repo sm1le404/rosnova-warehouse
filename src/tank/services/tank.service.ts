@@ -72,10 +72,7 @@ export class TankService extends CommonService<Tank> {
       };
 
       //Костылим проскакивающие нули
-      if (
-        (tankData.volume === 0 && tankData.weight === 0) ||
-        (tankData.volume !== 0 && tankData.weight !== 0)
-      ) {
+      if (tankData.volume !== 0 && tankData.weight !== 0) {
         //Ожидаем что идет пролив
         await this.update(
           { where: { id: tank.id } },
@@ -129,9 +126,6 @@ export class TankService extends CommonService<Tank> {
   }
 
   async sendToStatistic() {
-    if (this.configService.get('LOG_TANKS')) {
-      return;
-    }
     const tankList = await this.tankRepository.find({
       where: { addressId: Not(IsNull()), isEnabled: true },
       relations: {
@@ -190,7 +184,6 @@ export class TankService extends CommonService<Tank> {
 
       connector.destroy();
     } catch (e) {
-      console.error(e);
       this.logger.error(e);
     }
   }

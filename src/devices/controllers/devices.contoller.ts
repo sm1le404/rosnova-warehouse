@@ -59,11 +59,6 @@ export class DevicesContoller {
     });
   }
 
-  @Get('tank/:addressId')
-  async readTankState(@Param('addressId') addressId: number) {
-    await this.deviceTankService.readTankByAddress(addressId);
-  }
-
   @ApiExcludeEndpoint()
   @Get('tank/test')
   async testDevices() {
@@ -89,7 +84,6 @@ export class DevicesContoller {
           new TankUpdateStateEvent(1, result),
         ),
       );
-      console.log(this.eventEmitter);
     }, 1500);
   }
 
@@ -114,6 +108,11 @@ export class DevicesContoller {
       payload.data = Buffer.from(payload.data.join(''));
     }
     return this.deviceDispenserService.callCommand(payload);
+  }
+
+  @Get('tank/:addressId')
+  async readTankState(@Param('addressId') addressId: number) {
+    await this.deviceTankService.readTankByAddress(addressId);
   }
 
   @Post('dispenser/callCommandExt')
