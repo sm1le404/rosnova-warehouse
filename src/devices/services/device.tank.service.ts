@@ -27,6 +27,7 @@ import {
   Not,
   Repository,
 } from 'typeorm';
+import { LogDirection, logTanks } from '../../common/utility/rootpath';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -99,6 +100,8 @@ export class DeviceTankService implements OnModuleDestroy {
     // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
     // критический случай 100 символов
     // this.message[2] - длина сообщения
+    const tempData: any = data;
+    logTanks(`${tempData.inspect().toString()}`);
     if (
       data[0] == TANK_FIRST_BYTE ||
       DeviceTankService.buffMessLen(this.message) > 100
@@ -219,6 +222,11 @@ export class DeviceTankService implements OnModuleDestroy {
     ];
     const crc = packet.reduce((a, b) => a + b);
     const buffData = Buffer.from([TANK_FIRST_BYTE, ...packet, crc]);
+    const tempData: any = buffData;
+    await logTanks(
+      `Вызов команды ${tempData.inspect().toString()}`,
+      LogDirection.OUT,
+    );
     this.serialPort.write(buffData, (data) => {
       //Бьем ошибку только через 2 минуты, бывают сбои в ответах
       if (data instanceof Error) {

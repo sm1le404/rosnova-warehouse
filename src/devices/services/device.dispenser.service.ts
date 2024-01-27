@@ -27,7 +27,7 @@ import {
 } from '../../operations/enums';
 import { Tank } from '../../tank/entities/tank.entity';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
-import { LogDirection, logInRoot } from '../../common/utility/rootpath';
+import { LogDirection, logDispensers } from '../../common/utility/rootpath';
 import { DispenserHelper } from '../classes/dispenser.helper';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { DeviceTankService } from './device.tank.service';
@@ -540,7 +540,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           const serialPort: SerialPort = this.serialPortList[portNumber];
           if (!serialPort.isOpen) {
             serialPort.open((data) => {
-              logInRoot(
+              logDispensers(
                 `Попытка инициализации ${portNumber}`,
                 LogDirection.OUT,
               );

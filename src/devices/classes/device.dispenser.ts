@@ -5,7 +5,7 @@ import {
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
 import { BadRequestException, GoneException } from '@nestjs/common';
-import { LogDirection, logInRoot } from '../../common/utility/rootpath';
+import { LogDirection, logDispensers } from '../../common/utility/rootpath';
 import { CommandInterface } from '../interfaces/command.interface';
 
 export class DeviceDispenser {
@@ -88,7 +88,7 @@ export class DeviceDispenser {
       });
 
       let dataCurrent: any = Buffer.from(lastCommand.request);
-      await logInRoot(
+      await logDispensers(
         `${dataCurrent
           .inspect()
           .toString()} Вызов команды ${lastCommand.command.toString(
@@ -102,7 +102,7 @@ export class DeviceDispenser {
             const result = this.responseMessage;
             this.resolveHelper(intervalCheckCompileStatus);
             const dataCurrent: any = Buffer.from(result);
-            await logInRoot(
+            await logDispensers(
               `${dataCurrent.inspect().toString()}`,
               LogDirection.OUT,
             );
@@ -111,7 +111,7 @@ export class DeviceDispenser {
             this.resolveHelper(intervalCheckCompileStatus);
             const result = [DispenserBytes.DEL, DispenserBytes.ACK];
             const dataCurrent: any = Buffer.from(result);
-            await logInRoot(
+            await logDispensers(
               `${dataCurrent.inspect().toString()}`,
               LogDirection.OUT,
             );

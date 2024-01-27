@@ -23,21 +23,40 @@ export enum LogDirection {
 }
 export const logInRoot = async (
   data: string,
+  logName: string,
   direction: LogDirection = LogDirection.IN,
 ) => {
-  if (process.env.LOG_DISPENSERS) {
-    let dateString = new Date().toISOString();
-    dateString = dateString.split('T')[1];
-    const finalString = `${dateString.replace('Z', '')} ${direction} ${
-      data + os.EOL
-    }`;
-    await fs.appendFileSync(
-      `${path.join(
-        rootpath(),
-        'logs',
-        `device-log-${new Date().toLocaleDateString()}.txt`,
-      )}`,
-      `${finalString}`,
-    );
+  let dateString = new Date().toISOString();
+  dateString = dateString.split('T')[1];
+  const finalString = `${dateString.replace('Z', '')} ${direction} ${
+    data + os.EOL
+  }`;
+  await fs.appendFileSync(
+    `${path.join(
+      rootpath(),
+      'logs',
+      `${logName}-${new Date().toLocaleDateString()}.txt`,
+    )}`,
+    `${finalString}`,
+  );
+};
+
+export const logDispensers = async (
+  data: string,
+  direction: LogDirection = LogDirection.IN,
+) => {
+  if (!process.env.LOG_DISPENSERS) {
+    return;
   }
+  await logInRoot(data, 'device-log', direction);
+};
+
+export const logTanks = async (
+  data: string,
+  direction: LogDirection = LogDirection.IN,
+) => {
+  if (!process.env.LOG_TANKS) {
+    return;
+  }
+  await logInRoot(data, 'tanks-log', direction);
 };
