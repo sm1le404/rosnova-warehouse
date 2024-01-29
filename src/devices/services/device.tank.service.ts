@@ -122,6 +122,7 @@ export class DeviceTankService implements OnModuleDestroy {
     }
 
     if (this.message[2] == DeviceTankService.buffMessLen(this.message)) {
+      this.currentAddressId = this.message[1];
       return DeviceTankService.prepareMessageResult(
         Buffer.from(this.message.slice(4)),
       );
