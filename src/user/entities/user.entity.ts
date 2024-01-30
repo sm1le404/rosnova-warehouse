@@ -1,12 +1,9 @@
-import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Event } from '../../event/entities/event.entity';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { RoleType } from '../enums';
-import { EncryptionService } from '../../auth/services/encryption.service';
-
-const crypto = new EncryptionService();
 
 @Entity()
 export class User extends CommonEntity {
@@ -41,9 +38,4 @@ export class User extends CommonEntity {
   })
   @OneToMany(() => Event, (event) => event.user)
   event: Event[];
-
-  @BeforeInsert()
-  async hashPassword() {
-    this.password = await crypto.hash(this.password);
-  }
 }

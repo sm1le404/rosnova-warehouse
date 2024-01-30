@@ -18,13 +18,18 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../enums';
+import { EncryptionService } from '../../auth/services/encryption.service';
+import { UpdatePwdDto } from '../dto/update-pwd.dto';
 
 @ApiTags('User')
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
 @SetRoles(RoleType.ADMIN)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly encryptionService: EncryptionService,
+  ) {}
 
   @Get()
   @ApiOperation({
@@ -57,6 +62,11 @@ export class UserController {
   })
   @ApiResponse({ type: () => OmitType(User, ['password']) })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    if (createUserDto?.password) {
+      createUserDto.password = await this.encryptionService.hash(
+        createUserDto.password,
+      );
+    }
     const { password, ...user } = await this.userService.create(createUserDto);
 
     return user as User;
@@ -80,6 +90,23 @@ export class UserController {
       },
       updateUserDto,
     );
+  }
+
+  @Put(':id/pwd')
+  @UseGuards(JwtAuthGuard, HasRole)
+  @ApiOperation({
+    summary: 'Update user pwd by id',
+  })
+  async updatePassword(
+    @Param('id') id: number,
+    @Body() updatePwdDto: UpdatePwdDto,
+  ): Promise<void> {
+    if (updatePwdDto?.password) {
+      updatePwdDto.password = await this.encryptionService.hash(
+        updatePwdDto.password,
+      );
+    }
+    await this.userService.update({ where: { id } }, updatePwdDto);
   }
 
   @Delete(':id')
