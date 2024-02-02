@@ -194,16 +194,16 @@ export class DeviceTankService implements OnModuleDestroy {
       this.logger.error(`Не могу продолжить чтение, порт недоступен`);
       return;
     }
-    //Читаем все резервуары
     const tankList = await this.tankRepository.find({
       where: {
         addressId: Not(IsNull()),
         isEnabled: true,
-        isBlocked: false,
+        updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 10),
       },
       order: {
         updatedAt: 'ASC',
       },
+      take: 5,
     });
     for (const tank of tankList) {
       await this.readCommand(tank.addressId);
