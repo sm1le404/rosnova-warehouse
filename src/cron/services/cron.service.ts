@@ -26,7 +26,7 @@ export class CronService {
     return !!this.configService.get('DEV');
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS, {
+  @Cron(CronExpression.EVERY_SECOND, {
     name: 'readTankState',
   })
   async readTankState() {
