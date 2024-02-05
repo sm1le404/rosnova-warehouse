@@ -334,21 +334,46 @@ export class DeviceDispenserService implements OnModuleDestroy {
   }
 
   async drainFuel(payload: DispenserGetFuelDto) {
+    const baseFilter: FindOptionsWhere<Operation> = {
+      status: Not(OperationStatus.FINISHED),
+      type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+    };
     const operation = await this.operationRepository.findOneOrFail({
       where: {
+        ...baseFilter,
         id: payload.operationId,
-        status: Not(OperationStatus.FINISHED),
-        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
       },
       relations: {
         dispenser: true,
         tank: true,
       },
     });
+
     if (!operation?.dispenser?.addressId || !operation?.dispenser?.comId) {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
     const addressId = operation.dispenser.addressId;
+
+    const checkOperation = await this.operationRepository.findOne({
+      where: {
+        ...baseFilter,
+        id: Not(operation.id),
+        dispenser: {
+          id: operation.dispenser.id,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (checkOperation?.id) {
+      throw new BadRequestException(
+        `Нельзя начинать новую операцию, 
+        предварительно необходимо завершить ТТН ${operation.numberTTN}`,
+      );
+    }
+
     await this.dispenserRepository.update(
       {
         id: operation.dispenser.id,
