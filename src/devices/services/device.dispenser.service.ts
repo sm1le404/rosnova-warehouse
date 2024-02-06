@@ -346,6 +346,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       relations: {
         dispenser: true,
         tank: true,
+        shift: true,
       },
     });
 
@@ -360,6 +361,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
         id: Not(operation.id),
         dispenser: {
           id: operation.dispenser.id,
+        },
+        shift: {
+          id: operation.shift.id,
         },
       },
       select: {
