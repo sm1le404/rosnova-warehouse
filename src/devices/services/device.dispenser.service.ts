@@ -365,14 +365,17 @@ export class DeviceDispenserService implements OnModuleDestroy {
         shift: {
           id: operation.shift.id,
         },
-        status: Not(In([OperationStatus.STARTED, OperationStatus.FINISHED])),
       },
       select: {
         id: true,
+        status: true,
       },
     });
 
-    if (checkOperation?.id) {
+    if (
+      checkOperation?.id &&
+      checkOperation?.status !== OperationStatus.CREATED
+    ) {
       throw new BadRequestException(
         `Нельзя начинать новую операцию, 
         предварительно необходимо завершить ТТН ${operation.numberTTN}`,
