@@ -365,6 +365,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         shift: {
           id: operation.shift.id,
         },
+        status: Not(In([OperationStatus.STARTED, OperationStatus.FINISHED])),
       },
       select: {
         id: true,
