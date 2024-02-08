@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Controller,
@@ -34,6 +35,7 @@ import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
 import { isOperatorLastShift } from '../../common/utility/is-operator-last-shift';
+import { OperationStatus } from '../enums';
 
 @ApiTags('Operation')
 @Controller('operation')
@@ -150,12 +152,25 @@ export class OperationController {
     summary: 'Delete operation by id',
   })
   @ApiResponse({ type: () => Operation })
-  @SetRoles(RoleType.ADMIN)
   async delete(
     @Param('id') id: number,
     @CurrentUser() user: ICurrentUser,
-  ): Promise<Operation> {
+  ): Promise<any> {
     const dataBefore = await this.findOne(id);
+
+    if (
+      user.role === RoleType.OPERATOR &&
+      user?.lastShift?.id !== dataBefore?.shift?.id
+    ) {
+      throw new BadRequestException(`Нельзя удалить операцию не в своей смене`);
+    }
+
+    if (
+      user.role === RoleType.OPERATOR &&
+      dataBefore.status === OperationStatus.FINISHED
+    ) {
+      throw new BadRequestException(`Нельзя удалить завершившуюся операцию`);
+    }
 
     await this.eventService.create({
       collection: EventCollectionType.OPERATION,

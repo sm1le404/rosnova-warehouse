@@ -35,7 +35,7 @@ export class TankService extends CommonService<Tank> {
     return this.tankRepository;
   }
 
-  private static checkValues(payload: DeviceInfoType): boolean {
+  private static checkValues(payload: object): boolean {
     Object.keys(payload).forEach((key) => {
       if (
         Math.round(payload[key]) === 0 ||
@@ -59,7 +59,7 @@ export class TankService extends CommonService<Tank> {
           refinery: true,
         },
       });
-      if (!tank || !TankService.checkValues(payload)) {
+      if (!tank) {
         return;
       }
 
@@ -70,6 +70,10 @@ export class TankService extends CommonService<Tank> {
         weight: Number(payload.WEIGHT.toFixed(4)),
         level: Number(payload.LAYER_FLOAT.toFixed(4)),
       };
+
+      if (!TankService.checkValues(tankData)) {
+        return;
+      }
 
       //Костылим проскакивающие нули
       if (tankData.volume !== 0 && tankData.weight !== 0) {

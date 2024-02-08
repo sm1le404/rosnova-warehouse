@@ -262,6 +262,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
       {
         status: OperationStatus.FINISHED,
+        finishedAt: Math.floor(Date.now() / 1000),
         counterAfter: summaryLitres,
         volumeAfter: tankState.volume,
         levelAfter: tankState.level,
