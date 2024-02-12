@@ -35,11 +35,10 @@ export class TankService extends CommonService<Tank> {
     return this.tankRepository;
   }
 
-  private static checkValues(payload: object): boolean {
+  private static checkValues(payload: DeviceTankUpdateType): boolean {
     let flag = true;
     Object.keys(payload).forEach((key) => {
       if (
-        Math.round(payload[key]) === 0 ||
         payload[key] > 1000000 ||
         payload[key] < -1000000 ||
         isNaN(payload[key])
@@ -47,6 +46,9 @@ export class TankService extends CommonService<Tank> {
         flag = false;
       }
     });
+    if (Math.round(payload.volume) === 0 || Math.round(payload.weight) === 0) {
+      flag = false;
+    }
     return flag;
   }
 
