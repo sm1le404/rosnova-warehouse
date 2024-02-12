@@ -36,6 +36,7 @@ export class TankService extends CommonService<Tank> {
   }
 
   private static checkValues(payload: object): boolean {
+    let flag = true;
     Object.keys(payload).forEach((key) => {
       if (
         Math.round(payload[key]) === 0 ||
@@ -43,10 +44,10 @@ export class TankService extends CommonService<Tank> {
         payload[key] < -1000000 ||
         isNaN(payload[key])
       ) {
-        return false;
+        flag = false;
       }
     });
-    return true;
+    return flag;
   }
 
   async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
@@ -72,22 +73,23 @@ export class TankService extends CommonService<Tank> {
       };
 
       if (!TankService.checkValues(tankData)) {
-        return;
-      }
-
-      //Костылим проскакивающие нули
-      if (tankData.volume !== 0 && tankData.weight !== 0) {
-        //Ожидаем что идет пролив
         await this.update(
           { where: { id: tank.id } },
           {
-            ...tankData,
-            isBlocked:
-              Math.abs(tank.volume - tankData.volume) >= MIN_DIFF_VOLUME,
-            error: null,
+            error: `Датчик на резервуаре выдает некорректные данные`,
           },
         );
+        return;
       }
+
+      await this.update(
+        { where: { id: tank.id } },
+        {
+          ...tankData,
+          isBlocked: Math.abs(tank.volume - tankData.volume) >= MIN_DIFF_VOLUME,
+          error: null,
+        },
+      );
     } catch (e) {
       this.logger.error(e);
     }
