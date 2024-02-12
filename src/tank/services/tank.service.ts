@@ -75,12 +75,6 @@ export class TankService extends CommonService<Tank> {
       };
 
       if (!TankService.checkValues(tankData)) {
-        await this.update(
-          { where: { id: tank.id } },
-          {
-            error: `Датчик на резервуаре выдает некорректные данные`,
-          },
-        );
         return;
       }
 
