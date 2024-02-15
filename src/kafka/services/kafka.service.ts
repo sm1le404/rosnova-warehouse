@@ -55,10 +55,11 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
           maxRetryTime: 5000,
         },
         logLevel: logLevel.ERROR,
+        ssl: false,
       };
       if (process?.env?.KAFKA_PLAIN_LOGIN && process?.env?.KAFKA_PLAIN_PWD) {
         config.sasl = {
-          mechanism: 'plain',
+          mechanism: 'scram-sha-512',
           username: process.env.KAFKA_PLAIN_LOGIN,
           password: process.env.KAFKA_PLAIN_PWD,
         };
@@ -168,22 +169,22 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   async executeSender() {
-    // if (!this.producerConnected) {
-    //   return;
-    // }
+    if (!this.producerConnected) {
+      return;
+    }
     const messagesList = await this.kafkaMessageRepository.find({
       take: 100,
       order: { id: 'asc' },
     });
     for (const message of messagesList) {
-      // let data: ProducerRecord;
-      // try {
-      //   data = JSON.parse(message.data);
-      // } catch (e) {}
-      //
-      // if (!!data) {
-      //   await this.sendMessage(data);
-      // }
+      let data: ProducerRecord;
+      try {
+        data = JSON.parse(message.data);
+      } catch (e) {}
+
+      if (!!data) {
+        await this.sendMessage(data);
+      }
 
       await this.deleteMessage(message.id);
     }
