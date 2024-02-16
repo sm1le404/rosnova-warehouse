@@ -94,16 +94,12 @@ export class TankService extends CommonService<Tank> {
   async sendToHubStatistic() {
     const tankList = await this.tankRepository.find({
       where: { addressId: Not(IsNull()), isEnabled: true },
-      relations: {
-        fuelHolder: true,
-        fuel: true,
-        refinery: true,
-      },
     });
     const messages: Array<Message> = [];
     for (const tank of tankList) {
       const kafkaMessage: WhTankStateDto = {
         id: tank.id,
+        createdAt: Date.now(),
         updatedAt: Date.now(),
         sortIndex: tank.sortIndex,
         temperature: tank.temperature,
@@ -113,8 +109,8 @@ export class TankService extends CommonService<Tank> {
         docWeight: tank.docWeight,
         density: tank.density,
         level: tank.level,
-        fuelName: `${tank.fuel.name} ${tank.refinery.shortName} ${tank.fuelHolder.shortName}`,
         whExternalCode: this.configService.get('SHOP_KEY'),
+        fuelName: ``,
       };
       messages.push({ value: JSON.stringify(kafkaMessage) });
     }

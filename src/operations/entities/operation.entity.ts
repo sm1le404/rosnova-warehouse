@@ -67,6 +67,9 @@ export class Operation extends CommonEntity {
   @ApiProperty({ description: 'Дата по накладной ISO' })
   dateTTNAtIso?: string;
 
+  @ApiProperty({ description: 'Дата по накладной со свдигом' })
+  dateTTNAtTzTime?: number;
+
   @ApiProperty({ description: 'Дата начала операции' })
   @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
   startedAt?: number;
@@ -74,9 +77,15 @@ export class Operation extends CommonEntity {
   @ApiProperty({ description: 'Дата начала операции ISO' })
   startedAtIso?: string;
 
+  @ApiProperty({ description: 'Время начала операции со сдвигом' })
+  startedAtTzTime?: number;
+
   @ApiProperty({ description: 'Дата завершения операции' })
   @Column({ type: 'integer', default: () => `strftime('%s', 'now')` })
   finishedAt?: number;
+
+  @ApiProperty({ description: 'Время завершения операции со сдвигом' })
+  finishedAtTzTime?: number;
 
   @ApiProperty({ description: 'Дата завершения операции ISO' })
   finishedAtIso?: string;

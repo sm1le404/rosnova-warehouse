@@ -31,6 +31,13 @@ export class OperationService extends CommonService<Operation> {
     return this.getRepository().save(common);
   }
 
+  async findOne(payload: FindOneOptions<Operation>): Promise<Operation> {
+    return this.getRepository().findOneOrFail({
+      relations: PaginationOperationParams.relationList,
+      ...payload,
+    });
+  }
+
   async update(
     filter: FindOneOptions<Operation>,
     updateCommon: DeepPartial<Operation>,

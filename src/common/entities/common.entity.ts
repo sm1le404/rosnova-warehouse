@@ -18,6 +18,9 @@ export class CommonEntity extends BaseEntity {
   @ApiProperty({ description: 'Дата создания ISO' })
   createdAtIso: string;
 
+  @ApiProperty({ description: 'Время создания со сдвигом' })
+  createdTzTime?: number;
+
   @ApiProperty({ description: 'Дата обновления' })
   @Column({
     type: 'integer',
@@ -28,11 +31,17 @@ export class CommonEntity extends BaseEntity {
   @ApiProperty({ description: 'Дата обновления ISO' })
   updatedAtIso: string;
 
+  @ApiProperty({ description: 'Время обновления со сдвигом' })
+  updatedAtTzTime?: number;
+
   @DeleteDateColumn({
     nullable: true,
     select: false,
   })
   deletedAt?: number;
+
+  @ApiProperty({ description: 'Дата обновления ISO' })
+  deletedAtTzTime: string;
 
   constructor(partial: Partial<CommonEntity>) {
     super();

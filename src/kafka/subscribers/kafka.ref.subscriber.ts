@@ -7,15 +7,15 @@ import { InsertEvent } from 'typeorm/subscriber/event/InsertEvent';
 import { SoftRemoveEvent } from 'typeorm/subscriber/event/SoftRemoveEvent';
 import { CompressionTypes, ProducerRecord } from 'kafkajs';
 import {
-  HubTopics,
-  VehicleDataDto,
-  TrailerDataDto,
   DriverDataDto,
-  RefineryDataDto,
   FuelDataDto,
   FuelHolderDataDto,
-  TrailerCurrentState,
+  HubTopics,
   OperationDataDto,
+  RefineryDataDto,
+  TrailerCurrentState,
+  TrailerDataDto,
+  VehicleDataDto,
 } from 'rs-dto';
 import { ConfigService } from '@nestjs/config';
 import { Trailer } from '../../vehicle/entities/trailer.entity';
@@ -28,6 +28,7 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { VehicleCurrentState } from 'rs-dto/lib/warehouse/dto/vehicle.data.dto';
 import { Operation } from '../../operations/entities/operation.entity';
 import { VehicleState } from 'rs-dto/lib/warehouse/dto/operation.data.dto';
+import { OperationStatus } from '../../operations/enums';
 
 @Injectable()
 export class KafkaRefSubscriber implements EntitySubscriberInterface {
@@ -47,7 +48,11 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       topic: '',
     };
 
-    if (event.entity instanceof Operation) {
+    if (
+      event.entity instanceof Operation &&
+      !!event.entity?.status &&
+      event.entity.status === OperationStatus.FINISHED
+    ) {
       kafkaPayload.topic = HubTopics.OPERATION_INSERT;
       const operationDataDto: OperationDataDto = {
         ...event.entity,
@@ -171,27 +176,16 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
 
     if (event.entity instanceof Operation) {
       kafkaPayload.topic = HubTopics.OPERATION_DELETE;
-      const operationDataDto: OperationDataDto = {
-        ...event.entity,
+      const operationDataDto: Partial<OperationDataDto> = {
+        id: event.entity.id,
         whExternalCode: this.configService.get('SHOP_KEY'),
-        fuelExtId: event.entity?.fuel?.name,
-        fuelHolderExtId: event.entity?.fuelHolder?.shortName,
-        refineryExtId: event.entity?.refinery?.shortName,
-        vehicleExtId: event.entity?.vehicle?.regNumber,
-        trailerExtId: event.entity?.trailer?.regNumber,
-        tankExtId: event.entity?.tank?.id.toString(),
-        type: event?.entity?.type,
-        status: event?.entity?.status,
-        vehicleState: JSON.parse(
-          JSON.stringify(event?.entity?.vehicleState),
-        ) as VehicleState[],
       };
       kafkaPayload.messages.push({
         value: JSON.stringify(operationDataDto),
       });
     } else if (event.entity instanceof Vehicle) {
       kafkaPayload.topic = HubTopics.VEHICLE_REF_DELETE;
-      const vehicleDataDto: VehicleDataDto = {
+      const vehicleDataDto: Partial<VehicleDataDto> = {
         id: event.entity.id,
         regNumber: event.entity.regNumber,
         whExternalCode: this.configService.get('SHOP_KEY'),
@@ -201,7 +195,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof Trailer) {
       kafkaPayload.topic = HubTopics.TRAILER_REF_DELETE;
-      const trailerDataDto: TrailerDataDto = {
+      const trailerDataDto: Partial<TrailerDataDto> = {
         id: event.entity.id,
         regNumber: event.entity.regNumber,
         whExternalCode: this.configService.get('SHOP_KEY'),
@@ -211,7 +205,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof Driver) {
       kafkaPayload.topic = HubTopics.DRIVER_REF_DELETE;
-      const driverDataDto: DriverDataDto = {
+      const driverDataDto: Partial<DriverDataDto> = {
         id: event.entity.id,
         lastName: event.entity.lastName,
         whExternalCode: this.configService.get('SHOP_KEY'),
@@ -221,7 +215,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof Tank) {
       kafkaPayload.topic = HubTopics.TANK_REF_DELETE;
-      const tankDataDto: TankDataDto = {
+      const tankDataDto: Partial<TankDataDto> = {
         id: event.entity.id,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
@@ -230,7 +224,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof Refinery) {
       kafkaPayload.topic = HubTopics.REFINERY_REF_DELETE;
-      const refineryDataDto: RefineryDataDto = {
+      const refineryDataDto: Partial<RefineryDataDto> = {
         id: event.entity.id,
         shortName: event.entity.shortName,
         whExternalCode: this.configService.get('SHOP_KEY'),
@@ -240,7 +234,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof Fuel) {
       kafkaPayload.topic = HubTopics.FUEL_REF_DELETE;
-      const fuelDataDto: FuelDataDto = {
+      const fuelDataDto: Partial<FuelDataDto> = {
         id: event.entity.id,
         name: event.entity.name,
         whExternalCode: this.configService.get('SHOP_KEY'),
@@ -250,7 +244,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       });
     } else if (event.entity instanceof FuelHolder) {
       kafkaPayload.topic = HubTopics.FUEL_HOLDER_REF_DELETE;
-      const fuelHolderDataDto: FuelHolderDataDto = {
+      const fuelHolderDataDto: Partial<FuelHolderDataDto> = {
         id: event.entity.id,
         shortName: event.entity.shortName,
         whExternalCode: this.configService.get('SHOP_KEY'),
