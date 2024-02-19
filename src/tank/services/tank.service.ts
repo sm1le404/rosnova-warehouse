@@ -46,7 +46,12 @@ export class TankService extends CommonService<Tank> {
         flag = false;
       }
     });
-    if (Math.round(payload.volume) === 0 || Math.round(payload.weight) === 0) {
+    //Проскакивают иногда некорректные значения веса, уровня и объема
+    if (
+      Math.round(payload.volume) === 0 ||
+      Math.round(payload.weight) === 0 ||
+      Math.round(payload.level) === 0
+    ) {
       flag = false;
     }
     return flag;
