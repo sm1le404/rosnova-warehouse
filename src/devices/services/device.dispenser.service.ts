@@ -465,6 +465,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           addressId: addressId,
           comId: operation.dispenser.comId,
         });
+
         //Запись реально залитого количества
         let litresStatus: Array<any> = await this.callCommand({
           command: DispenserCommand.GET_CURRENT_STATUS,
@@ -484,8 +485,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
             },
           );
         }
-        //ТРК выключена . Отпуск топлива закончен
-        if (status[2] == DispenserStatus.DONE) {
+        //ТРК выключена . Отпуск топлива закончен или РК установлен.
+        if (
+          status[2] == DispenserStatus.DONE ||
+          status[2] == DispenserStatus.TRK_OFF_RK_ON
+        ) {
           clearInterval(intervalCheckCompileStatus);
 
           await this.operationRepository.update(

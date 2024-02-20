@@ -50,7 +50,7 @@ export class TankService extends CommonService<Tank> {
     if (
       Math.round(payload.volume) === 0 ||
       Math.round(payload.weight) === 0 ||
-      Math.round(payload.level) === 0
+      Math.round(payload.level) <= 0
     ) {
       flag = false;
     }
