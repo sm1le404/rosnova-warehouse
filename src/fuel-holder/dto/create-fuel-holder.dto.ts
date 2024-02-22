@@ -16,4 +16,9 @@ export class CreateFuelHolderDto {
   @IsOptional()
   @IsBoolean()
   isEnabled?: boolean;
+
+  @ApiProperty({ required: false, description: 'ИНН' })
+  @IsOptional()
+  @IsString()
+  inn?: string;
 }

@@ -247,6 +247,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
       const fuelHolderDataDto: Partial<FuelHolderDataDto> = {
         id: event.entity.id,
         shortName: event.entity.shortName,
+        inn: event.entity.inn,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({
