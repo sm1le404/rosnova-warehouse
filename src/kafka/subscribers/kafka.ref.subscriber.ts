@@ -58,7 +58,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
         fuelExtId: event.entity?.fuel?.name,
-        fuelHolderExtId: event.entity?.fuelHolder?.shortName,
+        fuelHolderExtId: event.entity?.fuelHolder?.inn,
         refineryExtId: event.entity?.refinery?.shortName,
         vehicleExtId: event.entity?.vehicle?.regNumber,
         trailerExtId: event.entity?.trailer?.regNumber,
@@ -119,7 +119,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
         ...event.entity,
         whExternalCode: this.configService.get('SHOP_KEY'),
         fuelExtId: event.entity?.fuel?.name,
-        fuelHolderExtId: event.entity?.fuelHolder?.shortName,
+        fuelHolderExtId: event.entity?.fuelHolder?.inn,
         refineryExtId: event.entity?.refinery?.shortName,
       };
       kafkaPayload.messages.push({
