@@ -8,6 +8,8 @@ import { DeviceDispenserService } from '../../devices/services/device.dispenser.
 import { TankService } from '../../tank/services/tank.service';
 import { KafkaService } from '../../kafka/services';
 import { OperationService } from '../../operations/services/operation.service';
+import { EventService } from '../../event/services/event.service';
+import { LessThan } from 'typeorm';
 
 @Injectable()
 export class CronService {
@@ -20,6 +22,7 @@ export class CronService {
     private readonly tankService: TankService,
     private readonly kafkaService: KafkaService,
     private readonly operationService: OperationService,
+    private readonly eventService: EventService,
   ) {}
 
   isDev(): boolean {
@@ -134,6 +137,26 @@ export class CronService {
     }
     try {
       await this.tankService.sendToHubStatistic();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_6_HOURS, {
+    name: 'clearEventTable',
+  })
+  async clearEventTable() {
+    if (this.isDev()) {
+      return;
+    }
+    try {
+      const day = new Date();
+      day.setHours(day.getHours() - 24 * 30);
+      await this.eventService.deleteMany({
+        where: {
+          createdAt: LessThan(Math.floor(day.getTime() / 1000)),
+        },
+      });
     } catch (e) {
       this.logger.error(e);
     }
