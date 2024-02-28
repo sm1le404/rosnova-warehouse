@@ -7,11 +7,7 @@ import {
 } from '@nestjs/common';
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
-import {
-  TANK_FIRST_BYTE,
-  TankDeviceParams,
-  TankHelperParams,
-} from '../enums/tank.enums';
+import { TANK_FIRST_BYTE, TankDeviceParams, TankHelperParams } from '../enums';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { DeviceNames } from '../enums';
 import { DeviceInfoType } from '../types/device.info.type';
@@ -29,8 +25,8 @@ import {
 } from 'typeorm';
 import { LogDirection, logTanks } from '../../common/utility/rootpath';
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
-import { AutoDetectTypes } from '@serialport/bindings-cpp';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {

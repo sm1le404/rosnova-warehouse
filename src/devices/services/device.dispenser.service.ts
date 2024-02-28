@@ -35,6 +35,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
 
 @Injectable()
