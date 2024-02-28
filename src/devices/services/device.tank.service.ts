@@ -28,6 +28,9 @@ import {
   Repository,
 } from 'typeorm';
 import { LogDirection, logTanks } from '../../common/utility/rootpath';
+import { SerialPortOpenOptions } from 'serialport/dist/serialport';
+import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
+import { AutoDetectTypes } from '@serialport/bindings-cpp';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
@@ -54,13 +57,27 @@ export class DeviceTankService implements OnModuleDestroy {
           throw new NotFoundException(`${tankPath} порт резервуара не найден`);
         }
 
-        this.serialPort = new SerialPort({
-          path: this.configService.get('TANK_PORT') ?? 'COM1',
+        let portParams: Partial<
+          SerialPortOpenOptions<WindowsBindingInterface>
+        > = {
           baudRate: 19200,
           dataBits: 8,
           parity: 'none',
           stopBits: 2,
           autoOpen: false,
+        };
+
+        const cfg = this.configService.get('TANK_PORT_CFG');
+        try {
+          const cfgParams: Partial<
+            SerialPortOpenOptions<WindowsBindingInterface>
+          > = JSON.parse(cfg);
+          portParams = { ...portParams, ...cfgParams };
+        } catch (e) {}
+
+        this.serialPort = new SerialPort({
+          path: this.configService.get('TANK_PORT') ?? 'COM1',
+          ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
         });
 
         this.serialPort.on('data', (data) => {

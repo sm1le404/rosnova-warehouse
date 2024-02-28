@@ -34,6 +34,8 @@ import { DeviceTankService } from './device.tank.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
+import { SerialPortOpenOptions } from 'serialport/dist/serialport';
+import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -66,6 +68,24 @@ export class DeviceDispenserService implements OnModuleDestroy {
                   (port) => port.path === `COM${dispenser.comId}`,
                 );
 
+                let portParams: Partial<
+                  SerialPortOpenOptions<WindowsBindingInterface>
+                > = {
+                  baudRate: 4800,
+                  dataBits: 7,
+                  parity: 'even',
+                  stopBits: 2,
+                  autoOpen: false,
+                };
+
+                const cfg = this.configService.get('DISPENSER_PORT_CFG');
+                try {
+                  const cfgParams: Partial<
+                    SerialPortOpenOptions<WindowsBindingInterface>
+                  > = JSON.parse(cfg);
+                  portParams = { ...portParams, ...cfgParams };
+                } catch (e) {}
+
                 if (!hasPath) {
                   throw new NotFoundException(
                     `COM${dispenser.comId} порт колонки ${dispenser.id} не найден`,
@@ -74,11 +94,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
                 this.serialPortList[dispenser.comId] = new SerialPort({
                   path: `COM${dispenser.comId}`,
-                  baudRate: 4800,
-                  dataBits: 7,
-                  parity: 'even',
-                  stopBits: 2,
-                  autoOpen: false,
+                  ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
                 });
               })
               .catch((e) => this.logger.error(e));
