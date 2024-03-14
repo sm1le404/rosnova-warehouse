@@ -13,9 +13,9 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { dateWithTimeZone } from '../../common/utility/date';
 import * as iconv from 'iconv-lite';
 import { KafkaService } from '../../kafka/services';
-import { WhTankStateDto } from 'rs-dto/lib/warehouse/dto/tank.state.dto';
 import { CompressionTypes, Message } from 'kafkajs';
 import { HubTopics } from 'rs-dto';
+import { TankDataDto } from 'rs-dto/lib/warehouse/dto/tank.data.dto';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
@@ -102,7 +102,7 @@ export class TankService extends CommonService<Tank> {
     });
     const messages: Array<Message> = [];
     for (const tank of tankList) {
-      const kafkaMessage: WhTankStateDto = {
+      const kafkaMessage: TankDataDto = {
         id: tank.id,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -115,7 +115,9 @@ export class TankService extends CommonService<Tank> {
         density: tank.density,
         level: tank.level,
         whExternalCode: this.configService.get('SHOP_KEY'),
-        fuelName: ``,
+        fuelExtId: tank.fuel?.name,
+        fuelHolderExtId: tank.fuelHolder?.inn,
+        refineryExtId: tank.refinery?.shortName,
       };
       messages.push({ value: JSON.stringify(kafkaMessage) });
     }
