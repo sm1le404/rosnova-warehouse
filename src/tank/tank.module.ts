@@ -10,15 +10,21 @@ import { TankHistoryService } from './services/tank-history.service';
 import { TankHistory } from './entities/tank-history.entity';
 import { TankHistoryController } from './controllers/tank-history.controller';
 import { TankListener } from './listeners/tank.listener';
+import { TankSubscriber } from './subscribers/tank.subscriber';
+import { WsModule } from '../ws/ws.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Tank, Calibration, TankHistory])],
+  imports: [
+    TypeOrmModule.forFeature([Tank, Calibration, TankHistory]),
+    WsModule,
+  ],
   controllers: [TankController, CalibrationController, TankHistoryController],
   providers: [
     TankService,
     CalibrationService,
     TankHistoryService,
     TankListener,
+    TankSubscriber,
   ],
   exports: [TankService],
 })

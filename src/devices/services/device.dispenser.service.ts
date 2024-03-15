@@ -17,7 +17,14 @@ import {
 } from '../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
-import { FindOptionsWhere, In, IsNull, Not, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  In,
+  IsNull,
+  MoreThan,
+  Not,
+  Repository,
+} from 'typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import {
@@ -34,6 +41,9 @@ import { DeviceTankService } from './device.tank.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
+import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
+// eslint-disable-next-line max-len
+import { InteractiveScheduleCronService } from '../../cron/services/interactive.schedule.cron.service';
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
@@ -54,6 +64,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
     private eventEmitter: EventEmitter2,
+    private readonly interactiveScheduleCronService: InteractiveScheduleCronService,
   ) {
     this.dispenserRepository
       .createQueryBuilder(`dispenser`)
@@ -288,6 +299,10 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
     );
 
+    this.interactiveScheduleCronService.deleteCronJob(
+      `operation_${operation.id}`,
+    );
+
     this.eventEmitter.emit(
       OperationEvent.FINISH,
       new TankOperationStateEvent(
@@ -349,6 +364,91 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
       { currentCounter: operation.counterAfter },
     );
+  }
+
+  async drainFixation(operation: Operation): Promise<void> {
+    try {
+      const status: Array<any> = await this.callCommand({
+        command: DispenserCommand.STATUS,
+        addressId: operation.dispenser.addressId,
+        comId: operation.dispenser.comId,
+      });
+
+      //Запись реально залитого количества
+      let litresStatus: Array<any> = await this.callCommand({
+        command: DispenserCommand.GET_CURRENT_STATUS,
+        addressId: operation.dispenser.addressId,
+        comId: operation.dispenser.comId,
+      });
+
+      const operationState = await this.operationRepository.findOne({
+        where: {
+          id: operation.id,
+        },
+        select: {
+          factVolume: true,
+          status: true,
+          updatedAt: true,
+        },
+        loadEagerRelations: false,
+      });
+
+      const countLitres = DispenserHelper.getLitres(litresStatus);
+      if (countLitres > 0 && operationState.factVolume < countLitres) {
+        await this.operationRepository.update(
+          {
+            id: operation.id,
+          },
+          {
+            status: OperationStatus.PROGRESS,
+            factVolume: countLitres,
+            factWeight: countLitres * operation.tank.density,
+          },
+        );
+      }
+
+      //Если не обновляется больше минуты, то считаем что надо остановить
+      const noUpdate =
+        Math.floor(Date.now() / 1000) - operationState.updatedAt > 60 &&
+        operationState.status === OperationStatus.PROGRESS;
+
+      //ТРК выключена . Отпуск топлива закончен или РК установлен.
+      if (
+        status[2] == DispenserStatus.DONE ||
+        status[2] == DispenserStatus.TRK_OFF_RK_ON ||
+        noUpdate
+      ) {
+        await this.operationRepository.update(
+          {
+            id: operation.id,
+          },
+          {
+            status: OperationStatus.STOPPED,
+          },
+        );
+        await this.dispenserRepository.update(
+          {
+            id: operation.dispenser.id,
+          },
+          { isBlocked: false },
+        );
+        await this.tankRepository.update(
+          {
+            id: operation.tank.id,
+          },
+          { isBlocked: false },
+        );
+
+        this.interactiveScheduleCronService.deleteCronJob(
+          `operation_${operation.id}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(error);
+      this.interactiveScheduleCronService.deleteCronJob(
+        `operation_${operation.id}`,
+      );
+    }
   }
 
   async drainFuel(payload: DispenserGetFuelDto) {
@@ -475,60 +575,24 @@ export class DeviceDispenserService implements OnModuleDestroy {
       );
     }
 
+    await this.addOperationToCron(operation);
+
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
-        const status: Array<any> = await this.callCommand({
-          command: DispenserCommand.STATUS,
-          addressId: addressId,
-          comId: operation.dispenser.comId,
+        const currentOperationState = await this.operationRepository.findOne({
+          where: {
+            id: operation.id,
+          },
+          select: {
+            id: true,
+            status: true,
+          },
         });
-
-        //Запись реально залитого количества
-        let litresStatus: Array<any> = await this.callCommand({
-          command: DispenserCommand.GET_CURRENT_STATUS,
-          addressId: addressId,
-          comId: operation.dispenser.comId,
-        });
-        const countLitres = DispenserHelper.getLitres(litresStatus);
-        if (countLitres > 0) {
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              status: OperationStatus.PROGRESS,
-              factVolume: countLitres,
-              factWeight: countLitres * operation.tank.density,
-            },
-          );
-        }
-        //ТРК выключена . Отпуск топлива закончен или РК установлен.
         if (
-          status[2] == DispenserStatus.DONE ||
-          status[2] == DispenserStatus.TRK_OFF_RK_ON
+          currentOperationState.status === OperationStatus.STOPPED ||
+          currentOperationState.status === OperationStatus.FINISHED
         ) {
           clearInterval(intervalCheckCompileStatus);
-
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              status: OperationStatus.STOPPED,
-            },
-          );
-          await this.dispenserRepository.update(
-            {
-              id: operation.dispenser.id,
-            },
-            { isBlocked: false },
-          );
-          await this.tankRepository.update(
-            {
-              id: operation.tank.id,
-            },
-            { isBlocked: false },
-          );
           resolve('');
         }
       }, 1000);
@@ -605,6 +669,33 @@ export class DeviceDispenserService implements OnModuleDestroy {
                   comId: parseInt(portNumber),
                 });
               } else {
+                this.operationRepository
+                  .find({
+                    where: {
+                      status: Not(
+                        In([
+                          OperationStatus.FINISHED,
+                          OperationStatus.STOPPED,
+                          OperationStatus.CREATED,
+                        ]),
+                      ),
+                      type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+                      dispenser: {
+                        comId: parseInt(portNumber),
+                      },
+                      createdAt: MoreThan(Math.floor(Date.now() / 1000) - 3600),
+                    },
+                    relations: {
+                      dispenser: true,
+                      tank: true,
+                      shift: true,
+                    },
+                  })
+                  .then((operations) => {
+                    for (const operation of operations) {
+                      this.addOperationToCron(operation);
+                    }
+                  });
                 this.unblockDispenser({
                   comId: parseInt(portNumber),
                 });
@@ -671,5 +762,18 @@ export class DeviceDispenserService implements OnModuleDestroy {
         { currentCounter: summaryLitres },
       );
     }
+  }
+
+  private async addOperationToCron(operation: Operation) {
+    if (operation.status === OperationStatus.FINISHED) {
+      return;
+    }
+    await this.interactiveScheduleCronService.upsertCronJob(
+      `operation_${operation.id}`,
+      CronExpression.EVERY_5_SECONDS,
+      () => {
+        this.drainFixation(operation);
+      },
+    );
   }
 }

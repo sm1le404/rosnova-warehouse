@@ -8,11 +8,17 @@ import { Operation } from '../operations/entities/operation.entity';
 import { Tank } from '../tank/entities/tank.entity';
 import { EventService } from '../event/services/event.service';
 import { Event } from '../event/entities/event.entity';
+import { InteractiveScheduleCronService } from '../cron/services/interactive.schedule.cron.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Dispenser, Operation, Tank, Event])],
   controllers: [DevicesContoller],
-  providers: [DeviceTankService, DeviceDispenserService, EventService],
+  providers: [
+    DeviceTankService,
+    DeviceDispenserService,
+    EventService,
+    InteractiveScheduleCronService,
+  ],
   exports: [DeviceTankService, DeviceDispenserService],
 })
 export class DevicesModule {}
