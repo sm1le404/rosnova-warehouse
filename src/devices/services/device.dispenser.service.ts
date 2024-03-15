@@ -156,6 +156,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         id: operation.id,
       },
       {
+        id: operation.id,
         startedAt: Math.floor(Date.now() / 1000),
         status: OperationStatus.STARTED,
         counterBefore: dispenser.currentCounter,
@@ -185,6 +186,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
             id: operation.id,
           },
           {
+            id: operation.id,
             status: OperationStatus.PROGRESS,
             factVolume: counter,
             factWeight: counter * operation.tank.density,
@@ -197,6 +199,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
               id: operation.id,
             },
             {
+              id: operation.id,
               status: OperationStatus.STOPPED,
             },
           );
@@ -289,6 +292,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         id: operation.id,
       },
       {
+        id: operation.id,
         status: OperationStatus.FINISHED,
         finishedAt: Math.floor(Date.now() / 1000),
         counterAfter: summaryLitres,
@@ -323,7 +327,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       {
         id: operation.dispenser.id,
       },
-      { currentCounter: summaryLitres },
+      { id: operation.dispenser.id, currentCounter: summaryLitres },
     );
   }
 
@@ -353,6 +357,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         id: operation.id,
       },
       {
+        id: operation.id,
         status: OperationStatus.FINISHED,
         volumeAfter: tankState.volume,
       },
@@ -400,6 +405,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
             id: operation.id,
           },
           {
+            id: operation.id,
             status: OperationStatus.PROGRESS,
             factVolume: countLitres,
             factWeight: countLitres * operation.tank.density,
@@ -423,6 +429,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
             id: operation.id,
           },
           {
+            id: operation.id,
             status: OperationStatus.STOPPED,
           },
         );
@@ -566,6 +573,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
           id: operation.id,
         },
         {
+          id: operation.id,
           startedAt: Math.floor(Date.now() / 1000),
           status: OperationStatus.STARTED,
           counterBefore: summaryLitres,
@@ -636,12 +644,22 @@ export class DeviceDispenserService implements OnModuleDestroy {
     if (payload.command === DispenserCommand.STATUS) {
       const statusNumber = parseInt(commandResult[2], 10);
       if (DispenserStatus[statusNumber]) {
+        const dispenser = await this.dispenserRepository.findOne({
+          where: {
+            comId: payload.comId,
+            addressId: payload.addressId,
+          },
+          select: {
+            id: true,
+          },
+        });
         await this.dispenserRepository.update(
           {
             comId: payload.comId,
             addressId: payload.addressId,
           },
           {
+            id: dispenser?.id,
             statusId: statusNumber,
           },
         );
