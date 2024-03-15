@@ -3,15 +3,20 @@ import { DeviceTankService } from './services/device.tank.service';
 import { DevicesContoller } from './controllers/devices.contoller';
 import { DeviceDispenserService } from './services/device.dispenser.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Dispenser } from '../dispenser/entities/dispenser.entity';
-import { Operation } from '../operations/entities/operation.entity';
 import { Tank } from '../tank/entities/tank.entity';
 import { EventService } from '../event/services/event.service';
 import { Event } from '../event/entities/event.entity';
 import { InteractiveScheduleCronService } from '../cron/services/interactive.schedule.cron.service';
+import { OperationModule } from '../operations/operation.module';
+import { DispenserModule } from '../dispenser/dispenser.module';
+import { Dispenser } from '../dispenser/entities/dispenser.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Dispenser, Operation, Tank, Event])],
+  imports: [
+    TypeOrmModule.forFeature([Tank, Event, Dispenser]),
+    OperationModule,
+    DispenserModule,
+  ],
   controllers: [DevicesContoller],
   providers: [
     DeviceTankService,
