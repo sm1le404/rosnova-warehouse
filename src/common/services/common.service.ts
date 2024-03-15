@@ -17,10 +17,6 @@ export abstract class CommonService<T extends CommonEntity> {
     });
   }
 
-  async findOneWithoutFail(payload: FindOneOptions<T>): Promise<T> {
-    return this.getRepository().findOne(payload);
-  }
-
   async findOne(payload: FindOneOptions<T>): Promise<T> {
     return this.getRepository().findOneOrFail(payload);
   }

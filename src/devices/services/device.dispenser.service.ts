@@ -47,8 +47,6 @@ import { InteractiveScheduleCronService } from '../../cron/services/interactive.
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
-import { OperationService } from '../../operations/services/operation.service';
-import { DispenserService } from '../../dispenser/services/dispenser.service';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -60,9 +58,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
     protected readonly logger: LoggerService,
     private readonly deviceTankService: DeviceTankService,
     @InjectRepository(Dispenser)
-    private dispenserRepository: Repository<Dispenser>,
-    private readonly dispenserService: DispenserService,
-    private readonly operationService: OperationService,
+    private readonly dispenserRepository: Repository<Dispenser>,
+    @InjectRepository(Operation)
+    private readonly operationRepository: Repository<Operation>,
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
     private eventEmitter: EventEmitter2,
@@ -133,7 +131,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
   }
 
   async drainFuelTest(payload: DispenserGetFuelDto) {
-    const operation = await this.operationService.findOne({
+    const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
         status: Not(In([OperationStatus.STOPPED, OperationStatus.FINISHED])),
@@ -153,12 +151,11 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: { id: operation.dispenser.id },
     });
 
-    await this.operationService.update(
-      {
-        where: { id: operation.id },
-      },
+    await this.operationRepository.update(
       {
         id: operation.id,
+      },
+      {
         startedAt: Math.floor(Date.now() / 1000),
         status: OperationStatus.STARTED,
         counterBefore: dispenser.currentCounter,
@@ -183,9 +180,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       let intervalCheckCompileStatus = setInterval(async () => {
         counter++;
 
-        await this.operationService.update(
+        await this.operationRepository.update(
           {
-            where: { id: operation.id },
+            id: operation.id,
           },
           {
             status: OperationStatus.PROGRESS,
@@ -195,9 +192,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
           },
         );
         if (counter === payload.litres) {
-          await this.operationService.update(
+          await this.operationRepository.update(
             {
-              where: { id: operation.id },
+              id: operation.id,
             },
             {
               status: OperationStatus.STOPPED,
@@ -224,7 +221,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
   }
 
   async doneOperation(payload: DispenserFixOperationDto) {
-    const operation = await this.operationService.findOne({
+    const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
         status: In([
@@ -287,9 +284,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: { id: operation.tank.id },
     });
 
-    await this.operationService.update(
+    await this.operationRepository.update(
       {
-        where: { id: operation.id },
+        id: operation.id,
       },
       {
         status: OperationStatus.FINISHED,
@@ -322,16 +319,16 @@ export class DeviceDispenserService implements OnModuleDestroy {
       command: DispenserCommand.STATUS,
     });
 
-    await this.dispenserService.update(
+    await this.dispenserRepository.update(
       {
-        where: { id: operation.dispenser.id },
+        id: operation.dispenser.id,
       },
       { currentCounter: summaryLitres },
     );
   }
 
   async doneOperationTest(payload: DispenserFixOperationDto) {
-    const operation = await this.operationService.findOne({
+    const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
         status: In([OperationStatus.INTERRUPTED, OperationStatus.STOPPED]),
@@ -351,9 +348,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       where: { id: operation.tank.id },
     });
 
-    await this.operationService.update(
+    await this.operationRepository.update(
       {
-        where: { id: operation.id },
+        id: operation.id,
       },
       {
         status: OperationStatus.FINISHED,
@@ -361,9 +358,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       },
     );
 
-    await this.dispenserService.update(
+    await this.dispenserRepository.update(
       {
-        where: { id: operation.dispenser.id },
+        id: operation.dispenser.id,
       },
       { currentCounter: operation.counterAfter },
     );
@@ -384,7 +381,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
         comId: operation.dispenser.comId,
       });
 
-      const operationState = await this.operationService.findOne({
+      const operationState = await this.operationRepository.findOne({
         where: {
           id: operation.id,
         },
@@ -398,9 +395,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
       const countLitres = DispenserHelper.getLitres(litresStatus);
       if (countLitres > 0 && operationState.factVolume < countLitres) {
-        await this.operationService.update(
+        await this.operationRepository.update(
           {
-            where: { id: operation.id },
+            id: operation.id,
           },
           {
             status: OperationStatus.PROGRESS,
@@ -421,9 +418,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
         status[2] == DispenserStatus.TRK_OFF_RK_ON ||
         noUpdate
       ) {
-        await this.operationService.update(
+        await this.operationRepository.update(
           {
-            where: { id: operation.id },
+            id: operation.id,
           },
           {
             status: OperationStatus.STOPPED,
@@ -459,7 +456,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
       status: Not(OperationStatus.FINISHED),
       type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
     };
-    const operation = await this.operationService.findOne({
+    const operation = await this.operationRepository.findOneOrFail({
       where: {
         ...baseFilter,
         id: payload.operationId,
@@ -476,7 +473,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     }
     const addressId = operation.dispenser.addressId;
 
-    const checkOperation = await this.operationService.findOneWithoutFail({
+    const checkOperation = await this.operationRepository.findOne({
       where: {
         ...baseFilter,
         id: Not(operation.id),
@@ -564,9 +561,9 @@ export class DeviceDispenserService implements OnModuleDestroy {
       });
       const summaryLitres = DispenserHelper.getSummaryLitres(summaryStatus);
 
-      await this.operationService.update(
+      await this.operationRepository.update(
         {
-          where: { id: operation.id },
+          id: operation.id,
         },
         {
           startedAt: Math.floor(Date.now() / 1000),
@@ -582,7 +579,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
 
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
-        const currentOperationState = await this.operationService.findOne({
+        const currentOperationState = await this.operationRepository.findOne({
           where: {
             id: operation.id,
           },
@@ -639,12 +636,10 @@ export class DeviceDispenserService implements OnModuleDestroy {
     if (payload.command === DispenserCommand.STATUS) {
       const statusNumber = parseInt(commandResult[2], 10);
       if (DispenserStatus[statusNumber]) {
-        await this.dispenserService.update(
+        await this.dispenserRepository.update(
           {
-            where: {
-              comId: payload.comId,
-              addressId: payload.addressId,
-            },
+            comId: payload.comId,
+            addressId: payload.addressId,
           },
           {
             statusId: statusNumber,
@@ -674,7 +669,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
                   comId: parseInt(portNumber),
                 });
               } else {
-                this.operationService
+                this.operationRepository
                   .find({
                     where: {
                       status: Not(
