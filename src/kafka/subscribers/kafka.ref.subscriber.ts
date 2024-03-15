@@ -176,13 +176,15 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
 
     if (event.entity instanceof Operation) {
       kafkaPayload.topic = HubTopics.OPERATION_DELETE;
-      const operationDataDto: Partial<OperationDataDto> = {
-        id: event.entity.id,
-        whExternalCode: this.configService.get('SHOP_KEY'),
-      };
-      kafkaPayload.messages.push({
-        value: JSON.stringify(operationDataDto),
-      });
+      if (event.entity.status === OperationStatus.FINISHED) {
+        const operationDataDto: Partial<OperationDataDto> = {
+          id: event.entity.id,
+          whExternalCode: this.configService.get('SHOP_KEY'),
+        };
+        kafkaPayload.messages.push({
+          value: JSON.stringify(operationDataDto),
+        });
+      }
     } else if (event.entity instanceof Vehicle) {
       kafkaPayload.topic = HubTopics.VEHICLE_REF_DELETE;
       const vehicleDataDto: Partial<VehicleDataDto> = {
