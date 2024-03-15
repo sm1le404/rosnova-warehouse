@@ -33,6 +33,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SettingsModule } from './settings/settings.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -122,9 +123,9 @@ import { SettingsModule } from './settings/settings.module';
     CronModule,
     ReportModule,
     SettingsModule,
+    WsModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

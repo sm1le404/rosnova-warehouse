@@ -4,10 +4,11 @@ import { DevicesModule } from '../devices/devices.module';
 import { TankModule } from '../tank/tank.module';
 import { OperationModule } from '../operations/operation.module';
 import { EventModule } from '../event/event.module';
+import { InteractiveScheduleCronService } from './services/interactive.schedule.cron.service';
 
 @Module({
-  providers: [CronService],
+  providers: [CronService, InteractiveScheduleCronService],
   imports: [DevicesModule, TankModule, OperationModule, EventModule],
-  exports: [CronService],
+  exports: [CronService, InteractiveScheduleCronService],
 })
 export class CronModule {}

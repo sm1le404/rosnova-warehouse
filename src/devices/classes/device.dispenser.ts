@@ -117,7 +117,7 @@ export class DeviceDispenser {
             );
             resolve(result);
           }
-        }, 100);
+        }, 400);
       });
     }
 
@@ -186,7 +186,7 @@ export class DeviceDispenser {
           const executeResult = await this.executeLastCommand();
           resolve(executeResult);
         }
-      }, 100);
+      }, 400);
     });
   }
 }

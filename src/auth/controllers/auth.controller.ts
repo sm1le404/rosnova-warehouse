@@ -44,7 +44,7 @@ export class AuthController {
     summary: 'Authorize user',
   })
   @ApiBody({ type: () => AuthLoginRequestDto })
-  @ApiOkResponse('User authentification success', User)
+  @ApiOkResponse('User authentication success', User)
   @ApiBadRequestResponse(['Login is not valid', 'Password is incorrect'])
   async login(
     @Body() body: AuthLoginRequestDto,
@@ -93,9 +93,15 @@ export class AuthController {
 
     const { password, ...result } = user;
 
-    return response.send({
-      data: result,
-    });
+    return response
+      .set({
+        Authentication: access.token,
+        Refresh: refresh.token,
+        'Access-Control-Expose-Headers': '*',
+      })
+      .send({
+        data: result,
+      });
   }
 
   @UseGuards(JwtRefreshAuthGuard)
@@ -145,7 +151,13 @@ export class AuthController {
       secure: true,
     });
 
-    return response.send(user);
+    return response
+      .set({
+        Authentication: token,
+        Refresh: refresh.token,
+        'Access-Control-Expose-Headers': '*',
+      })
+      .send(user);
   }
 
   @UseGuards(JwtRefreshAuthGuard)
