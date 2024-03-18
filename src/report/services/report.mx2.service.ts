@@ -5,14 +5,16 @@ import path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import {
+  Between,
   FindOptionsWhere,
+  IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
-  Between,
+  Not,
   Repository,
 } from 'typeorm';
 import { GetMx2Dto } from '../dto/get-mx2.dto';
-import { OperationType } from '../../operations/enums';
+import { OperationStatus, OperationType } from '../../operations/enums';
 import { formatDate } from '../../common/utility';
 
 @Injectable()
@@ -31,6 +33,16 @@ export class ReportMx2Service {
     const worksheetMain = workbook.getWorksheet('стр2');
     const filter: FindOptionsWhere<Operation> = {
       type: OperationType.SUPPLY,
+      status: OperationStatus.FINISHED,
+      fuelHolder: {
+        id: Not(IsNull()),
+      },
+      fuel: {
+        id: Not(IsNull()),
+      },
+      refinery: {
+        id: Not(IsNull()),
+      },
     };
 
     if (payload.startedAtTo && payload.startedAtFrom) {

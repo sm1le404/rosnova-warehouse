@@ -6,11 +6,13 @@ import {
   Between,
   FindOptionsWhere,
   In,
+  IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
+  Not,
   Repository,
 } from 'typeorm';
-import { OperationType } from '../../operations/enums';
+import { OperationStatus, OperationType } from '../../operations/enums';
 import path from 'path';
 import { addFormulas, monthReportMapper } from '../utils';
 import { GetMonthReportDto } from '../dto/get-month-report.dto';
@@ -29,6 +31,16 @@ export class ReportFilteredService {
   }: GetMonthReportDto): Promise<ExcelJS.Workbook> {
     const filter: FindOptionsWhere<Operation> = {
       type: In([OperationType.SUPPLY, OperationType.RETURN]),
+      status: OperationStatus.FINISHED,
+      fuelHolder: {
+        id: Not(IsNull()),
+      },
+      fuel: {
+        id: Not(IsNull()),
+      },
+      refinery: {
+        id: Not(IsNull()),
+      },
     };
 
     if (shiftId) {
