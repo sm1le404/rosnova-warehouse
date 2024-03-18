@@ -207,6 +207,9 @@ export class ShiftController {
         },
       },
       {
+        startDispensersState: JSON.stringify(
+          user.lastShift.startDispensersState,
+        ),
         closedAt: Math.floor(Date.now() / 1000),
         finishDispensersState: JSON.stringify(
           dispensers.map((item) => {
