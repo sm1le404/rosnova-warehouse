@@ -45,12 +45,12 @@ export class ReportMx2Service {
       },
     };
 
-    if (payload.startedAtTo && payload.startedAtFrom) {
-      filter.startedAt = Between(payload.startedAtFrom, payload.startedAtTo);
-    } else if (payload.startedAtFrom) {
-      filter.startedAt = MoreThanOrEqual(payload.startedAtFrom);
-    } else if (payload.startedAtTo) {
-      filter.startedAt = LessThanOrEqual(payload.startedAtTo);
+    if (payload.dateStart && payload.dateEnd) {
+      filter.startedAt = Between(payload.dateStart, payload.dateEnd);
+    } else if (payload.dateStart) {
+      filter.startedAt = MoreThanOrEqual(payload.dateStart);
+    } else if (payload.dateEnd) {
+      filter.startedAt = LessThanOrEqual(payload.dateEnd);
     }
 
     const data = await this.operationRepository.find({

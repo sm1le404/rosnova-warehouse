@@ -5,11 +5,11 @@ export class GetMx2Dto {
     required: false,
     description: 'Фильтрация по дате операции от',
   })
-  startedAtFrom?: number;
+  dateStart?: number;
 
   @ApiProperty({
     required: false,
     description: 'Фильтрация по дате операции до',
   })
-  startedAtTo?: number;
+  dateEnd?: number;
 }
