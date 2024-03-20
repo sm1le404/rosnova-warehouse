@@ -83,10 +83,18 @@ export class OperationService extends CommonService<Operation> {
         common.tank.id,
         common.type,
         updateCommon.docVolume != common.docVolume
-          ? common.docVolume - updateCommon.docVolume
+          ? [OperationType.INTERNAL, OperationType.OUTCOME].includes(
+              common.type,
+            )
+            ? updateCommon.docVolume - common.docVolume
+            : common.docVolume - updateCommon.docVolume
           : common.docVolume,
         updateCommon.docWeight != common.docWeight
-          ? common.docWeight - updateCommon.docWeight
+          ? [OperationType.INTERNAL, OperationType.OUTCOME].includes(
+              common.type,
+            )
+            ? updateCommon.docWeight - common.docWeight
+            : common.docWeight - updateCommon.docWeight
           : common.docWeight,
       );
     }
@@ -96,7 +104,7 @@ export class OperationService extends CommonService<Operation> {
   async delete(filter: FindOneOptions<Operation>): Promise<Operation> {
     const common = await this.findOne(filter);
     const removeResult = await this.getRepository().softRemove(common);
-    if (removeResult?.id) {
+    if (common?.id && common?.status === OperationStatus.FINISHED) {
       await this.changeTankState(
         common.tank.id,
         common.type,
