@@ -142,17 +142,20 @@ export class OperationService extends CommonService<Operation> {
     let currentWeight =
       tankState.docWeight > 0 ? tankState.docWeight : tankState.weight;
 
-    switch (operationType) {
-      case OperationType.INTERNAL:
-      case OperationType.OUTCOME:
-        currentVolume = currentVolume - operationVolume;
-        currentWeight = currentWeight - operationWeight;
-        break;
-      case OperationType.RETURN:
-      case OperationType.SUPPLY:
-        currentVolume = currentVolume + operationVolume;
-        currentWeight = currentWeight + operationWeight;
-        break;
+    //Проверяем что надо фиксировать, если был сброс, значит смена только началась
+    if (tankState.docVolume != 0) {
+      switch (operationType) {
+        case OperationType.INTERNAL:
+        case OperationType.OUTCOME:
+          currentVolume = currentVolume - operationVolume;
+          currentWeight = currentWeight - operationWeight;
+          break;
+        case OperationType.RETURN:
+        case OperationType.SUPPLY:
+          currentVolume = currentVolume + operationVolume;
+          currentWeight = currentWeight + operationWeight;
+          break;
+      }
     }
 
     await this.tankService.update(
