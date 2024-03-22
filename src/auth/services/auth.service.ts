@@ -10,6 +10,9 @@ import { User } from '../../user/entities/user.entity';
 import { UserService } from '../../user/services/user.service';
 import { ShiftService } from '../../shift/services/shift.service';
 import { ICurrentUser } from '../interface/current-user.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { WarehouseTopicEvent, WarehouseTopics } from 'rs-dto';
+import { TankClearDocStateEvent, TankEventEnum } from '../../tank/events';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +20,7 @@ export class AuthService {
     private readonly encryptionService: EncryptionService,
     private readonly userService: UserService,
     private readonly shiftService: ShiftService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async login(request: AuthLoginRequestDto): Promise<User> {
@@ -31,6 +35,11 @@ export class AuthService {
       await this.shiftService.create({
         startedAt: Math.floor(Date.now() / 1000),
       });
+
+      this.eventEmitter.emit(
+        TankEventEnum.CLEAR_DOCS,
+        new TankClearDocStateEvent(),
+      );
 
       lastShift = await this.shiftService.getLastShift();
     }

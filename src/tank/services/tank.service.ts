@@ -16,6 +16,7 @@ import { KafkaService } from '../../kafka/services';
 import { CompressionTypes, Message } from 'kafkajs';
 import { HubTopics } from 'rs-dto';
 import { TankDataDto } from 'rs-dto/lib/warehouse/dto/tank.data.dto';
+import { TankClearDocStateEvent } from '../events';
 
 @Injectable()
 export class TankService extends CommonService<Tank> {
@@ -55,6 +56,23 @@ export class TankService extends CommonService<Tank> {
       flag = false;
     }
     return flag;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async clearDocs(payload: TankClearDocStateEvent): Promise<void> {
+    try {
+      await this.tankRepository.update(
+        {
+          deletedAt: IsNull(),
+        },
+        {
+          docWeight: 0,
+          docVolume: 0,
+        },
+      );
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
