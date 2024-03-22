@@ -11,7 +11,6 @@ import { UserService } from '../../user/services/user.service';
 import { ShiftService } from '../../shift/services/shift.service';
 import { ICurrentUser } from '../interface/current-user.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { WarehouseTopicEvent, WarehouseTopics } from 'rs-dto';
 import { TankClearDocStateEvent, TankEventEnum } from '../../tank/events';
 
 @Injectable()
