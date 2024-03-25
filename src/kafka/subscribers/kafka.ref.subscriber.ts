@@ -41,7 +41,7 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
     this.dataSource.subscribers.push(this);
   }
 
-  private afterInsertUpd(event: InsertEvent<any> | UpdateEvent<any>) {
+  private async afterInsertUpd(event: InsertEvent<any> | UpdateEvent<any>) {
     let kafkaPayload: ProducerRecord = {
       compression: CompressionTypes.GZIP,
       messages: [],
@@ -51,22 +51,27 @@ export class KafkaRefSubscriber implements EntitySubscriberInterface {
     if (
       event.entity instanceof Operation &&
       !!event.entity?.status &&
-      event.entity.status === OperationStatus.FINISHED
+      event.entity.status !== OperationStatus.PROGRESS
     ) {
+      const data: Operation = await event.manager.findOne(Operation, {
+        where: {
+          id: event.entity.id,
+        },
+      });
       kafkaPayload.topic = HubTopics.OPERATION_INSERT;
       const operationDataDto: OperationDataDto = {
-        ...event.entity,
+        ...data,
         whExternalCode: this.configService.get('SHOP_KEY'),
-        fuelExtId: event.entity?.fuel?.name,
-        fuelHolderExtId: event.entity?.fuelHolder?.inn,
-        refineryExtId: event.entity?.refinery?.shortName,
-        vehicleExtId: event.entity?.vehicle?.regNumber,
-        trailerExtId: event.entity?.trailer?.regNumber,
-        tankExtId: event.entity?.tank?.id.toString(),
-        type: event?.entity?.type,
-        status: event?.entity?.status,
+        fuelExtId: data?.fuel?.name,
+        fuelHolderExtId: data?.fuelHolder?.inn,
+        refineryExtId: data?.refinery?.shortName,
+        vehicleExtId: data?.vehicle?.regNumber,
+        trailerExtId: data?.trailer?.regNumber,
+        tankExtId: data?.tank?.id.toString(),
+        type: data?.type,
+        status: data?.status,
         vehicleState: JSON.parse(
-          JSON.stringify(event?.entity?.vehicleState),
+          JSON.stringify(data?.vehicleState),
         ) as VehicleState[],
       };
       kafkaPayload.messages.push({
