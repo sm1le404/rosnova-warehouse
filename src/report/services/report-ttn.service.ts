@@ -43,23 +43,23 @@ export class ReportTtnService {
     );
     const worksheet = workbook.getWorksheet('page');
 
-    let factWeight = 0;
-    let factVolume = 0;
+    let docWeight = 0;
+    let docVolume = 0;
 
     let startPosition = 72;
     allOperations.forEach((item) => {
-      if (item.factWeight) {
-        factWeight += item.factWeight;
+      if (item.docWeight) {
+        docWeight += item.docWeight;
       }
-      if (item.factVolume) {
-        factVolume += item.factVolume;
+      if (item.docVolume) {
+        docVolume += item.docVolume;
       }
 
       worksheet.getCell(`D${startPosition}`).value = `Секция`;
       worksheet.getCell(`AI${startPosition}`).value = `ТТН`;
-      worksheet.getCell(`CM${startPosition}`).value = item.factVolume;
+      worksheet.getCell(`CM${startPosition}`).value = item.docVolume;
       worksheet.getCell(`FU${startPosition}`).value = (
-        item.factWeight / 1000
+        item.docWeight / 1000
       ).toFixed(3);
 
       worksheet.getCell(
@@ -69,8 +69,8 @@ export class ReportTtnService {
       startPosition++;
     });
 
-    if (factWeight > 0) {
-      factWeight = factWeight / 1000;
+    if (docWeight > 0) {
+      docWeight = docWeight / 1000;
     }
 
     //Имя пользователя
@@ -80,8 +80,8 @@ export class ReportTtnService {
     worksheet.getCell('FM6').value = operation.numberTTN ?? 'бн';
 
     //Данные по операции
-    worksheet.getCell('AS17').value = factVolume ?? '';
-    worksheet.getCell('EO17').value = factWeight.toFixed(3) ?? '';
+    worksheet.getCell('AS17').value = docVolume ?? '';
+    worksheet.getCell('EO17').value = docWeight.toFixed(3) ?? '';
 
     // Владелец топлива
     worksheet.getCell('V8').value = operation?.fuelHolder?.fullName ?? '';
