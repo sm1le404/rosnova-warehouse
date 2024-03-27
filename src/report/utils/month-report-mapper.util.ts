@@ -46,7 +46,9 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
           );
           return vehicleDensity == 0
             ? vehicleDensity
-            : (vehicleDensity / vehicleState.length).toFixed(4);
+            : (vehicleDensity / vehicleState.length)
+                .toFixed(4)
+                .replace('.', ',');
           /*eslint-disable-line no-param-reassign*/
         }
         return '';
@@ -60,7 +62,7 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
           );
           return temperature == 0
             ? temperature
-            : (temperature / vehicleState.length).toFixed(2);
+            : (temperature / vehicleState.length).toFixed(2).replace('.', ',');
           /* eslint-disable no-param-reassign */
         }
         return '';
