@@ -93,8 +93,8 @@ export class RefineryController {
     return this.refineryService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.refineryService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.refineryService.uploadAllToKafka(limit);
   }
 }

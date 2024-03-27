@@ -90,8 +90,8 @@ export class TrailerController {
     return this.trailerService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.trailerService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.trailerService.uploadAllToKafka(limit);
   }
 }

@@ -184,8 +184,8 @@ export class OperationController {
     return this.operationService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.operationService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.operationService.uploadAllToKafka(limit);
   }
 }

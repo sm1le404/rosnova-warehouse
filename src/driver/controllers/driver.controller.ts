@@ -91,8 +91,8 @@ export class DriverController {
     return this.driverService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.driverService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.driverService.uploadAllToKafka(limit);
   }
 }

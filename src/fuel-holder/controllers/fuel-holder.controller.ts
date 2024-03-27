@@ -93,8 +93,8 @@ export class FuelHolderController {
     return this.fuelHolderService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.fuelHolderService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.fuelHolderService.uploadAllToKafka(limit);
   }
 }

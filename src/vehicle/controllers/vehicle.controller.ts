@@ -90,8 +90,8 @@ export class VehicleController {
     return this.vehicleService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.vehicleService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.vehicleService.uploadAllToKafka(limit);
   }
 }

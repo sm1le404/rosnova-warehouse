@@ -25,6 +25,8 @@ const orderOfColumns = [
 export const monthReportMapper = (operations: Operation[]): string[][] => {
   return operations.map((operation) => {
     return orderOfColumns.map((key) => {
+      const vehicleState =
+        operation.vehicleState ?? JSON.parse(operation.vehicleState);
       if (key.includes('createdAt')) {
         return (
           dateFormatter(operation[key]) +
@@ -36,34 +38,34 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
         return operation.fuel ? operation.fuel.name : '';
       }
       if (key.includes('vehicleState.density')) {
-        const vehicleState =
-          operation.vehicleState ?? JSON.parse(operation.vehicleState);
         if (vehicleState) {
           /* eslint-disable no-param-reassign */
-          return vehicleState.reduce(
+          const vehicleDensity = vehicleState.reduce(
             (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
             0,
           );
+          return vehicleDensity == 0
+            ? vehicleDensity
+            : (vehicleDensity / vehicleState.length).toFixed(4);
           /*eslint-disable-line no-param-reassign*/
         }
         return '';
       }
       if (key.includes('vehicleState.temperature')) {
-        const vehicleState =
-          operation.vehicleState ?? JSON.parse(operation.vehicleState);
         if (vehicleState) {
           /*eslint-disable-line no-param-reassign*/
-          return vehicleState.reduce(
+          const temperature = vehicleState.reduce(
             (acc: number, item: IVehicleTank) => (acc += item.temperature ?? 0),
             0,
           );
+          return temperature == 0
+            ? temperature
+            : (temperature / vehicleState.length).toFixed(2);
           /* eslint-disable no-param-reassign */
         }
         return '';
       }
       if (key.includes('vehicleState.weight')) {
-        const vehicleState =
-          operation.vehicleState ?? JSON.parse(operation.vehicleState);
         if (vehicleState) {
           /*eslint-disable-line no-param-reassign*/
           return vehicleState.reduce(
@@ -76,8 +78,6 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
         return '';
       }
       if (key.includes('vehicleState.volume')) {
-        const vehicleState =
-          operation.vehicleState ?? JSON.parse(operation.vehicleState);
         if (vehicleState) {
           /*eslint-disable-line no-param-reassign*/
           return vehicleState.reduce(

@@ -98,8 +98,8 @@ export class TankController {
     return this.tankService.delete({ where: { id } });
   }
 
-  @Post('kafka')
-  async sendToKafka() {
-    await this.tankService.uploadAllToKafka();
+  @Post('kafka/:limit')
+  async sendToKafka(@Param('limit') limit: number) {
+    await this.tankService.uploadAllToKafka(limit);
   }
 }
