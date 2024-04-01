@@ -11,11 +11,17 @@ import { ReportTopUpService } from './services/report-topup.service';
 import { ReportTtnService } from './services/report-ttn.service';
 import { ReportMx1Service } from './services/report.mx1.service';
 import { ReportDiffDetectionService } from './services/report-diff-detection.service';
+import { Fuel } from '../fuel/entities/fuel.entity';
+import { FuelHolder } from '../fuel-holder/entities/fuel-holder.entity';
+import { ReportCloseShiftService } from './services/report-close-shift.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Operation, TankHistory])],
+  imports: [
+    TypeOrmModule.forFeature([Operation, TankHistory, Fuel, FuelHolder]),
+  ],
   controllers: [ReportController],
   providers: [
+    ReportCloseShiftService,
     ReportOutcomeService,
     ReportMx2Service,
     ReportFilteredService,

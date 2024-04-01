@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReportMx2Service } from '../services/report.mx2.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -25,6 +25,8 @@ import { GetMx1Dto } from '../dto/get-mx1.dto';
 import { ReportMx1Service } from '../services/report.mx1.service';
 import { ReportDiffDetectionService } from '../services/report-diff-detection.service';
 import { GetDiffDetectionDto } from '../dto/get-diff-detection.dto';
+import { ReportCloseShiftService } from '../services/report-close-shift.service';
+import { GetClosingReportDto } from '../dto/get-closing-report.dto';
 
 @ApiTags('Report')
 @Controller('report')
@@ -40,6 +42,7 @@ export class ReportController {
     private readonly reportTtnService: ReportTtnService,
     private readonly reportMx1Service: ReportMx1Service,
     private readonly reportDiffDetectionService: ReportDiffDetectionService,
+    private readonly reportCloseShiftService: ReportCloseShiftService,
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
   ) {}
@@ -225,6 +228,28 @@ export class ReportController {
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportDiffDetectionService.generate(payload);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Closing shift report',
+  })
+  @Get('closing')
+  async closingReport(
+    @Res() res: Response,
+    @Body() payload: GetClosingReportDto[],
+  ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+
+    const name = translitFromRuToEn(`отчёт о закрытии смены-${date}`);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
+    const workbook = await this.reportCloseShiftService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
