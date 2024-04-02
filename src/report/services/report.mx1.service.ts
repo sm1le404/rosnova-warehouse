@@ -98,7 +98,7 @@ export class ReportMx1Service {
       worksheet.getCell(`B${startPosition + number}`).value = number + 1;
       worksheet.getCell(
         `C${startPosition + number}`,
-      ).value = `${item.fuel.name} ${item.refinery.shortName}`;
+      ).value = `${item.fuel.fullName} ${item.refinery.shortName}`;
       worksheet.getCell(`G${startPosition + number}`).value = `т`;
       worksheet.getCell(`I${startPosition + number}`).value = `168`;
       worksheet.getCell(

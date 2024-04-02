@@ -103,7 +103,7 @@ export class ReportTtnService {
     worksheet.getCell(
       'BU17',
       // eslint-disable-next-line max-len
-    ).value = `${operation?.fuel?.name} плотность ${operation.docDensity}, T° = ${operation.docTemperature}`;
+    ).value = `${operation?.fuel?.fullName} плотность ${operation.docDensity}, T° = ${operation.docTemperature}`;
 
     const dateParam = new Date(
       (operation.dateTTN ?? operation.createdAt) * 1000,
