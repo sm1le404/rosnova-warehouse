@@ -1,4 +1,10 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { RoleType } from '../enums';
 import { Event } from '../../event/entities/event.entity';
@@ -21,6 +27,11 @@ export class CreateUserDto {
   @ApiPropertyOptional({ default: true, description: 'Доступность' })
   @IsBoolean()
   isEnabled?: boolean;
+
+  @ApiProperty({ description: 'ID Карты' })
+  @IsString()
+  @IsOptional()
+  cardId?: string;
 
   @ApiProperty({
     type: Array,

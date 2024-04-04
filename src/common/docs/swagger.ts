@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
+import basicAuth from 'express-basic-auth';
 
 export function swagger(app: INestApplication) {
   const swaggerConfig = new DocumentBuilder()
@@ -15,10 +16,20 @@ export function swagger(app: INestApplication) {
     extraModels: [ResponseDto, ErrorDto],
   });
 
+  app.use(
+    '/api/docs',
+    basicAuth({
+      challenge: true,
+      users: { [`rwh`]: `develop` },
+    }),
+  );
+
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       defaultModelsExpandDepth: -1,
     },
+    customCssUrl:
+      'https://raw.githubusercontent.com/swagger-api/swagger-ui/master/dist/swagger-ui.css',
   });
 
   if (process.env.SWAGGER_FILE) {

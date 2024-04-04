@@ -38,4 +38,8 @@ export class User extends CommonEntity {
   })
   @OneToMany(() => Event, (event) => event.user)
   event: Event[];
+
+  @ApiProperty({ description: 'Идентификатор карты' })
+  @Column({ type: 'varchar', nullable: true, select: false })
+  cardId?: string;
 }

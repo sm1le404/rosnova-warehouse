@@ -22,7 +22,7 @@ import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { EventService } from '../../event/services/event.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
+import { TankUpdateStateEvent } from '../../tank/events';
 import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { CompressionTypes } from 'kafkajs';
@@ -154,7 +154,10 @@ export class DevicesContoller {
       shift: user.lastShift,
       user,
     });
-    return this.deviceDispenserService.drainFuel(payload);
+    return this.deviceDispenserService.drainFuel({
+      ...payload,
+      userId: user.id,
+    });
   }
 
   @UseGuards(JwtAuthGuard, HasRole)

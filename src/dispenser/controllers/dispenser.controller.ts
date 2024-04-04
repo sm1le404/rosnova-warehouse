@@ -13,8 +13,8 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DispenserService } from '../services/dispenser.service';
 import { Dispenser } from '../entities/dispenser.entity';
-import { CreateDispenserDto } from '../dto/create-dispenser.dto';
-import { UpdateDispenserDto } from '../dto/update-dispenser.dto';
+import { CreateDispenserDto } from '../dto';
+import { UpdateDispenserDto } from '../dto';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { JwtAuthGuard } from '../../auth/guard';
 import { RoleType } from '../../user/enums';

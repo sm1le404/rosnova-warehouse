@@ -41,3 +41,8 @@ export enum DispenserStatus {
   DONE = 0x34, // ТРК выключена . Отпуск топлива закончен.
   MANUAL_MODE = 0x38, // ТРК выключена. Задана доза с БМУ
 }
+
+export enum DispenserDeviceTypes {
+  RV = 'RV',
+  TOPAZ = 'TOPAZ',
+}
