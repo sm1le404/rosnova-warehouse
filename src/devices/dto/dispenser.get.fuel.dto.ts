@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, Min } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class DispenserGetFuelDto {
   @ApiProperty({ description: 'Идентификатор операции' })
@@ -10,4 +10,7 @@ export class DispenserGetFuelDto {
   @IsNumber()
   @Min(1)
   litres: number;
+
+  @IsOptional()
+  userId?: number;
 }
