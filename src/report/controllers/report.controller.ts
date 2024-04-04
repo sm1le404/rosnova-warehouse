@@ -23,6 +23,8 @@ import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { ReportTtnService } from '../services/report-ttn.service';
 import { GetMx1Dto } from '../dto/get-mx1.dto';
 import { ReportMx1Service } from '../services/report.mx1.service';
+import { ReportDiffDetectionService } from '../services/report-diff-detection.service';
+import { GetDiffDetectionDto } from '../dto/get-diff-detection.dto';
 
 @ApiTags('Report')
 @Controller('report')
@@ -37,6 +39,7 @@ export class ReportController {
     private readonly reportTopUpService: ReportTopUpService,
     private readonly reportTtnService: ReportTtnService,
     private readonly reportMx1Service: ReportMx1Service,
+    private readonly reportDiffDetectionService: ReportDiffDetectionService,
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
   ) {}
@@ -198,6 +201,30 @@ export class ReportController {
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportTtnService.generate(operationId, user);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Frequency of difference detection report',
+  })
+  @SetRoles(RoleType.ADMIN)
+  @Get('diff-detection')
+  async diffDetection(
+    @Res() res: Response,
+    @Query() payload: GetDiffDetectionDto,
+  ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+    const name = translitFromRuToEn(
+      `статистический отчёт по расхождениям ${date}`,
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
+    const workbook = await this.reportDiffDetectionService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });

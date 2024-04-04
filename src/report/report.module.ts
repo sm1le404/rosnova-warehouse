@@ -10,6 +10,7 @@ import { ReportDrawbackService } from './services/report-drawback.service';
 import { ReportTopUpService } from './services/report-topup.service';
 import { ReportTtnService } from './services/report-ttn.service';
 import { ReportMx1Service } from './services/report.mx1.service';
+import { ReportDiffDetectionService } from './services/report-diff-detection.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Operation, TankHistory])],
@@ -22,6 +23,7 @@ import { ReportMx1Service } from './services/report.mx1.service';
     ReportTopUpService,
     ReportTtnService,
     ReportMx1Service,
+    ReportDiffDetectionService,
   ],
 })
 export class ReportModule {}
