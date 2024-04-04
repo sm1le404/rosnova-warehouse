@@ -9,15 +9,19 @@ import { OperationType } from '../../operations/enums';
 import { GetMx1Dto } from '../dto/get-mx1.dto';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import date from 'date-and-time';
+import { SettingsService } from '../../settings/services/settings.service';
+import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { SettingsKey } from '../../settings/enums';
 
 @Injectable()
 export class ReportMx1Service {
   constructor(
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
+    private settingsService: SettingsService,
   ) {}
 
-  async generate(payload: GetMx1Dto): Promise<Workbook> {
+  async generate(payload: GetMx1Dto, user: ICurrentUser): Promise<Workbook> {
     const workbook = new ExcelJS.Workbook();
     workbook.created = new Date();
     await workbook.xlsx.readFile(
@@ -57,12 +61,18 @@ export class ReportMx1Service {
     });
     if (data.length === 0) {
       throw new BadRequestException(
-        `За выбранный период отсувуют операции хранения`,
+        `За выбранный период отсутствуют операции хранения`,
       );
     }
 
+    page1.getCell('C6').value =
+      (await this.settingsService.getValue(SettingsKey.STORE_REQUISITES)) ?? '';
+
     // Владелец топлива
-    page1.getCell('C10').value = data[0]?.fuelHolder?.fullName ?? '';
+    page1.getCell('C10').value = data[0]?.fuelHolder?.requisites ?? '';
+
+    // Номер акта
+    page1.getCell('G18').value = data[0].numberTTN ?? '';
 
     // Дата составления
     page1.getCell('O18').value = date.format(
@@ -98,7 +108,7 @@ export class ReportMx1Service {
       worksheet.getCell(`B${startPosition + number}`).value = number + 1;
       worksheet.getCell(
         `C${startPosition + number}`,
-      ).value = `${item.fuel.fullName} ${item.refinery.shortName}`;
+      ).value = `${item.fuel?.fullName} ${item.refinery?.shortName}`;
       worksheet.getCell(`G${startPosition + number}`).value = `т`;
       worksheet.getCell(`I${startPosition + number}`).value = `168`;
       worksheet.getCell(
@@ -116,6 +126,10 @@ export class ReportMx1Service {
     page2.getCell(`N29`).value = (firstPageWeight + secondPageWeight).toFixed(
       3,
     );
+
+    // ФИО оператора
+    page2.getCell(`D40`).value = 'Оператор';
+    page2.getCell(`L40`).value = user?.login ?? '';
 
     return workbook;
   }

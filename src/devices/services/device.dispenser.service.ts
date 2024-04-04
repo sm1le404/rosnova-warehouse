@@ -15,6 +15,7 @@ import { DeviceTopazService } from './device.topaz.service';
 import { AbstractDispenser } from '../classes/abstract.dispenser';
 import { DeviceTestService } from './device.test.service';
 import { DeviceRvService } from './device.rv.service';
+import { SettingsKey } from '../../settings/enums';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -31,7 +32,13 @@ export class DeviceDispenserService implements OnModuleDestroy {
     private readonly deviceTestService: DeviceTestService,
     private readonly deviceRvService: DeviceRvService,
   ) {
-    settingsService.getValue('dispenserType').then((deviceType) => {
+    (
+      settingsService.getValue(
+        SettingsKey.DISPENSER_TYPE,
+      ) as Promise<DispenserDeviceTypes>
+    ).then((value) => {
+      const deviceType = value ?? DispenserDeviceTypes.TOPAZ;
+
       if (!deviceType) {
         this.deviceType = deviceType;
       }

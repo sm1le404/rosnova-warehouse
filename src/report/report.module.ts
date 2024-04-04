@@ -15,10 +15,12 @@ import { Fuel } from '../fuel/entities/fuel.entity';
 import { FuelHolder } from '../fuel-holder/entities/fuel-holder.entity';
 import { ReportCloseShiftService } from './services/report-close-shift.service';
 import { ReportSummaryDrawbackService } from './services/report-summary-drawback.service';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Operation, TankHistory, Fuel, FuelHolder]),
+    SettingsModule,
   ],
   controllers: [ReportController],
   providers: [
