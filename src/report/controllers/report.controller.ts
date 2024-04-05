@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ReportMx2Service } from '../services/report.mx2.service';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -239,7 +247,7 @@ export class ReportController {
   @ApiOperation({
     summary: 'Closing shift report',
   })
-  @Get('closing')
+  @Post('closing')
   async closingReport(
     @Res() res: Response,
     @Body() payload: GetClosingReportDto[],
