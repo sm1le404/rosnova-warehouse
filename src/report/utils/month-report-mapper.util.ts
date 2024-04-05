@@ -1,25 +1,27 @@
+/* eslint-disable no-param-reassign */
 import { dateFormatter, timeFormatter } from './date-formatter.util';
 import { Operation } from '../../operations/entities/operation.entity';
 import { IVehicleTank } from '../../vehicle/types';
 import * as ExcelJS from 'exceljs';
+import { valueRound } from './round-value.util';
 
 const orderOfColumns = [
-  'createdAt',
-  'fuel.name',
-  'vehicle.regNumber',
-  'numberTTN',
-  'numberTTN',
-  'docVolume',
-  'docWeight',
-  'docDensity',
-  'docTemperature',
-  'vehicleState.density',
-  'vehicleState.temperature',
-  'vehicleState.weight',
-  '',
-  'vehicleState.volume',
-  '',
-  'tank.sortIndex',
+  'createdAt', // A
+  'fuel.name', // B
+  'vehicle.regNumber', // C
+  'numberTTN', // D
+  'numberTTN', // E
+  'docVolume', // F
+  'docWeight', // G
+  'docDensity', // H
+  'docTemperature', // I
+  'vehicleState.density', // J
+  'vehicleState.temperature', // K
+  'vehicleState.weight', // L
+  '', // M
+  'vehicleState.volume', // N
+  'topupWeight', // O
+  'tank.sortIndex', // P
 ];
 
 export const monthReportMapper = (operations: Operation[]): string[][] => {
@@ -27,6 +29,55 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
     return orderOfColumns.map((key) => {
       const vehicleState =
         operation.vehicleState ?? JSON.parse(operation.vehicleState);
+
+      if (key.includes('docDensity')) {
+        return valueRound(operation.docDensity, 4);
+      }
+
+      if (key.includes('docWeight')) {
+        return valueRound(operation.docWeight, 0);
+      }
+
+      if (key.includes('docTemperature')) {
+        return valueRound(operation.docTemperature, 1);
+      }
+
+      if (key.includes('vehicleState.weight')) {
+        if (vehicleState) {
+          const volume =
+            vehicleState.reduce(
+              (acc: number, item: IVehicleTank) => (acc += item.volume ?? 0),
+              0,
+            ) / vehicleState.length;
+
+          const density =
+            vehicleState.reduce(
+              (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
+              0,
+            ) / vehicleState.length;
+
+          return valueRound(operation.docWeight - volume * density, 0);
+        }
+      }
+
+      if (key.includes('topupWeight')) {
+        if (vehicleState) {
+          const volume = vehicleState.reduce(
+            (acc: number, item: IVehicleTank) => (acc += item.volume ?? 0),
+            0,
+          );
+
+          const density =
+            vehicleState.reduce(
+              (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
+              0,
+            ) / vehicleState.length;
+
+          return valueRound(volume * density, 0);
+        }
+        return '';
+      }
+
       if (key.includes('createdAt')) {
         return (
           dateFormatter(operation[key]) +
@@ -39,7 +90,6 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
       }
       if (key.includes('vehicleState.density')) {
         if (vehicleState) {
-          /* eslint-disable no-param-reassign */
           const vehicleDensity = vehicleState.reduce(
             (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
             0,
@@ -48,45 +98,41 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
             ? vehicleDensity
             : (vehicleDensity / vehicleState.length)
                 .toFixed(4)
-                .replace('.', ',');
-          /*eslint-disable-line no-param-reassign*/
+                .replace(',', '.');
         }
         return '';
       }
       if (key.includes('vehicleState.temperature')) {
         if (vehicleState) {
-          /*eslint-disable-line no-param-reassign*/
           const temperature = vehicleState.reduce(
             (acc: number, item: IVehicleTank) => (acc += item.temperature ?? 0),
             0,
           );
-          return temperature == 0
-            ? temperature
-            : (temperature / vehicleState.length).toFixed(2).replace('.', ',');
-          /* eslint-disable no-param-reassign */
+          return temperature == 0 || isNaN(temperature)
+            ? 0
+            : valueRound(temperature / vehicleState.length, 1);
         }
         return '';
       }
       if (key.includes('vehicleState.weight')) {
         if (vehicleState) {
-          /*eslint-disable-line no-param-reassign*/
-          return vehicleState.reduce(
-            (acc: number, item: IVehicleTank) =>
-              (acc += item.volume * item.density ?? 0),
+          return valueRound(
+            vehicleState.reduce(
+              (acc: number, item: IVehicleTank) =>
+                (acc += item.volume * item.density ?? 0),
+              0,
+            ),
             0,
           );
-          /* eslint-disable no-param-reassign */
         }
         return '';
       }
       if (key.includes('vehicleState.volume')) {
         if (vehicleState) {
-          /*eslint-disable-line no-param-reassign*/
           return vehicleState.reduce(
             (acc: number, item: IVehicleTank) => (acc += item.volume ?? 0),
             0,
           );
-          /* eslint-disable no-param-reassign */
         }
         return '';
       }
@@ -115,10 +161,6 @@ export const addFormulas = (
   };
   worksheet.getCell(`L2`).value = {
     formula: `SUM(L3:L${3 + shiftCell})`,
-    date1904: true,
-  };
-  worksheet.getCell(`O${3 + shiftCell}`).value = {
-    formula: `N${3 + shiftCell}*J${3 + shiftCell}`,
     date1904: true,
   };
 };
