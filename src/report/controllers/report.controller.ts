@@ -62,7 +62,11 @@ export class ReportController {
     summary: 'Mx1 report',
   })
   @Get('mx1')
-  async getMx1(@Res() res: Response, @Query() payload: GetMx1Dto) {
+  async getMx1(
+    @Res() res: Response,
+    @Query() payload: GetMx1Dto,
+    @CurrentUser() user: ICurrentUser,
+  ) {
     res.setHeader(
       'Content-Type',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -71,7 +75,7 @@ export class ReportController {
       'Content-disposition',
       `attachment;filename=mx1report-${Date.now()}.xlsx`,
     );
-    const workbook = await this.reportMx1Service.generate(payload);
+    const workbook = await this.reportMx1Service.generate(payload, user);
     return workbook.xlsx.write(res).then(() => {
       res.status(200).end();
     });

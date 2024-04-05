@@ -23,6 +23,10 @@ export class FuelHolder extends CommonEntity {
   @Column({ type: 'varchar', nullable: true })
   inn?: string;
 
+  @ApiProperty({ required: false, description: 'Полные реквизиты' })
+  @Column({ type: 'text', nullable: true })
+  requisites?: string;
+
   @OneToMany(() => Tank, (tank) => tank.fuelHolder)
   tank: Tank[];
 

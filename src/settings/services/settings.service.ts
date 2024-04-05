@@ -18,14 +18,15 @@ export class SettingsService extends CommonService<Settings> {
     return this.settingsRepository;
   }
 
-  async getValue(key: string): Promise<DispenserDeviceTypes> {
+  async getValue(
+    key: string,
+  ): Promise<DispenserDeviceTypes | string | undefined> {
     const setting = await this.getRepository().findOne({
       where: {
         key,
       },
     });
-    return (
-      (setting?.value as DispenserDeviceTypes) ?? DispenserDeviceTypes.TOPAZ
-    );
+
+    return setting?.value;
   }
 }

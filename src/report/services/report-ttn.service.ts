@@ -55,8 +55,10 @@ export class ReportTtnService {
         docVolume += item.docVolume;
       }
 
-      worksheet.getCell(`D${startPosition}`).value = `Секция`;
-      worksheet.getCell(`AI${startPosition}`).value = `ТТН`;
+      worksheet.getCell('V10').value = operation.fuelHolder?.requisites ?? '';
+
+      worksheet.getCell(`D${startPosition}`).value = 'Секция';
+      worksheet.getCell(`AI${startPosition}`).value = 'ТТН';
       worksheet.getCell(`CM${startPosition}`).value = item.docVolume;
       worksheet.getCell(`FU${startPosition}`).value = (
         item.docWeight / 1000
@@ -87,11 +89,14 @@ export class ReportTtnService {
     worksheet.getCell('V8').value = operation?.fuelHolder?.fullName ?? '';
 
     // Водитель
-    worksheet.getCell('FB29').value =
+    const driverName =
       `${operation.driver?.lastName} ${operation.driver?.firstName?.slice(
         0,
         1,
       )} ${operation.driver?.middleName?.slice(0, 1)}` ?? '';
+    worksheet.getCell('FB29').value = driverName;
+    worksheet.getCell('L57').value = driverName;
+    worksheet.getCell('AA84').value = driverName;
 
     // Марка автомобиля
     worksheet.getCell('N53').value = operation.vehicle?.carModel ?? '';
