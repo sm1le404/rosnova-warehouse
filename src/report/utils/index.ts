@@ -4,4 +4,5 @@ export * from './find-dispenser.util';
 export * from './month-report-mapper.util';
 export * from './outcome-report-mapper.util';
 export * from './translit.util';
+export * from './get-driver-full-name.util';
 export * from './round-value.util';
