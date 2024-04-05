@@ -14,6 +14,7 @@ import { ReportDiffDetectionService } from './services/report-diff-detection.ser
 import { Fuel } from '../fuel/entities/fuel.entity';
 import { FuelHolder } from '../fuel-holder/entities/fuel-holder.entity';
 import { ReportCloseShiftService } from './services/report-close-shift.service';
+import { ReportSummaryDrawbackService } from './services/report-summary-drawback.service';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ReportCloseShiftService } from './services/report-close-shift.service';
     ReportTtnService,
     ReportMx1Service,
     ReportDiffDetectionService,
+    ReportSummaryDrawbackService,
   ],
 })
 export class ReportModule {}

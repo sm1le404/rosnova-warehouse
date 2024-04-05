@@ -27,6 +27,8 @@ import { ReportDiffDetectionService } from '../services/report-diff-detection.se
 import { GetDiffDetectionDto } from '../dto/get-diff-detection.dto';
 import { ReportCloseShiftService } from '../services/report-close-shift.service';
 import { GetClosingReportDto } from '../dto/get-closing-report.dto';
+import { GetSummaryDrawbackReportDto } from '../dto/get-summary-drawback-report.dto';
+import { ReportSummaryDrawbackService } from '../services/report-summary-drawback.service';
 
 @ApiTags('Report')
 @Controller('report')
@@ -43,6 +45,7 @@ export class ReportController {
     private readonly reportMx1Service: ReportMx1Service,
     private readonly reportDiffDetectionService: ReportDiffDetectionService,
     private readonly reportCloseShiftService: ReportCloseShiftService,
+    private readonly reportSummaryDrawbackService: ReportSummaryDrawbackService,
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
   ) {}
@@ -250,6 +253,28 @@ export class ReportController {
     );
     res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
     const workbook = await this.reportCloseShiftService.generate(payload);
+    return workbook.xlsx.write(res).then(function () {
+      res.status(200).end();
+    });
+  }
+
+  @ApiOperation({
+    summary: 'Summary drawback report',
+  })
+  @SetRoles(RoleType.ADMIN)
+  @Get('summary-drawback')
+  async summaryDrawbackReport(
+    @Res() res: Response,
+    @Query() payload: GetSummaryDrawbackReportDto,
+  ) {
+    const date = dateFormatter(Math.floor(Date.now() / 1000));
+    const name = translitFromRuToEn(`сводный отчёт по актам долива ${date}`);
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader('Content-disposition', `attachment;filename=${name}.xlsx`);
+    const workbook = await this.reportSummaryDrawbackService.generate(payload);
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
