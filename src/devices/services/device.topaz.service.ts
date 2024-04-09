@@ -513,7 +513,9 @@ export class DeviceTopazService extends AbstractDispenser {
     const commandResult = await dispenserDevice.callCommand(
       dispenser.addressId,
       payload.command,
-      Buffer.isBuffer(payload.data) ? payload.data : Buffer.from(payload.data),
+      Buffer.isBuffer(payload.data)
+        ? payload.data
+        : Buffer.from(payload?.data ?? []),
     );
 
     if (payload.command === DispenserCommand.STATUS) {
