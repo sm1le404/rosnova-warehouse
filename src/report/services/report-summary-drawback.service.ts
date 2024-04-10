@@ -139,7 +139,23 @@ export class ReportSummaryDrawbackService {
 
       worksheet.getCell(`I${startPosition + i}`).value = volumeTolerance;
 
-      worksheet.getCell(`K${startPosition + i}`).value = averageFactVolume;
+      const plankVolume = valueRound(
+        filteredState.reduce((acc, state) => {
+          if (typeof state?.volume === 'string') {
+            // eslint-disable-next-line no-param-reassign
+            acc += +state?.volume ?? 0;
+            return acc;
+          }
+          // eslint-disable-next-line no-param-reassign
+          acc += state?.volume ?? 0;
+          return acc;
+        }, 0),
+      );
+
+      worksheet.getCell(`J${startPosition + i}`).value = plankVolume;
+
+      worksheet.getCell(`K${startPosition + i}`).value =
+        averageFactVolume - plankVolume;
 
       worksheet.getCell(`L${startPosition + i}`).value = valueRound(
         operation.docWeight * (0.65 / 100),
@@ -153,15 +169,16 @@ export class ReportSummaryDrawbackService {
         operation.docWeight * (0.6504 / 100),
       );
 
-      worksheet.getCell(`O${startPosition + i}`).value = volumeTolerance;
+      worksheet.getCell(`O${startPosition + i}`).value =
+        volumeTolerance - plankVolume;
 
       worksheet.getCell(`P${startPosition + i}`).value = valueRound(
-        volumeTolerance * averageFactDensity,
+        (volumeTolerance - plankVolume) * averageFactDensity,
       );
 
       const diff = valueRound(
         operation.docWeight * (0.6504 / 100) -
-          volumeTolerance * averageFactDensity,
+          (volumeTolerance - plankVolume) * averageFactDensity,
       );
 
       worksheet.getCell(`Q${startPosition + i}`).value = diff;
