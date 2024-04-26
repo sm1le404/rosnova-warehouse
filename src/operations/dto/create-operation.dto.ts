@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
@@ -100,6 +101,13 @@ export class CreateOperationDto {
   @IsOptional()
   @IsEnum(OperationStatus)
   status?: OperationStatus;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(20, {
+    message: 'Необходим комментарий длиной не менее 20 символов',
+  })
+  comment?: string;
 
   @ApiProperty({
     required: false,

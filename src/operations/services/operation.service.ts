@@ -1,5 +1,5 @@
 import { CommonService } from '../../common/services/common.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DeepPartial, FindOneOptions, In, LessThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../entities/operation.entity';
@@ -36,6 +36,19 @@ export class OperationService extends CommonService<Operation> {
       relations: PaginationOperationParams.relationList,
       ...payload,
     });
+  }
+
+  async updateRoot(
+    filter: FindOneOptions<Operation>,
+    updateCommon: DeepPartial<Operation>,
+  ): Promise<Operation> {
+    if (!updateCommon.comment) {
+      throw new BadRequestException(
+        'Необходим комментарий длиной не менее 20 символов',
+      );
+    }
+
+    return this.update(filter, updateCommon);
   }
 
   async update(
@@ -99,6 +112,24 @@ export class OperationService extends CommonService<Operation> {
       );
     }
     return updateResult;
+  }
+
+  async deleteRoot(
+    filter: FindOneOptions<Operation>,
+    comment: string,
+  ): Promise<Operation> {
+    const common = await this.findOne(filter);
+    const withComment = await this.getRepository().save({ ...common, comment });
+    const removeResult = await this.getRepository().softRemove(withComment);
+    if (common?.id && common?.status === OperationStatus.FINISHED) {
+      await this.changeTankState(
+        common.tank.id,
+        common.type,
+        -common.docVolume,
+        -common.docWeight,
+      );
+    }
+    return removeResult;
   }
 
   async delete(filter: FindOneOptions<Operation>): Promise<Operation> {

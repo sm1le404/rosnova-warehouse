@@ -4,3 +4,5 @@ export * from './unique';
 export * from './pagination';
 export * from './number';
 export * from './format-date';
+export * from './is-root.util';
+export * from './is-operator-last-shift';

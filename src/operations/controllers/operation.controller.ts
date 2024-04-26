@@ -17,6 +17,7 @@ import { OperationService } from '../services/operation.service';
 import { Operation } from '../entities/operation.entity';
 import {
   CreateOperationDto,
+  DeleteOperationDto,
   ResponseOperationDto,
   UpdateOperationDto,
 } from '../dto';
@@ -34,7 +35,7 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
-import { isOperatorLastShift } from '../../common/utility/is-operator-last-shift';
+import { isOperatorLastShift, isRoot } from '../../common/utility';
 import { OperationStatus } from '../enums';
 
 @ApiTags('Operation')
@@ -89,6 +90,7 @@ export class OperationController {
   ): Promise<Operation> {
     const response = await this.operationService.create({
       ...createOperationDto,
+      comment: undefined,
       shift: user.lastShift,
     });
 
@@ -103,6 +105,46 @@ export class OperationController {
     });
 
     return response;
+  }
+
+  @Put(':id/root')
+  @ApiOperation({
+    summary: 'Update operation by id for root',
+  })
+  @ApiResponse({ type: () => Operation })
+  async updateRoot(
+    @Param('id') id: number,
+    @Body() updateOperationDto: UpdateOperationDto,
+    @CurrentUser() user: ICurrentUser,
+  ): Promise<Operation> {
+    const dataBefore = await this.findOne(id);
+
+    if (!isRoot(user.role)) {
+      throw new ForbiddenException(
+        'Недостаточно прав, чтобы редактировать операцию',
+      );
+    }
+
+    const updated = await this.operationService.updateRoot(
+      {
+        where: {
+          id,
+        },
+      },
+      updateOperationDto,
+    );
+
+    await this.eventService.create({
+      collection: EventCollectionType.OPERATION,
+      type: EventType.UPDATE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: JSON.stringify(updateOperationDto),
+      name: `Изменение операции ${id}, накладная: ${dataBefore.numberTTN}`,
+      shift: user.lastShift,
+      user,
+    });
+
+    return updated;
   }
 
   @Put(':id')
@@ -131,7 +173,7 @@ export class OperationController {
           id,
         },
       },
-      updateOperationDto,
+      { ...updateOperationDto, comment: undefined },
     );
 
     await this.eventService.create({
@@ -145,6 +187,34 @@ export class OperationController {
     });
 
     return updated;
+  }
+
+  @Delete(':id/root')
+  @ApiOperation({
+    summary: 'Delete operation by id for root',
+  })
+  @ApiResponse({ type: () => Operation })
+  async deleteRoot(
+    @Param('id') id: number,
+    @Body() { comment }: DeleteOperationDto,
+    @CurrentUser() user: ICurrentUser,
+  ): Promise<any> {
+    const dataBefore = await this.findOne(id);
+
+    if (!isRoot(user.role)) {
+      throw new ForbiddenException('Недостаточно прав, чтобы удалить операцию');
+    }
+
+    await this.eventService.create({
+      collection: EventCollectionType.OPERATION,
+      type: EventType.DELETE,
+      dataBefore: JSON.stringify(dataBefore),
+      dataAfter: '',
+      name: `Удаление операции ${id}, накладная: ${dataBefore.numberTTN}`,
+      shift: user.lastShift,
+      user,
+    });
+    return this.operationService.deleteRoot({ where: { id } }, comment);
   }
 
   @Delete(':id')

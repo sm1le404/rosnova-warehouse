@@ -17,6 +17,10 @@ export class HasRole implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const user = request.user as User;
 
+    if (user.role === RoleType.ROOT) {
+      return true;
+    }
+
     const roles = this.reflector.getAllAndOverride<RoleType[]>('roles', [
       context.getHandler(),
       context.getClass(),
