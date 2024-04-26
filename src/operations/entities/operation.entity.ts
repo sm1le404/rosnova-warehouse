@@ -40,6 +40,13 @@ export class Operation extends CommonEntity {
   })
   status?: OperationStatus;
 
+  @ApiProperty({ required: false, description: 'Комментарий' })
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  comment?: string;
+
   @ApiProperty({
     type: () => IVehicleTank,
     isArray: true,

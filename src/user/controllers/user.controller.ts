@@ -1,5 +1,6 @@
 import { UserService } from './../services/user.service';
 import {
+  BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Controller,
@@ -20,6 +21,7 @@ import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../enums';
 import { EncryptionService } from '../../auth/services/encryption.service';
 import { UpdatePwdDto } from '../dto/update-pwd.dto';
+import { isRoot } from '../../common/utility';
 
 @ApiTags('User')
 @Controller('user')
@@ -62,6 +64,11 @@ export class UserController {
   })
   @ApiResponse({ type: () => OmitType(User, ['password']) })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    if (isRoot(createUserDto.role)) {
+      throw new BadRequestException(
+        'Нельзя создать пользователя с такой ролью',
+      );
+    }
     if (createUserDto?.password) {
       createUserDto.password = await this.encryptionService.hash(
         createUserDto.password,
@@ -82,6 +89,12 @@ export class UserController {
     @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
+    const user = await this.findOne(id);
+
+    if (isRoot(updateUserDto.role) || isRoot(user.role)) {
+      throw new BadRequestException('Нельзя обновить пользователя');
+    }
+
     return this.userService.update(
       {
         where: {
@@ -101,6 +114,12 @@ export class UserController {
     @Param('id') id: number,
     @Body() updatePwdDto: UpdatePwdDto,
   ): Promise<void> {
+    const user = await this.findOne(id);
+
+    if (isRoot(user.role)) {
+      throw new BadRequestException('Нельзя обновить пароль');
+    }
+
     if (updatePwdDto?.password) {
       updatePwdDto.password = await this.encryptionService.hash(
         updatePwdDto.password,
@@ -116,6 +135,12 @@ export class UserController {
   })
   @ApiResponse({ type: () => User })
   async delete(@Param('id') id: number): Promise<User> {
+    const user = await this.findOne(id);
+
+    if (isRoot(user.role)) {
+      throw new BadRequestException('Нельзя удалить пользователя');
+    }
+
     return this.userService.delete({ where: { id } });
   }
 }
