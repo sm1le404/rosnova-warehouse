@@ -16,7 +16,7 @@ import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
 import { DeviceTankService } from './device.tank.service';
 import { AbstractDispenser } from '../classes/abstract.dispenser';
 import { DispenserCommandInterface } from '../dto/dispenser.command.interface';
-import { DispenserQueue } from '../../dispenser/entities/dispenser.queue.entity';
+
 import {
   OperationEvent,
   OperationStatus,
@@ -34,8 +34,6 @@ export class DeviceRvService extends AbstractDispenser {
     private readonly deviceTankService: DeviceTankService,
     @InjectRepository(Dispenser)
     private readonly dispenserRepository: Repository<Dispenser>,
-    @InjectRepository(DispenserQueue)
-    private readonly dispenserQueueRepository: Repository<DispenserQueue>,
     @InjectRepository(Operation)
     private readonly operationRepository: Repository<Operation>,
     @InjectRepository(Tank)
@@ -163,23 +161,6 @@ export class DeviceRvService extends AbstractDispenser {
     const tankState = await this.tankRepository.findOne({
       where: { id: operation.tank.id },
     });
-
-    const drainProcess = this.dispenserQueueRepository.create({
-      dispenser: {
-        id: operation.dispenser.id,
-      },
-      user: {
-        id: payload.userId,
-      },
-      tank: {
-        id: operation.tank.id,
-      },
-      fuel: {
-        id: operation.fuel.id,
-      },
-      dose: payload.litres,
-    });
-    await this.dispenserQueueRepository.save(drainProcess);
 
     await this.operationRepository.update(
       {

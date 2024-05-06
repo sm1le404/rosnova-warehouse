@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { In, Not, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DispenserQueue } from '../entities/dispenser.queue.entity';
 import { GetQueStateDto } from '../dto';
@@ -46,33 +46,16 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         },
       });
 
-      const queueItem = await this.dispenserQueueRepository.findOne({
-        where: {
-          dispenser: {
-            id: payload.idTrk,
-          },
-        },
-        relations: {
-          fuel: true,
-          tank: true,
-          user: true,
-        },
-      });
-
       const operation = await this.operationRepository.findOne({
         where: {
           type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
           dispenser: {
             id: payload.idTrk,
           },
-          status: Not(OperationStatus.FINISHED),
+          status: In([OperationStatus.STARTED, OperationStatus.PROGRESS]),
         },
-        relations: {
-          dispenser: true,
-        },
-        loadEagerRelations: false,
         order: {
-          id: 'desc',
+          id: 'asc',
         },
       });
 
@@ -120,12 +103,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           error: ``,
           statusId: DispenserStatus.PROCESS,
         };
-        //Если пролив начался то считаем что все ок и удаляем ожидание
-        if (queueItem?.id) {
-          await this.dispenserQueueRepository.delete({
-            id: queueItem.id,
-          });
-        }
 
         if (operation?.id) {
           await this.operationRepository.update(
@@ -159,7 +136,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
 
       result = {
         idTrk: payload.idTrk,
-        status: Number(!!queueItem),
+        status: 0,
         idOp: 0,
         doseRef: 0,
         fuelName: '',
@@ -167,14 +144,15 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         tankNum: 0,
       };
 
-      if (queueItem?.id) {
+      if (operation?.id) {
         result = {
           ...result,
-          idOp: queueItem.user.cardId ?? queueItem.user.id.toString(),
-          doseRef: queueItem.dose,
-          fuelNameRu: queueItem.fuel.name,
-          fuelName: CyrillicToTranslit().transform(queueItem.fuel.name),
-          tankNum: queueItem.tank.addressId,
+          status: 1,
+          idOp: `1`,
+          doseRef: operation.docVolume,
+          fuelNameRu: operation.fuel.name,
+          fuelName: CyrillicToTranslit().transform(operation.fuel.name),
+          tankNum: operation.tank?.addressId ?? operation.tank.id,
         };
       }
     } catch (e) {
