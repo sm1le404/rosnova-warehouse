@@ -11,6 +11,7 @@ import { Driver } from '../../driver/entities/driver.entity';
 import { Trailer } from '../entities/trailer.entity';
 import { IVehicleTank } from '../types';
 import { CommonId } from '../../common/types/common-id.type';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateVehicleDto {
   @ApiProperty({
@@ -18,7 +19,9 @@ export class CreateVehicleDto {
     description: 'Тип ТС',
     enum: VehicleType,
   })
-  @IsEnum(VehicleType)
+  @IsEnum(VehicleType, {
+    message: i18nValidationMessage('validation.IsEnum'),
+  })
   type: VehicleType;
 
   @ApiProperty({
@@ -52,17 +55,27 @@ export class CreateVehicleDto {
   sectionVolumes?: string;
 
   @ApiProperty({ required: true, description: 'Модель ТС' })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   carModel: string;
 
   @ApiProperty({ required: true, description: 'Регистрационный номер ТС' })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   regNumber: string;
 
   @ApiProperty({ required: false, description: 'Доступность', default: true })
-  @IsBoolean()
+  @IsBoolean({
+    message: i18nValidationMessage('validation.IsBoolean'),
+  })
   @IsOptional()
   isEnabled?: boolean;
 }

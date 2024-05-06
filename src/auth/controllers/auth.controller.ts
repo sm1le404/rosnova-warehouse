@@ -112,7 +112,7 @@ export class AuthController {
   async refresh(@Req() request: Request, @Res() response: Response) {
     const user: ICurrentUser | undefined = request.user as ICurrentUser;
     if (!user.id) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('Пользователь не найден');
     }
 
     const { token, expiredIn } = this.tokensService.getJwtAccessToken({

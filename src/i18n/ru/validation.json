@@ -1,0 +1,12 @@
+{
+  "IsEnum": "Поле {property} должно иметь значение из списка {constraints.1}",
+  "IsString": "Поле {property} должно быть строкой",
+  "IsNotEmpty": "Поле {property} не должно быть пустым",
+  "IsBoolean": "Поле {property} должно иметь логический тип данных (true или false)",
+  "IsInt": "Поле {property} должно быть целым числом",
+  "IsNumber": "Поле {property} должно быть числом",
+  "IsPositive": "Поле {property} должно быть положительным числом",
+  "IsArray": "Поле {property} должно быть массивом",
+  "Min": "Поле {property} должно иметь значение больше, чем {constraints.0}. Передано '{value}'",
+  "Max": "Поле {property} должно иметь значение меньше, чем {constraints.0}. Передано '{value}'"
+}

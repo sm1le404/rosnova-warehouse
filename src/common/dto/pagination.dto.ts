@@ -7,37 +7,56 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class PaginationDto implements PaginateQuery {
   static readonly maxLimit: number = 1000;
 
   @IsOptional()
-  @IsInt()
+  @IsInt({
+    message: i18nValidationMessage('validation.IsInt'),
+  })
   @ApiPropertyOptional({ description: 'Номер страницы' })
   page?: number;
 
   @IsOptional()
-  @IsInt()
+  @IsInt({
+    message: i18nValidationMessage('validation.IsInt'),
+  })
   @ApiPropertyOptional({
-    description: 'Ограничение эелементов на страницу',
+    description: 'Ограничение элементов на страницу',
   })
   limit?: number;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
   @ApiPropertyOptional({ description: 'Поиск' })
   search?: string;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @IsArray({
+    message: i18nValidationMessage('validation.IsArray'),
+  })
+  @IsString({
+    each: true,
+    message: i18nValidationMessage('validation.IsString'),
+  })
   @ApiPropertyOptional({ description: 'Поиск' })
   searchBy?: string[];
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @IsArray({
+    message: i18nValidationMessage('validation.IsArray'),
+  })
+  @IsString({
+    each: true,
+    message: i18nValidationMessage('validation.IsString'),
+  })
   @ApiPropertyOptional({
     example: 'id:ASC',
     description: 'Сортировка',
@@ -45,8 +64,13 @@ export class PaginationDto implements PaginateQuery {
   sortBy?: [string, string][];
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @IsArray({
+    message: i18nValidationMessage('validation.IsArray'),
+  })
+  @IsString({
+    each: true,
+    message: i18nValidationMessage('validation.IsString'),
+  })
   @ApiPropertyOptional({
     example: 'filter.id=$in:1,2,3',
     description: 'Фильтрация',
@@ -56,7 +80,9 @@ export class PaginationDto implements PaginateQuery {
   };
 
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   @ApiHideProperty()
   path: string | null;
 }

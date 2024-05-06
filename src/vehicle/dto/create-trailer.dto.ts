@@ -8,11 +8,16 @@ import {
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { TrailerType } from '../enums';
 import { IVehicleTank } from '../types';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateTrailerDto {
   @ApiProperty({ required: true, description: 'Регистрационный номер прицепа' })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   regNumber: string;
 
   @ApiPropertyOptional({
@@ -21,7 +26,9 @@ export class CreateTrailerDto {
     type: () => PickType(IVehicleTank, ['index', 'volume']),
     isArray: true,
   })
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
   currentState?: string;
 
   @ApiProperty({
@@ -30,11 +37,15 @@ export class CreateTrailerDto {
     type: () => PickType(IVehicleTank, ['index', 'volume']),
     isArray: true,
   })
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
   sectionVolumes: string;
 
   @ApiProperty({ required: false, description: 'Доступность', default: true })
-  @IsBoolean()
+  @IsBoolean({
+    message: i18nValidationMessage('validation.IsBoolean'),
+  })
   @IsOptional()
   isEnabled?: boolean;
 
@@ -45,11 +56,15 @@ export class CreateTrailerDto {
     default: TrailerType.TRAILER,
   })
   @IsOptional()
-  @IsEnum(TrailerType)
+  @IsEnum(TrailerType, {
+    message: i18nValidationMessage('validation.IsEnum'),
+  })
   type?: TrailerType;
 
   @ApiProperty({ required: false, description: 'Модель прицепа' })
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   trailerModel?: string;
 }

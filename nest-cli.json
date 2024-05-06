@@ -9,6 +9,11 @@
         "include": "assets",
         "outDir": "dist/",
         "watchAssets": true
+      },
+      {
+        "include": "i18n/**/*",
+        "outDir": "dist/",
+        "watchAssets": true
       }
     ]
   }
