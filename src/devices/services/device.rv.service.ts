@@ -24,6 +24,7 @@ import {
 } from '../../operations/enums';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { rejects } from 'assert';
 
 @Injectable()
 export class DeviceRvService extends AbstractDispenser {
@@ -134,6 +135,9 @@ export class DeviceRvService extends AbstractDispenser {
     const checkOperation = await this.operationRepository.findOne({
       where: {
         ...baseFilter,
+        status: Not(
+          In([OperationStatus.FINISHED, OperationStatus.INTERRUPTED]),
+        ),
         id: Not(operation.id),
         dispenser: {
           id: operation.dispenser.id,
@@ -176,7 +180,7 @@ export class DeviceRvService extends AbstractDispenser {
       },
     );
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       let intervalCheckCompileStatus = setInterval(async () => {
         const currentOperationState = await this.operationRepository.findOne({
           where: {
@@ -187,6 +191,9 @@ export class DeviceRvService extends AbstractDispenser {
             status: true,
           },
         });
+        if (!currentOperationState?.id) {
+          reject();
+        }
         if (
           currentOperationState.status === OperationStatus.STOPPED ||
           currentOperationState.status === OperationStatus.FINISHED

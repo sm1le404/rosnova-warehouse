@@ -479,7 +479,7 @@ export class DeviceTopazService extends AbstractDispenser {
 
     await this.addOperationToCron(operation);
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       let intervalCheckCompileStatus = setInterval(async () => {
         const currentOperationState = await this.operationRepository.findOne({
           where: {
@@ -490,6 +490,9 @@ export class DeviceTopazService extends AbstractDispenser {
             status: true,
           },
         });
+        if (!currentOperationState?.id) {
+          reject();
+        }
         if (
           currentOperationState.status === OperationStatus.STOPPED ||
           currentOperationState.status === OperationStatus.FINISHED

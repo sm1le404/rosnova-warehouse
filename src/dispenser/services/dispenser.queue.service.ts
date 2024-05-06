@@ -70,8 +70,10 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
               id: operation.id,
             },
             {
+              id: operation.id,
               status: OperationStatus.INTERRUPTED,
               dispenserError: true,
+              factVolume: payload.doseIssCurr,
             },
           );
         }
@@ -87,6 +89,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
               id: operation.id,
             },
             {
+              id: operation.id,
               status: OperationStatus.STOPPED,
               dispenserError: false,
               factVolume: payload.doseIssCurr,
@@ -110,6 +113,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
               id: operation.id,
             },
             {
+              id: operation.id,
               status: OperationStatus.PROGRESS,
               dispenserError: false,
               factVolume: payload.doseIssCurr,
