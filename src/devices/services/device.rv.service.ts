@@ -191,7 +191,7 @@ export class DeviceRvService extends AbstractDispenser {
             status: true,
           },
         });
-        if (!!currentOperationState?.id) {
+        if (!currentOperationState?.id) {
           clearInterval(intervalCheckCompileStatus);
           reject();
         }
