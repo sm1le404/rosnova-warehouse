@@ -491,6 +491,7 @@ export class DeviceTopazService extends AbstractDispenser {
           },
         });
         if (!currentOperationState?.id) {
+          clearInterval(intervalCheckCompileStatus);
           reject();
         }
         if (

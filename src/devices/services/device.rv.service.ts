@@ -192,6 +192,7 @@ export class DeviceRvService extends AbstractDispenser {
           },
         });
         if (!currentOperationState?.id) {
+          clearInterval(intervalCheckCompileStatus);
           reject();
         }
         if (
