@@ -180,7 +180,7 @@ export class DeviceRvService extends AbstractDispenser {
       },
     );
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
         const currentOperationState = await this.operationRepository.findOne({
           where: {
@@ -190,12 +190,10 @@ export class DeviceRvService extends AbstractDispenser {
             id: true,
             status: true,
           },
+          loadEagerRelations: false,
         });
-        if (!currentOperationState?.id) {
-          clearInterval(intervalCheckCompileStatus);
-          reject();
-        }
         if (
+          !currentOperationState?.id ||
           currentOperationState.status === OperationStatus.STOPPED ||
           currentOperationState.status === OperationStatus.FINISHED
         ) {
