@@ -21,6 +21,7 @@ import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -84,8 +85,12 @@ export class CreateOperationDto {
     description: 'Назначение',
   })
   @IsOptional()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({
+    message: i18nValidationMessage('validation.IsNotEmpty'),
+  })
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   destination?: string;
 
   shift: Pick<Shift, 'id'>;
@@ -95,15 +100,21 @@ export class CreateOperationDto {
     description: 'Тип операции',
     enum: OperationType,
   })
-  @IsEnum(OperationType)
+  @IsEnum(OperationType, {
+    message: i18nValidationMessage('validation.IsEnum'),
+  })
   type: OperationType;
 
   @IsOptional()
-  @IsEnum(OperationStatus)
+  @IsEnum(OperationStatus, {
+    message: i18nValidationMessage('validation.IsEnum'),
+  })
   status?: OperationStatus;
 
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   @MinLength(20, {
     message: 'Необходим комментарий длиной не менее 20 символов',
   })
@@ -120,12 +131,19 @@ export class CreateOperationDto {
 
   @ApiProperty({ required: false, description: 'Номер накладной' })
   @IsOptional()
-  @IsString()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
   numberTTN?: string;
 
   @ApiProperty({ required: false, description: 'Дата в накладной' })
   @IsOptional()
-  @IsNumber()
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
   dateTTN?: number;
 
   startedAt?: number;
@@ -133,69 +151,153 @@ export class CreateOperationDto {
   finishedAt?: number;
 
   @ApiProperty({ required: true, description: 'Объём по документам' })
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   docVolume: number;
 
   @ApiProperty({ required: true, description: 'Вес по документам' })
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   docWeight: number;
 
   @ApiProperty({ required: false, description: 'Объём фактически' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   factVolume?: number;
 
   @ApiProperty({ required: false, description: 'Вес фактически' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   factWeight?: number;
 
   @ApiProperty({ required: true, description: 'Плотность по документам' })
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   docDensity: number;
 
   @ApiProperty({ required: true, description: 'Температура по документам' })
-  @IsNumber()
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
   docTemperature: number;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({
+    message: i18nValidationMessage('validation.IsBoolean'),
+  })
   dispenserError?: boolean;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   counterBefore?: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   counterAfter?: number;
 
   @ApiProperty({ required: false, description: 'Объем в резервуаре до' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   volumeBefore?: number;
 
   @ApiProperty({ required: false, description: 'Объем в резервуаре после' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   volumeAfter?: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   levelBefore: number;
 
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   levelAfter: number;
 }

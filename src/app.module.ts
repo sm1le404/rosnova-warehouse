@@ -34,9 +34,17 @@ import { ReportModule } from './report/report.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SettingsModule } from './settings/settings.module';
 import { WsModule } from './ws/ws.module';
+import { I18nModule } from 'nestjs-i18n';
 
 @Module({
   imports: [
+    I18nModule.forRoot({
+      fallbackLanguage: 'ru',
+      loaderOptions: {
+        path: path.join(__dirname, '/i18n/'),
+        watch: true,
+      },
+    }),
     KafkaModule,
     ConfigModule.forRoot({
       isGlobal: true,

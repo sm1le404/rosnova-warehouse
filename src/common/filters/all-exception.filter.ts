@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { AbstractHttpAdapter } from '@nestjs/core';
+import { TypeORMError } from 'typeorm';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -38,6 +39,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
       expMessage:
         typeof exMessage === 'string' ? exMessage : exMessage?.message,
     };
+
+    if (exception instanceof TypeORMError) {
+      responseBody.expMessage =
+        'Произошла ошибка базы данных, повторите попытку позднее';
+    }
+
+    if (httpStatus === 403) {
+      responseBody.expMessage = 'Отказано в доступе';
+    }
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }

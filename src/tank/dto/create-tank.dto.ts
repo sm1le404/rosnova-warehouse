@@ -7,6 +7,7 @@ import { CommonId } from '../../common/types/common-id.type';
 import { TankHistory } from '../entities/tank-history.entity';
 import { Transform } from 'class-transformer';
 import { Calibration } from '../entities/calibration.entity';
+import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class CreateTankDto {
   @ApiProperty({
@@ -37,28 +38,47 @@ export class CreateTankDto {
   refinery?: Pick<Refinery, 'id'>;
 
   @ApiProperty({ required: true, description: '№ РГС' })
-  @IsInt()
-  @Min(0)
+  @IsInt({
+    message: i18nValidationMessage('validation.IsInt'),
+  })
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   sortIndex: number;
 
   @ApiProperty({ required: false, description: 'Адрес на COM порте' })
   @IsOptional()
-  @IsInt()
-  @Min(0)
+  @IsInt({
+    message: i18nValidationMessage('validation.IsInt'),
+  })
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   addressId?: number;
 
   @ApiProperty({ required: true, description: 'Общий объём' })
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   totalVolume: number;
 
   @ApiProperty({ required: false, description: 'Доступность' })
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({
+    message: i18nValidationMessage('validation.IsBoolean'),
+  })
   isEnabled?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({
+    message: i18nValidationMessage('validation.IsBoolean'),
+  })
   isBlocked?: boolean;
 
   @ApiProperty({
@@ -66,8 +86,15 @@ export class CreateTankDto {
     description: 'Критический остаток',
     default: 0,
   })
-  @IsNumber()
-  @Min(0)
+  @IsNumber(
+    {},
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
   @IsOptional()
   deathBalance?: number;
 }
