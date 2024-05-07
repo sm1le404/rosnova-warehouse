@@ -114,9 +114,10 @@ export class ReportCloseShiftService {
         `P${startPosition + i}`,
       ).value = `${e.newMeasurement.level}`;
 
-      worksheet.getCell(`Q${startPosition + i}`).value = `${valueRound(
+      worksheet.getCell(`Q${startPosition + i}`).value = valueRound(
         e.newMeasurement.density,
-      )}`;
+        4,
+      ).toFixed(4);
 
       worksheet.getCell(`R${startPosition + i}`).value = `${valueRound(
         e.newMeasurement.volume,

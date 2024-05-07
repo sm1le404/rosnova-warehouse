@@ -24,7 +24,6 @@ import {
 } from '../../operations/enums';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { rejects } from 'assert';
 
 @Injectable()
 export class DeviceRvService extends AbstractDispenser {
