@@ -145,7 +145,8 @@
       "node_modules/serialport/**/*",
       "node_modules/@serialport/**/*",
       "node_modules/mysql2/**/*",
-      "dist/assets/**/*"
+      "dist/assets/**/*",
+      "dist/i18n/**/*"
     ],
     "outputPath": "release"
   },
