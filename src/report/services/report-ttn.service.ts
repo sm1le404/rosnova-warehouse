@@ -64,9 +64,9 @@ export class ReportTtnService {
         item.docWeight / 1000
       ).toFixed(3);
 
-      worksheet.getCell(
-        `DC${startPosition}`,
-      ).value = `${item.docDensity}, T° = ${item.docTemperature}`;
+      worksheet.getCell(`DC${startPosition}`).value = `${
+        item.docDensity
+      }, T° = ${item.docTemperature.toFixed(1)}`;
 
       startPosition++;
     });
@@ -108,7 +108,9 @@ export class ReportTtnService {
     worksheet.getCell(
       'BU17',
       // eslint-disable-next-line max-len
-    ).value = `${operation?.fuel?.fullName} плотность ${operation.docDensity}, T° = ${operation.docTemperature}`;
+    ).value = `${operation?.fuel?.fullName} плотность ${
+      operation.docDensity
+    }, T° = ${operation.docTemperature.toFixed(1)}`;
 
     const dateParam = new Date(
       (operation.dateTTN ?? operation.createdAt) * 1000,
