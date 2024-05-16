@@ -4,13 +4,14 @@ import { Operation } from '../../operations/entities/operation.entity';
 import { IVehicleTank } from '../../vehicle/types';
 import * as ExcelJS from 'exceljs';
 import { valueRound } from './round-value.util';
+import date from 'date-and-time';
 
 const orderOfColumns = [
   'createdAt', // A
   'fuel.name', // B
   'vehicle.regNumber', // C
   'numberTTN', // D
-  'numberTTN', // E
+  'dateTTN', // E
   'docVolume', // F
   'docWeight', // G
   'docDensity', // H
@@ -24,6 +25,37 @@ const orderOfColumns = [
   'tank.sortIndex', // P
 ];
 
+export const getWeightDrawback = (
+  vehicleState: IVehicleTank[],
+  operation: Operation,
+): number => {
+  const factVolumeArray = vehicleState.map(
+    (state: IVehicleTank) =>
+      (state.maxVolume * operation.docDensity) / state.density,
+  );
+
+  const toleranceVolumeArray: number[] = vehicleState.map(
+    (state: IVehicleTank, i: number) => {
+      if (state.maxVolume - factVolumeArray[i] < 0) {
+        return 0;
+      }
+      return state.maxVolume - factVolumeArray[i];
+    },
+  );
+
+  const volumeDeficitArray = toleranceVolumeArray.map(
+    (value, i) => value - vehicleState[i].volume,
+  );
+
+  const weightDeficit = volumeDeficitArray
+    .map((volume, i) => volume * vehicleState[i].density)
+    .reduce((acc, value) => (acc += value), 0);
+
+  const fullTolerance = operation.docWeight * 0.006504;
+
+  return Math.abs(fullTolerance) - Math.abs(weightDeficit);
+};
+
 export const monthReportMapper = (operations: Operation[]): string[][] => {
   return operations.map((operation) => {
     return orderOfColumns.map((key) => {
@@ -32,6 +64,10 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
 
       if (key.includes('docDensity')) {
         return valueRound(operation.docDensity, 4);
+      }
+
+      if (key.includes('dateTTN')) {
+        return date.format(new Date(operation.dateTTN * 1000), 'DD.MM.YYYY');
       }
 
       if (key.includes('docWeight')) {
@@ -62,18 +98,12 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
 
       if (key.includes('topupWeight')) {
         if (vehicleState) {
-          const volume = vehicleState.reduce(
-            (acc: number, item: IVehicleTank) => (acc += item.volume ?? 0),
+          const result = valueRound(
+            getWeightDrawback(vehicleState, operation),
             0,
           );
 
-          const density =
-            vehicleState.reduce(
-              (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
-              0,
-            ) / vehicleState.length;
-
-          return valueRound(volume * density, 0);
+          return isNaN(result) ? 0 : result;
         }
         return '';
       }
@@ -129,10 +159,17 @@ export const monthReportMapper = (operations: Operation[]): string[][] => {
       }
       if (key.includes('vehicleState.volume')) {
         if (vehicleState) {
-          return vehicleState.reduce(
-            (acc: number, item: IVehicleTank) => (acc += item.volume ?? 0),
-            0,
-          );
+          const averageFactDensity =
+            vehicleState.reduce(
+              (acc: number, item: IVehicleTank) => (acc += item.density ?? 0),
+              0,
+            ) / vehicleState.length;
+
+          const weigthDrawback = getWeightDrawback(vehicleState, operation);
+
+          const result = valueRound(weigthDrawback / averageFactDensity, 0);
+
+          return isNaN(result) ? 0 : result;
         }
         return '';
       }
