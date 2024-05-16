@@ -10,12 +10,15 @@ import date from 'date-and-time';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ru from 'date-and-time/locale/ru';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { SettingsKey } from '../../settings/enums';
+import { SettingsService } from '../../settings/services/settings.service';
 
 @Injectable()
 export class ReportTtnService {
   constructor(
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
+    private settingsService: SettingsService,
   ) {}
 
   async generate(
@@ -86,7 +89,8 @@ export class ReportTtnService {
     worksheet.getCell('EO17').value = docWeight.toFixed(3) ?? '';
 
     // Владелец топлива
-    worksheet.getCell('V8').value = operation?.fuelHolder?.fullName ?? '';
+    worksheet.getCell('V8').value =
+      (await this.settingsService.getValue(SettingsKey.STORE_REQUISITES)) ?? '';
 
     // Водитель
     const driverName =

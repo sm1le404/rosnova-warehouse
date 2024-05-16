@@ -98,8 +98,8 @@ export class ReportFilteredService {
         if (!worksheet) {
           const original = workbook.worksheets[0];
           worksheet = workbook.addWorksheet(name);
-          for (let i = 1; i <= 2; i++) {
-            const sourceRow = original.getRow(i);
+          for (let j = 1; j <= 2; j++) {
+            const sourceRow = original.getRow(j);
             const targetRow = worksheet.addRow(sourceRow.values);
             sourceRow.eachCell(
               { includeEmpty: true },
