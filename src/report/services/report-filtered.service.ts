@@ -89,7 +89,7 @@ export class ReportFilteredService {
       /*eslint-disable*/
       const name = `${operations[i].fuel?.name} ${
         operations[i].fuelHolder?.shortName
-      } ${operations[i].refinery?.shortName ?? ''}`;
+      } ${operations[i].refinery?.shortName ?? ''}`.trim().substring(0, 30);
 
       let worksheet = workbook.getWorksheet('page');
 
