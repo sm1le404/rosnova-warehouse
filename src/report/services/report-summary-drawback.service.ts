@@ -66,7 +66,9 @@ export class ReportSummaryDrawbackService {
 
     operations.forEach((operation, i) => {
       const dateOperation = dateFormatter(operation.finishedAt);
-      const timeOperation = timeFormatter(new Date(operation.finishedAt));
+      const timeOperation = timeFormatter(
+        new Date(operation.finishedAt * 1000),
+      );
       const fullDate = `${dateOperation} ${timeOperation}`;
 
       const vehicleState = operation.vehicleState as unknown as IVehicleTank[];

@@ -82,7 +82,7 @@ export class ReportDiffDetectionService {
       .sort((a, b) => a.driver?.lastName.localeCompare(b.driver?.lastName))
       .forEach((op, i) => {
         const date = dateFormatter(op.finishedAt);
-        const time = timeFormatter(new Date(op.finishedAt));
+        const time = timeFormatter(new Date(op.finishedAt * 1000));
 
         worksheet.getCell(`A${startPosition + i}`).value = `${date} ${time}`;
         worksheet.getCell(`B${startPosition + i}`).value = `${getDriverFullName(
