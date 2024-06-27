@@ -35,6 +35,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SettingsModule } from './settings/settings.module';
 import { WsModule } from './ws/ws.module';
 import { I18nModule } from 'nestjs-i18n';
+import { isDev } from './common/utility';
+import { APP_STARTED_MESS } from './front/updater.conf';
 
 @Module({
   imports: [
@@ -69,7 +71,7 @@ import { I18nModule } from 'nestjs-i18n';
     WinstonModule.forRootAsync({
       useFactory: () => {
         const transportList = [];
-        if (!!process.env.DEV) {
+        if (isDev()) {
           transportList.push(
             new winston.transports.Console({
               format: winston.format.combine(
@@ -138,5 +140,9 @@ import { I18nModule } from 'nestjs-i18n';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AppLoggerMiddlewar).forRoutes('*');
+  }
+
+  onApplicationBootstrap() {
+    console.log(APP_STARTED_MESS);
   }
 }

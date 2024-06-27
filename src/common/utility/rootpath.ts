@@ -2,8 +2,12 @@ import path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { config } from 'dotenv';
+import { isDev } from './is-dev';
 
 export const rootpath = (): string => {
+  if (process.env?.USER_DATA) {
+    return `${process.env.USER_DATA}${path.sep}`;
+  }
   const rootPathDir = process.execPath.split(path.sep);
   rootPathDir.pop();
   let tempPath = path.join(...rootPathDir, path.sep);
@@ -14,7 +18,7 @@ export const rootpath = (): string => {
 };
 
 config({
-  path: !!process.env.DEV ? '.env' : `${rootpath()}.env`,
+  path: isDev() ? `.env` : `${rootpath()}.env`,
 });
 
 export enum LogDirection {
