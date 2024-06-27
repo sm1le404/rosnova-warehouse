@@ -2,29 +2,30 @@ import { DataSource } from 'typeorm';
 import path from 'path';
 import { config } from 'dotenv';
 import { rootpath } from './common/utility/rootpath';
+import { isDev } from './common/utility';
 
 config({
-  path: !!process.env.DEV ? '.env' : `${rootpath()}.env`,
+  path: isDev() ? '.env' : `${rootpath()}.env`,
 });
 
 const AppDataSource = new DataSource({
   type: 'sqlite',
-  database: !!process.env.DEV
+  database: isDev()
     ? process.env.DB_NAME
     : path.join(rootpath(), process.env.DB_NAME),
   entities: [
-    !!process.env.DEV
+    isDev()
       ? path.join('dist', '**', '*.entity{.ts,.js}')
       : path.join(__dirname, '**', '*.entity{.ts,.js}'),
   ],
   migrationsTableName: 'migrations_ls',
   migrations: [
-    !!process.env.DEV
+    isDev()
       ? path.join('dist', '**', 'migrations', '*{.ts,.js}')
       : path.join(__dirname, 'migrations', '*{.ts,.js}'),
   ],
   subscribers: [
-    !!process.env.DEV
+    isDev()
       ? path.join('dist', '**', '*.subscriber{.ts,.js}')
       : path.join(__dirname, '**', '*.subscriber{.ts,.js}'),
   ],

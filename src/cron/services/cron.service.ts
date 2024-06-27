@@ -26,7 +26,10 @@ export class CronService {
   ) {}
 
   isDev(): boolean {
-    return !!this.configService.get('DEV');
+    return (
+      !!this.configService.get('DEV') &&
+      this.configService.get('DEV') !== 'false'
+    );
   }
 
   @Cron(CronExpression.EVERY_SECOND, {

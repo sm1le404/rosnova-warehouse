@@ -17,6 +17,7 @@ import {
   I18nValidationPipe,
 } from 'nestjs-i18n';
 import { ArgumentsHost } from '@nestjs/common';
+import { clearDir } from './clearUpdate';
 
 async function bootstrap() {
   let appParams: NestApplicationOptions = {
@@ -97,7 +98,11 @@ async function bootstrap() {
   app.enable('trust proxy');
   app.enableShutdownHooks();
 
-  await app.listen(process.env.APP_PORT ?? 3000, '0.0.0.0');
+  await app.listen(process.env?.APP_PORT ?? 3000, '0.0.0.0');
 }
 
 bootstrap();
+
+if (process.env?.CLEAR_UPDATE_DIR && process.env.CLEAR_UPDATE_DIR === 'Y') {
+  clearDir(process.env.ROOT);
+}

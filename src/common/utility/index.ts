@@ -6,3 +6,5 @@ export * from './number';
 export * from './format-date';
 export * from './is-root.util';
 export * from './is-operator-last-shift';
+export * from './is-dev';
+export * from './is-darwin';
