@@ -103,6 +103,7 @@ async function bootstrap() {
 
 bootstrap();
 
+//Необходимо для очистки сразу после обновления
 if (process.env?.CLEAR_UPDATE_DIR && process.env.CLEAR_UPDATE_DIR === 'Y') {
   clearDir(process.env.ROOT);
 }

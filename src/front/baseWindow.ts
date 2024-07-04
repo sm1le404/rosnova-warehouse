@@ -7,13 +7,19 @@ import {
   utilityProcess,
   autoUpdater,
   dialog,
+  ipcMain,
 } from 'electron';
 import path from 'path';
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { isDarwin } from '../common/utility';
 import { updateElectronApp, UpdateSourceType } from 'update-electron-app';
 import { APP_STARTED_MESS, APP_STORE_URL } from './updater.conf';
 import MessageBoxOptions = Electron.MessageBoxOptions;
+import {
+  envirmomentFields,
+  getEnvValue,
+  setEnvValue,
+} from '../common/utility/environment';
 
 export class BaseWindow {
   /**
@@ -44,12 +50,28 @@ export class BaseWindow {
     const appName = app.getPath('exe');
     const devMode =
       appName.endsWith(`Electron`) || appName.endsWith(`electron.exe`);
+    const extEnvPath = `${app.getPath('userData')}${path.sep}.env`;
 
-    //on install process
+    //on install process close base window
     if (require('electron-squirrel-startup')) app.quit();
 
     app.once('ready', () => {
       this.createWindow(devMode, startDir, appName);
+
+      ipcMain.handle('saveSettings', async (event, params: object) => {
+        envirmomentFields.forEach((item) => {
+          setEnvValue(extEnvPath, item.code, '');
+        });
+
+        for (const [key, value] of Object.entries(params)) {
+          setEnvValue(extEnvPath, key, value);
+        }
+      });
+
+      ipcMain.handle('reloadApp', async () => {
+        app.relaunch();
+        app.exit();
+      });
     });
 
     app.on('activate', () => {
@@ -238,7 +260,18 @@ export class BaseWindow {
   registerGlobalShortcuts() {
     globalShortcut.register('CommandOrControl+F2', () => {
       for (const window of BrowserWindow.getAllWindows()) {
-        window.webContents.send('show-server-log');
+        window.webContents.send('toggleServerLog');
+      }
+    });
+
+    globalShortcut.register('Shift+F4', () => {
+      const extEnvPath = `${app.getPath('userData')}${path.sep}.env`;
+      envirmomentFields.forEach((item) => {
+        item.value = getEnvValue(extEnvPath, item.code) ?? '';
+      });
+
+      for (const window of BrowserWindow.getAllWindows()) {
+        window.webContents.send('toggleSettings', envirmomentFields);
       }
     });
   }

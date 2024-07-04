@@ -9,3 +9,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
     ipcRenderer.on(channel, listener);
   },
 });
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  saveSettings: (param) => ipcRenderer.invoke('saveSettings', param),
+  reloadApp: () => ipcRenderer.invoke('reloadApp'),
+});

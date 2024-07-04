@@ -50,7 +50,7 @@ import { APP_STARTED_MESS } from './front/updater.conf';
     KafkaModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', path.join(rootpath(), '.env')],
+      envFilePath: [path.join(rootpath(), '.env'), '.env'],
     }),
     CacheModule.register({
       isGlobal: true,
