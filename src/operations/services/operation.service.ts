@@ -202,7 +202,7 @@ export class OperationService extends CommonService<Operation> {
     );
   }
 
-  async fixProgressOperations(waitMinutes: number = 30) {
+  async fixProgressOperations(waitMinutes: number = 10) {
     const date = Date.now() / 1000 - waitMinutes * 60;
     const operations = await this.operationRepository.find({
       where: {
@@ -220,7 +220,7 @@ export class OperationService extends CommonService<Operation> {
             },
           },
           {
-            status: OperationStatus.FINISHED,
+            status: OperationStatus.STOPPED,
           },
         );
       }

@@ -137,11 +137,7 @@ export class DeviceTopazService extends AbstractDispenser {
     const operation = await this.operationRepository.findOneOrFail({
       where: {
         id: payload.operationId,
-        status: In([
-          OperationStatus.INTERRUPTED,
-          OperationStatus.STOPPED,
-          OperationStatus.STARTED,
-        ]),
+        status: Not(In([OperationStatus.CREATED, OperationStatus.FINISHED])),
         type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
       },
       relations: {
@@ -150,10 +146,13 @@ export class DeviceTopazService extends AbstractDispenser {
       },
     });
 
-    if (operation.status === OperationStatus.STARTED) {
+    if (
+      operation.status === OperationStatus.STARTED ||
+      operation.status === OperationStatus.PROGRESS
+    ) {
       this.logger.error(
         `Попытка зафиксировать сломанную операцию ${operation.id}, 
-            зависла в стартовом статусе`,
+            зависла в статусе: ${operation.status}`,
       );
     }
 
