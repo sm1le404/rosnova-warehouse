@@ -165,9 +165,12 @@ export class DeviceTopazService extends AbstractDispenser {
     }
 
     if (operation?.tank?.addressId) {
+      const comId = ComHelper.comToNumber(
+        this.configService.get('TANK_PORT') ?? 'COM1',
+      );
       await this.deviceTankService.readCommand(
         operation.tank.addressId,
-        operation.tank.comId,
+        operation.tank?.comId ?? comId,
       );
     }
 
