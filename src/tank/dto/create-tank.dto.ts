@@ -46,6 +46,16 @@ export class CreateTankDto {
   })
   sortIndex: number;
 
+  @ApiProperty({ required: false, description: 'Адрес COM порта' })
+  @IsOptional()
+  @IsInt({
+    message: i18nValidationMessage('validation.IsInt'),
+  })
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
+  comId?: number;
+
   @ApiProperty({ required: false, description: 'Адрес на COM порте' })
   @IsOptional()
   @IsInt({

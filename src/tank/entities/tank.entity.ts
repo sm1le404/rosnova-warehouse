@@ -115,4 +115,8 @@ export class Tank extends CommonEntity {
     eager: false,
   })
   tankHistory?: TankHistory[];
+
+  @ApiProperty({ required: true, description: 'COM порт' })
+  @Column({ type: 'int', nullable: true })
+  comId?: number;
 }

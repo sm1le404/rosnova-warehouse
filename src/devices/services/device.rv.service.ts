@@ -76,7 +76,10 @@ export class DeviceRvService extends AbstractDispenser {
     }
 
     if (operation?.tank?.addressId) {
-      await this.deviceTankService.readCommand(operation.tank.addressId);
+      await this.deviceTankService.readCommand(
+        operation.tank.addressId,
+        operation.tank.comId,
+      );
     }
 
     const tankState = await this.tankRepository.findOne({

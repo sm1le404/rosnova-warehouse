@@ -4,7 +4,7 @@ import {
   DispenserCommand,
   DispenserStatusEnum,
 } from '../enums/dispenser.enum';
-import { BadRequestException, GoneException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { LogDirection, logDispensers } from '../../common/utility/rootpath';
 import { CommandInterface } from '../interfaces/command.interface';
 
@@ -14,6 +14,10 @@ export class DeviceDispenser {
   private commandList: Array<CommandInterface> = [];
 
   protected static MAX_RESPONSE_BYTES = 53;
+
+  protected static MAX_WRITE_TIMES = 25; // 10 сек
+
+  protected static WRITE_CHECK_INTERVAL = 400; // мс
 
   private static instance: DeviceDispenser[] = [];
 
@@ -75,6 +79,7 @@ export class DeviceDispenser {
 
   async executeLastCommand(): Promise<Array<any>> {
     if (this.commandList.length) {
+      let counter = 0;
       this.isBusyState = true;
       const lastCommand = this.commandList.shift();
       this.lastCommand = lastCommand.command;
@@ -83,7 +88,7 @@ export class DeviceDispenser {
       this.serialPort.write(buffer, (errorData) => {
         if (errorData instanceof Error) {
           this.status = DispenserStatusEnum.MESSAGE_COMPLETE;
-          throw new GoneException(errorData);
+          return [];
         }
       });
 
@@ -117,7 +122,13 @@ export class DeviceDispenser {
             );
             resolve(result);
           }
-        }, 400);
+          counter++;
+
+          if (counter === DeviceDispenser.MAX_WRITE_TIMES) {
+            this.resolveHelper(intervalCheckCompileStatus);
+            resolve([]);
+          }
+        }, DeviceDispenser.WRITE_CHECK_INTERVAL);
       });
     }
 
@@ -186,7 +197,7 @@ export class DeviceDispenser {
           const executeResult = await this.executeLastCommand();
           resolve(executeResult);
         }
-      }, 400);
+      }, DeviceDispenser.WRITE_CHECK_INTERVAL);
     });
   }
 }

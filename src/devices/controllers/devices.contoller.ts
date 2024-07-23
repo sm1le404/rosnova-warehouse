@@ -81,7 +81,7 @@ export class DevicesContoller {
       console.log(
         this.eventEmitter.emit(
           DeviceEvents.UPDATE_TANK_STATE,
-          new TankUpdateStateEvent(1, result),
+          new TankUpdateStateEvent(1, 1, result),
         ),
       );
     }, 1500);
@@ -110,9 +110,12 @@ export class DevicesContoller {
     return this.deviceDispenserService.callCommand(payload);
   }
 
-  @Get('tank/:addressId')
-  async readTankState(@Param('addressId') addressId: number) {
-    await this.deviceTankService.readTankByAddress(addressId);
+  @Get('tank/:comId/:addressId')
+  async readTankState(
+    @Param('addressId') addressId: number,
+    @Param('comId') comId: number,
+  ) {
+    await this.deviceTankService.readTankByAddress(addressId, comId);
   }
 
   @Post('dispenser/callCommandExt')
