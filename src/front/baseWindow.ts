@@ -55,6 +55,19 @@ export class BaseWindow {
     //on install process close base window
     if (require('electron-squirrel-startup')) app.quit();
 
+    //drop second instance
+    if (!app.requestSingleInstanceLock()) {
+      app.quit();
+    }
+
+    // Someone tried to run a second instance, we should focus our window.
+    app.on('second-instance', () => {
+      if (this.mainWindow) {
+        if (this.mainWindow.isMinimized()) this.mainWindow.restore();
+        this.mainWindow.focus();
+      }
+    });
+
     app.once('ready', () => {
       this.createWindow(devMode, startDir, appName);
 

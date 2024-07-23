@@ -28,7 +28,6 @@ export class DeviceDispenserService implements OnModuleDestroy {
     protected readonly logger: LoggerService,
     private readonly settingsService: SettingsService,
     private readonly deviceTopazService: DeviceTopazService,
-    private readonly deviceR: DeviceTopazService,
     private readonly deviceTestService: DeviceTestService,
     private readonly deviceRvService: DeviceRvService,
   ) {

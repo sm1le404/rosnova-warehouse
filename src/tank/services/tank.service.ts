@@ -1,6 +1,6 @@
 import { CommonService } from '../../common/services/common.service';
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
-import { IsNull, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, IsNull, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../entities/tank.entity';
 import { DeviceInfoType } from '../../devices/types/device.info.type';
@@ -75,16 +75,32 @@ export class TankService extends CommonService<Tank> {
     }
   }
 
-  async updateState(addressId: number, payload: DeviceInfoType): Promise<void> {
+  async updateState(
+    addressId: number,
+    comId: number,
+    payload: DeviceInfoType,
+  ): Promise<void> {
     try {
+      const filter: FindOptionsWhere<Tank>[] = [
+        {
+          addressId: addressId,
+          comId: IsNull(),
+        },
+        {
+          addressId: addressId,
+          comId: comId,
+        },
+      ];
+
       const tank = await this.tankRepository.findOne({
-        where: { addressId },
+        where: filter,
         relations: {
           fuelHolder: true,
           fuel: true,
           refinery: true,
         },
       });
+
       if (!tank) {
         return;
       }

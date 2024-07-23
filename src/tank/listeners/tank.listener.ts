@@ -10,7 +10,11 @@ export class TankListener {
 
   @OnEvent(DeviceEvents.UPDATE_TANK_STATE)
   async handleDispenserStartedEvent(event: TankUpdateStateEvent) {
-    await this.tankService.updateState(event.addressId, event.payload);
+    await this.tankService.updateState(
+      event.addressId,
+      event.comId,
+      event.payload,
+    );
   }
 
   @OnEvent(TankEventEnum.CLEAR_DOCS)

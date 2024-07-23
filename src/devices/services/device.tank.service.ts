@@ -13,7 +13,7 @@ import { DeviceNames } from '../enums';
 import { DeviceInfoType } from '../types/device.info.type';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DeviceEvents } from '../enums/device-events.enum';
-import { TankUpdateStateEvent } from '../../tank/events/tank-update-state.event';
+import { TankUpdateStateEvent } from '../../tank/events';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../tank/entities/tank.entity';
 import {
@@ -27,10 +27,11 @@ import { LogDirection, logTanks } from '../../common/utility/rootpath';
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
+import { ComHelper } from '../../common/utility';
 
 @Injectable()
 export class DeviceTankService implements OnModuleDestroy {
-  private serialPort: SerialPort;
+  private readonly serialPortList: Record<string, SerialPort> = {};
 
   private message: Array<any> = [];
 
@@ -44,64 +45,100 @@ export class DeviceTankService implements OnModuleDestroy {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
   ) {
-    SerialPort.list()
-      .then((res) => {
-        const tankPath = this.configService.get('TANK_PORT') ?? 'COM1';
-        const hasPath = res.find((port) => port.path === tankPath);
-
-        if (!hasPath) {
-          throw new NotFoundException(`${tankPath} порт резервуара не найден`);
-        }
-
-        let portParams: Partial<
-          SerialPortOpenOptions<WindowsBindingInterface>
-        > = {
-          baudRate: 19200,
-          dataBits: 8,
-          parity: 'none',
-          stopBits: 2,
-          autoOpen: false,
-        };
-
+    this.tankRepository
+      .createQueryBuilder(`tank`)
+      .addSelect(`comId`)
+      .groupBy(`comId`)
+      .getMany()
+      .then((result) => {
         const cfg = this.configService.get('TANK_PORT_CFG');
-        try {
-          const cfgParams: Partial<
-            SerialPortOpenOptions<WindowsBindingInterface>
-          > = JSON.parse(cfg);
-          portParams = { ...portParams, ...cfgParams };
-        } catch (e) {}
+        let comList: Array<string> = Array.from(
+          new Set(
+            result
+              .filter((item) => item.comId > 0)
+              .map((item) => ComHelper.numberToCom(item.comId)),
+          ),
+        );
+        if (comList.length === 0) {
+          comList.push(this.configService.get('TANK_PORT') ?? 'COM1');
+        }
+        comList.forEach((tankPath) => {
+          if (!this.serialPortList[tankPath]) {
+            SerialPort.list()
+              .then((res) => {
+                const hasPath = res.find((port) => port.path === tankPath);
 
-        this.serialPort = new SerialPort({
-          path: this.configService.get('TANK_PORT') ?? 'COM1',
-          ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
-        });
+                if (!hasPath) {
+                  throw new NotFoundException(
+                    `${tankPath} порт резервуара не найден`,
+                  );
+                }
 
-        this.serialPort.on('data', (data) => {
-          try {
-            const result = this.readState(data);
-            if (!!result) {
-              this.eventEmitter.emit(
-                DeviceEvents.UPDATE_TANK_STATE,
-                new TankUpdateStateEvent(this.currentAddressId, result),
-              );
-            }
-          } catch (e) {
-            this.logError(e);
+                let portParams: Partial<
+                  SerialPortOpenOptions<WindowsBindingInterface>
+                > = {
+                  baudRate: 19200,
+                  dataBits: 8,
+                  parity: 'none',
+                  stopBits: 2,
+                  autoOpen: false,
+                };
+
+                try {
+                  const cfgParams: Partial<
+                    SerialPortOpenOptions<WindowsBindingInterface>
+                  > = JSON.parse(cfg);
+                  portParams = { ...portParams, ...cfgParams };
+                } catch (e) {}
+
+                this.serialPortList[tankPath] = new SerialPort({
+                  path: tankPath,
+                  ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
+                });
+
+                this.serialPortList[tankPath].on('data', (data) => {
+                  try {
+                    const result = this.readState(data);
+                    if (!!result) {
+                      this.eventEmitter.emit(
+                        DeviceEvents.UPDATE_TANK_STATE,
+                        new TankUpdateStateEvent(
+                          this.currentAddressId,
+                          ComHelper.comToNumber(tankPath),
+                          result,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    this.logError(e);
+                  }
+                });
+
+                this.serialPortList[tankPath].on('error', (data) => {
+                  this.logError(data);
+                  this.blockTanks(data, {
+                    comId: ComHelper.comToNumber(tankPath),
+                  });
+                });
+              })
+              .catch((e) => this.logError(e));
           }
         });
-
-        this.serialPort.on('error', (data) => {
-          this.logError(data);
-          this.blockTanks(data);
-        });
-      })
-      .catch((e) => this.logError(e));
+      });
   }
 
   onModuleDestroy(): any {
-    if (this.serialPort && this.serialPort.isOpen) {
-      this.serialPort.close();
-      this.blockTanks();
+    if (!!this.serialPortList) {
+      const ports = Object.keys(this.serialPortList);
+      if (ports.length > 0) {
+        ports.forEach((portNumber) => {
+          const serialPort: SerialPort = this.serialPortList[portNumber];
+          if (serialPort.isOpen) {
+            serialPort.close();
+          }
+        });
+        this.blockTanks();
+      }
     }
   }
 
@@ -203,8 +240,8 @@ export class DeviceTankService implements OnModuleDestroy {
   }
 
   async readTanks() {
-    if (!this.serialPort) {
-      this.logger.error(`Не могу продолжить чтение, порт недоступен`);
+    if (Object.keys(this.serialPortList).length === 0) {
+      this.logger.error(`Не могу продолжить чтение, порты недоступены`);
       return;
     }
     const tankList = await this.tankRepository.find({
@@ -218,16 +255,19 @@ export class DeviceTankService implements OnModuleDestroy {
       },
       take: 5,
     });
+    const comId = ComHelper.comToNumber(
+      this.configService.get('TANK_PORT') ?? 'COM1',
+    );
     for (const tank of tankList) {
-      await this.readCommand(tank.addressId);
+      await this.readCommand(tank.addressId, tank?.comId ?? comId);
     }
   }
 
-  async readTankByAddress(addressId: number) {
-    await this.readCommand(addressId);
+  async readTankByAddress(addressId: number, comId: number) {
+    await this.readCommand(addressId, comId);
   }
 
-  async readCommand(addressId: number) {
+  async readCommand(addressId: number, comId: number = 0) {
     const packet = [
       addressId,
       TankHelperParams.DATA_LENGTH,
@@ -241,37 +281,57 @@ export class DeviceTankService implements OnModuleDestroy {
       `Вызов команды ${tempData.inspect().toString()}`,
       LogDirection.OUT,
     );
-    this.serialPort.write(buffData, (data) => {
-      //Бьем ошибку только через 2 минуты, бывают сбои в ответах
-      if (data instanceof Error) {
-        this.logError(data);
-        this.blockTanks(data, {
-          addressId,
-          updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 60 * 2),
-        });
-      } else {
-        this.unblockTanks({ addressId });
-      }
-    });
+    this.serialPortList[ComHelper.numberToCom(comId)].write(
+      buffData,
+      (data) => {
+        //Бьем ошибку только через 2 минуты, бывают сбои в ответах
+        if (data instanceof Error) {
+          this.logError(data);
+          this.blockTanks(data, {
+            addressId,
+            comId,
+            updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 60 * 2),
+          });
+        } else {
+          this.unblockTanks({ addressId, comId });
+        }
+      },
+    );
   }
 
   async start() {
-    return new Promise((res, rej) => {
-      if (this.serialPort && !this.serialPort.isOpen) {
-        this.serialPort.open((data) => {
-          if (data instanceof Error) {
-            this.logError(data);
-            this.blockTanks(data);
-            return rej(data);
-          } else {
-            this.unblockTanks();
-            return res(true);
-          }
+    if (!!this.serialPortList) {
+      const ports = Object.keys(this.serialPortList);
+      if (ports.length > 0) {
+        const promisesList: Array<Promise<any>> = [];
+        ports.forEach((com) => {
+          promisesList.push(
+            new Promise((res, rej) => {
+              const serialPort: SerialPort = this.serialPortList[com];
+              if (!serialPort.isOpen) {
+                serialPort.open((data) => {
+                  if (data instanceof Error) {
+                    this.logError(data);
+                    this.blockTanks(data, {
+                      comId: ComHelper.comToNumber(com),
+                    });
+                    return rej(data);
+                  } else {
+                    this.unblockTanks({
+                      comId: ComHelper.comToNumber(com),
+                    });
+                    return res(true);
+                  }
+                });
+              } else {
+                return res(true);
+              }
+            }),
+          );
         });
-      } else {
-        return res(true);
+        await Promise.all(promisesList);
       }
-    });
+    }
   }
 
   private blockTanks(

@@ -46,6 +46,7 @@ import { SerialPortOpenOptions } from 'serialport/dist/serialport';
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
 import { AbstractDispenser } from '../classes/abstract.dispenser';
 import { DispenserCommandInterface } from '../dto/dispenser.command.interface';
+import { ComHelper } from '../../common/utility';
 
 @Injectable()
 export class DeviceTopazService extends AbstractDispenser {
@@ -80,7 +81,8 @@ export class DeviceTopazService extends AbstractDispenser {
             SerialPort.list()
               .then((res) => {
                 const hasPath = res.find(
-                  (port) => port.path === `COM${dispenser.comId}`,
+                  (port) =>
+                    port.path === ComHelper.numberToCom(dispenser.comId),
                 );
 
                 let portParams: Partial<
@@ -103,12 +105,14 @@ export class DeviceTopazService extends AbstractDispenser {
 
                 if (!hasPath) {
                   throw new NotFoundException(
-                    `COM${dispenser.comId} порт колонки ${dispenser.id} не найден`,
+                    `${ComHelper.numberToCom(dispenser.comId)} порт колонки ${
+                      dispenser.id
+                    } не найден`,
                   );
                 }
 
                 this.serialPortList[dispenser.comId] = new SerialPort({
-                  path: `COM${dispenser.comId}`,
+                  path: ComHelper.numberToCom(dispenser.comId),
                   ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
                 });
               })
@@ -161,7 +165,10 @@ export class DeviceTopazService extends AbstractDispenser {
     }
 
     if (operation?.tank?.addressId) {
-      await this.deviceTankService.readCommand(operation.tank.addressId);
+      await this.deviceTankService.readCommand(
+        operation.tank.addressId,
+        operation.tank.comId,
+      );
     }
 
     //Запись реально залитого количества
