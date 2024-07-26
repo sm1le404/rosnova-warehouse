@@ -12,6 +12,7 @@ import date from 'date-and-time';
 import { SettingsService } from '../../settings/services/settings.service';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { SettingsKey } from '../../settings/enums';
+import { valueRound } from '../../common/utility';
 
 @Injectable()
 export class ReportMx1Service {
@@ -93,7 +94,7 @@ export class ReportMx1Service {
       if (item.docWeight * 0.0065 < weightDiff && item.factWeight > 0) {
         realWeight = realWeight - (weightDiff - item.docWeight * 0.0065);
       }
-      realWeight = realWeight / 1000;
+      realWeight = valueRound(realWeight / 1000, 3);
 
       let worksheet = page1;
       let startPosition = fistPageStart;
@@ -111,19 +112,21 @@ export class ReportMx1Service {
       ).value = `${item.fuel?.fullName} ${item.refinery?.shortName}`;
       worksheet.getCell(`G${startPosition + number}`).value = `т`;
       worksheet.getCell(`I${startPosition + number}`).value = `168`;
-      worksheet.getCell(
-        `L${startPosition + number}`,
-      ).value = `${realWeight.toFixed(3)}`;
+      worksheet.getCell(`L${startPosition + number}`).value = `${valueRound(
+        realWeight,
+        3,
+      )}`;
       worksheet.getCell(`P${startPosition + number}`).value = `0`;
 
       number++;
     });
 
-    page1.getCell(`L49`).value = firstPageWeight.toFixed(3);
+    page1.getCell(`L49`).value = valueRound(firstPageWeight, 3);
     if (secondPageWeight > 0) {
-      page2.getCell(`N28`).value = secondPageWeight.toFixed(3);
+      page2.getCell(`N28`).value = valueRound(secondPageWeight, 3);
     }
-    page2.getCell(`N29`).value = (firstPageWeight + secondPageWeight).toFixed(
+    page2.getCell(`N29`).value = valueRound(
+      firstPageWeight + secondPageWeight,
       3,
     );
 

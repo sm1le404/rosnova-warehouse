@@ -9,3 +9,4 @@ export * from './is-operator-last-shift';
 export * from './is-dev';
 export * from './is-darwin';
 export * from './com.helper';
+export * from './value-round';
