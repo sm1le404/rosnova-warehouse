@@ -1,6 +1,6 @@
 {
   "name": "rosnova-warehouse",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Portable version of rwh",
   "author": "Rosnova TEAM",
   "private": true,
