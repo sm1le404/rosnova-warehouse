@@ -229,20 +229,29 @@ export class DeviceRvService extends AbstractDispenser {
      * по итогу останаливаем операцию в том состоянии в котором была
      */
     if (payload.command === DispenserCommand.FLUSH) {
-      await this.dispenserRepository.update(
-        {
-          id: dispenser.id,
-        },
-        {
-          statusId:
-            dispenser?.error?.length > 0
-              ? DispenserStatus.TRK_OFF_RK_OFF
-              : DispenserStatus.MANUAL_MODE,
-          error: '',
-        },
-      );
+      if (dispenser?.error?.length) {
+        await this.dispenserRepository.update(
+          {
+            id: dispenser.id,
+          },
+          {
+            statusId: DispenserStatus.TRK_OFF_RK_OFF,
+            error: '',
+          },
+        );
+      }
 
-      if (operation) {
+      if (operation && dispenser?.error?.length === 0) {
+        await this.dispenserRepository.update(
+          {
+            id: dispenser.id,
+          },
+          {
+            statusId: DispenserStatus.MANUAL_MODE,
+            error: '',
+          },
+        );
+
         await this.operationRepository.update(
           {
             id: operation.id,
@@ -252,6 +261,13 @@ export class DeviceRvService extends AbstractDispenser {
           },
         );
       }
+    }
+
+    /**
+     * По дефолту возвращаем текущее состояние
+     */
+    if (payload.command === DispenserCommand.STATUS) {
+      return [0, dispenser.id, dispenser.statusId];
     }
   }
 
