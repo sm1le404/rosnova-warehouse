@@ -6,7 +6,10 @@ import { DispenserQueue } from '../entities/dispenser.queue.entity';
 import { GetQueStateDto } from '../dto';
 import { Dispenser } from '../entities/dispenser.entity';
 import { DispenserService } from './dispenser.service';
-import { DispenserRVStatus } from '../../devices/enums/dispenser.rv.enum';
+import {
+  DispenserRVCondition,
+  DispenserRVStatus,
+} from '../../devices/enums/dispenser.rv.enum';
 import { DispenserStatus } from '../../devices/enums/dispenser.enum';
 import { DispenserRvResponseDto } from '../../devices/dto/dispenser.rv.response.dto';
 import { Operation } from '../../operations/entities/operation.entity';
@@ -36,7 +39,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
   async checkState(
     payload: GetQueStateDto,
   ): Promise<DispenserRvResponseDto | DispenserRvSimpleResponseDto | Object> {
-    let state = 1;
+    let state = DispenserRVCondition.OPERATION_PROGRESS;
     let result = {};
 
     try {
@@ -63,6 +66,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       if (payload.state === DispenserRVStatus.ERROR) {
         dispenserData = {
           error: payload?.error ? payload.error : `Произошла ошибка`,
+          statusId: DispenserStatus.TRK_OFF_RK_OFF,
         };
         if (operation?.id) {
           await this.operationRepository.update(
@@ -138,9 +142,15 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         );
       }
 
+      if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
+        state = DispenserRVCondition.CLEAR_ERROR;
+      } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
+        state = DispenserRVCondition.MANUAL_STOP;
+      }
+
       result = {
         idTrk: payload.idTrk,
-        status: 0,
+        status: state,
         idOp: 0,
         doseRef: 0,
         fuelName: '',
@@ -151,7 +161,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       if (operation?.id) {
         result = {
           ...result,
-          status: 1,
+          status: DispenserRVCondition.OPERATION_PROGRESS,
           idOp: `1`,
           doseRef: operation.docVolume,
           fuelNameRu: operation.fuel.name,
@@ -160,7 +170,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         };
       }
     } catch (e) {
-      state = 0;
+      state = DispenserRVCondition.WAITING;
       this.logger.error(e);
     }
 

@@ -24,6 +24,7 @@ import {
 } from '../../operations/enums';
 import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { DispenserCommand, DispenserStatus } from '../enums/dispenser.enum';
 
 @Injectable()
 export class DeviceRvService extends AbstractDispenser {
@@ -208,7 +209,50 @@ export class DeviceRvService extends AbstractDispenser {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async callCommand(payload: DispenserCommandInterface) {
-    //nothing
+    const dispenser = await this.dispenserRepository.findOneOrFail({
+      where: payload.dispenser,
+    });
+
+    const operation = await this.operationRepository.findOne({
+      where: {
+        dispenser: {
+          id: dispenser.id,
+        },
+        status: Not(OperationStatus.FINISHED),
+        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+      },
+    });
+
+    /**
+     * Поступает команда сброса, если была ошибка - то считаем что пытаемся сбросить ошибку
+     * если ошибки не было - то значит пытаемся зафиксировать результат
+     * по итогу останаливаем операцию в том состоянии в котором была
+     */
+    if (payload.command === DispenserCommand.FLUSH) {
+      await this.dispenserRepository.update(
+        {
+          id: dispenser.id,
+        },
+        {
+          statusId:
+            dispenser?.error?.length > 0
+              ? DispenserStatus.TRK_OFF_RK_OFF
+              : DispenserStatus.MANUAL_MODE,
+          error: '',
+        },
+      );
+
+      if (operation) {
+        await this.operationRepository.update(
+          {
+            id: operation.id,
+          },
+          {
+            status: OperationStatus.STOPPED,
+          },
+        );
+      }
+    }
   }
 
   async start() {

@@ -5,3 +5,10 @@ export enum DispenserRVStatus {
   DONE = 4, // ТРК выключена . Отпуск топлива закончен.
   ERROR = 5, //Произошла ошибка
 }
+
+export enum DispenserRVCondition {
+  WAITING = 0, // ничего происходит
+  OPERATION_PROGRESS = 1, // идет операция
+  MANUAL_STOP = 2, // ручная остановка колонки
+  CLEAR_ERROR = 4, // очистка ошибки колонки
+}
