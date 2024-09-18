@@ -39,7 +39,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
   async checkState(
     payload: GetQueStateDto,
   ): Promise<DispenserRvResponseDto | DispenserRvSimpleResponseDto | Object> {
-    let state = DispenserRVCondition.OPERATION_PROGRESS;
     let result = {};
 
     try {
@@ -142,10 +141,14 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         );
       }
 
+      let state = DispenserRVCondition.WAITING;
+
       if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
         state = DispenserRVCondition.CLEAR_ERROR;
       } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
         state = DispenserRVCondition.MANUAL_STOP;
+      } else if (operation?.id) {
+        state = DispenserRVCondition.OPERATION_PROGRESS;
       }
 
       result = {
@@ -161,7 +164,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       if (operation?.id) {
         result = {
           ...result,
-          status: DispenserRVCondition.OPERATION_PROGRESS,
           idOp: `1`,
           doseRef: operation.docVolume,
           fuelNameRu: operation.fuel.name,
@@ -170,7 +172,9 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         };
       }
     } catch (e) {
-      state = DispenserRVCondition.WAITING;
+      result = {
+        status: DispenserRVCondition.WAITING,
+      };
       this.logger.error(e);
     }
 
@@ -179,7 +183,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       payload.state === DispenserRVStatus.DONE
     ) {
       result = {
-        status: state,
+        status: DispenserRVCondition.OPERATION_PROGRESS,
       };
     }
 
