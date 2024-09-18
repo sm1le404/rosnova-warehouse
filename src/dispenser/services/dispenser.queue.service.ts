@@ -39,7 +39,15 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
   async checkState(
     payload: GetQueStateDto,
   ): Promise<DispenserRvResponseDto | DispenserRvSimpleResponseDto | Object> {
-    let result = {};
+    let result: Object = {
+      idTrk: payload.idTrk,
+      status: DispenserRVCondition.WAITING,
+      idOp: 0,
+      doseRef: 0,
+      fuelName: '',
+      fuelNameRu: '',
+      tankNum: 0,
+    };
 
     try {
       const dispenser = await this.dispenserService.getRepository().findOne({
@@ -141,29 +149,22 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         );
       }
 
-      let state = DispenserRVCondition.WAITING;
-
       if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
-        state = DispenserRVCondition.CLEAR_ERROR;
+        return {
+          ...result,
+          status: DispenserRVCondition.CLEAR_ERROR,
+        };
       } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
-        state = DispenserRVCondition.MANUAL_STOP;
-      } else if (operation?.id) {
-        state = DispenserRVCondition.OPERATION_PROGRESS;
+        return {
+          ...result,
+          status: DispenserRVCondition.MANUAL_STOP,
+        };
       }
-
-      result = {
-        idTrk: payload.idTrk,
-        status: state,
-        idOp: 0,
-        doseRef: 0,
-        fuelName: '',
-        fuelNameRu: '',
-        tankNum: 0,
-      };
 
       if (operation?.id) {
         result = {
           ...result,
+          status: DispenserRVCondition.OPERATION_PROGRESS,
           idOp: `1`,
           doseRef: operation.docVolume,
           fuelNameRu: operation.fuel.name,
@@ -176,6 +177,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         status: DispenserRVCondition.WAITING,
       };
       this.logger.error(e);
+      return result;
     }
 
     if (
