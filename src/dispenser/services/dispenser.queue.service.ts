@@ -56,6 +56,18 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         },
       });
 
+      if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
+        return {
+          ...result,
+          status: DispenserRVCondition.CLEAR_ERROR,
+        };
+      } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
+        return {
+          ...result,
+          status: DispenserRVCondition.MANUAL_STOP,
+        };
+      }
+
       const operation = await this.operationRepository.findOne({
         where: {
           type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
@@ -147,18 +159,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           },
           dispenserData,
         );
-      }
-
-      if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
-        return {
-          ...result,
-          status: DispenserRVCondition.CLEAR_ERROR,
-        };
-      } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
-        return {
-          ...result,
-          status: DispenserRVCondition.MANUAL_STOP,
-        };
       }
 
       if (operation?.id) {
