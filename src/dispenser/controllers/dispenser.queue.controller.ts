@@ -24,10 +24,16 @@ export class DispenserQueueController {
   @ApiResponse({ type: () => Dispenser, isArray: true })
   async checkState(@Body() payload: GetQueStateDto): Promise<any> {
     try {
-      await logDispensers(`${JSON.stringify(payload)}`, LogDirection.OUT);
+      await logDispensers(`${JSON.stringify(payload)}`, LogDirection.IN);
     } catch (e) {
       console.log(`[${new Date().toUTCString()}] ${JSON.stringify(payload)}`);
     }
-    return this.dispenserQueueService.checkState(payload);
+    const result = this.dispenserQueueService.checkState(payload);
+    try {
+      await logDispensers(`${JSON.stringify(result)}`, LogDirection.OUT);
+    } catch (e) {
+      console.log(`[${new Date().toUTCString()}] ${JSON.stringify(result)}`);
+    }
+    return result;
   }
 }
