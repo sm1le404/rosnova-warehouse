@@ -121,7 +121,10 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         result = {
           ...result,
           idOp: `1`,
-          status: DispenserRVCondition.OPERATION_PROGRESS,
+          status:
+            payload.state === DispenserRVStatus.ERROR
+              ? DispenserRVCondition.WAITING
+              : DispenserRVCondition.OPERATION_PROGRESS,
           doseRef: operation.docVolume,
           fuelNameRu: operation.fuel.name,
           fuelName: CyrillicToTranslit().transform(operation.fuel.name),
