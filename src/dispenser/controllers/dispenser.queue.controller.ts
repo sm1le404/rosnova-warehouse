@@ -26,13 +26,21 @@ export class DispenserQueueController {
     try {
       await logDispensers(`${JSON.stringify(payload)}`, LogDirection.IN);
     } catch (e) {
-      console.log(`[${new Date().toUTCString()}] ${JSON.stringify(payload)}`);
+      console.log(
+        `[${new Date().toUTCString()}] ${LogDirection.IN} ${JSON.stringify(
+          payload,
+        )}`,
+      );
     }
-    const result = this.dispenserQueueService.checkState(payload);
+    const result = await this.dispenserQueueService.checkState(payload);
     try {
       await logDispensers(`${JSON.stringify(result)}`, LogDirection.OUT);
     } catch (e) {
-      console.log(`[${new Date().toUTCString()}] ${JSON.stringify(result)}`);
+      console.log(
+        `[${new Date().toUTCString()}] ${LogDirection.OUT} ${JSON.stringify(
+          result,
+        )}`,
+      );
     }
     return result;
   }
