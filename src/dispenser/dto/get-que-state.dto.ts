@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsOptional, IsPositive } from 'class-validator';
+import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 import { i18nValidationMessage } from 'nestjs-i18n';
 
 export class GetQueStateDto {
@@ -18,13 +18,13 @@ export class GetQueStateDto {
   @ApiProperty({ description: 'Выдаваемая доза', required: false })
   @IsOptional()
   @IsNumber(
-    {},
+    { allowInfinity: false, allowNaN: false },
     {
       message: i18nValidationMessage('validation.IsNumber'),
     },
   )
-  @IsPositive({
-    message: i18nValidationMessage('validation.IsPositive'),
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
   })
   doseIssCurr?: number;
 

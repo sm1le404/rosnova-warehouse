@@ -56,18 +56,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         },
       });
 
-      if (dispenser.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
-        return {
-          ...result,
-          status: DispenserRVCondition.CLEAR_ERROR,
-        };
-      } else if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
-        return {
-          ...result,
-          status: DispenserRVCondition.MANUAL_STOP,
-        };
-      }
-
       const operation = await this.operationRepository.findOne({
         where: {
           type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
@@ -81,44 +69,25 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         },
       });
 
-      let dispenserData: Partial<Dispenser> = {};
+      let dispenserData: Partial<Dispenser> = {
+        id: dispenser.id,
+      };
+
+      let operationStatus: OperationStatus = OperationStatus.PROGRESS;
+
       if (payload.state === DispenserRVStatus.ERROR) {
         dispenserData = {
           error: payload?.error ? payload.error : `Произошла ошибка`,
           statusId: DispenserStatus.TRK_OFF_RK_OFF,
         };
-        if (operation?.id) {
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              id: operation.id,
-              status: OperationStatus.INTERRUPTED,
-              dispenserError: true,
-              factVolume: payload.doseIssCurr,
-            },
-          );
-        }
+        operationStatus = OperationStatus.INTERRUPTED;
       } else if (payload.state === DispenserRVStatus.DONE) {
         dispenserData = {
           error: ``,
           statusId: DispenserStatus.DONE,
           currentCounter: dispenser.currentCounter + payload.doseIssCurr,
         };
-        if (operation?.id) {
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              id: operation.id,
-              status: OperationStatus.STOPPED,
-              dispenserError: false,
-              factVolume: payload.doseIssCurr,
-            },
-          );
-        }
+        operationStatus = OperationStatus.STOPPED;
       } else if (payload.state === DispenserRVStatus.TRK_OFF_RK_ON) {
         dispenserData = {
           error: ``,
@@ -129,25 +98,12 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           error: ``,
           statusId: DispenserStatus.PROCESS,
         };
-
-        if (operation?.id) {
-          await this.operationRepository.update(
-            {
-              id: operation.id,
-            },
-            {
-              id: operation.id,
-              status: OperationStatus.PROGRESS,
-              dispenserError: false,
-              factVolume: payload.doseIssCurr,
-            },
-          );
-        }
       } else if (payload.state === DispenserRVStatus.INITIALIZE) {
         dispenserData = {
           error: ``,
           statusId: DispenserStatus.INITIALIZE,
         };
+        operationStatus = OperationStatus.STARTED;
       }
 
       if (dispenser?.id) {
@@ -164,29 +120,41 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       if (operation?.id) {
         result = {
           ...result,
-          status: DispenserRVCondition.OPERATION_PROGRESS,
           idOp: `1`,
+          status: DispenserRVCondition.OPERATION_PROGRESS,
           doseRef: operation.docVolume,
           fuelNameRu: operation.fuel.name,
           fuelName: CyrillicToTranslit().transform(operation.fuel.name),
           tankNum: operation.tank?.addressId ?? operation.tank.id,
         };
+
+        await this.operationRepository.update(
+          {
+            id: operation.id,
+          },
+          {
+            id: operation.id,
+            status: operationStatus,
+            dispenserError: !!dispenser?.error?.length,
+            factVolume: payload.doseIssCurr,
+          },
+        );
+      }
+
+      if (dispenser.statusId === DispenserStatus.MANUAL_MODE) {
+        return {
+          ...result,
+          status: dispenser?.error?.length
+            ? DispenserRVCondition.CLEAR_ERROR
+            : DispenserRVCondition.MANUAL_STOP,
+        };
       }
     } catch (e) {
       result = {
+        ...result,
         status: DispenserRVCondition.WAITING,
       };
       this.logger.error(e);
-      return result;
-    }
-
-    if (
-      payload.state === DispenserRVStatus.PROCESS ||
-      payload.state === DispenserRVStatus.DONE
-    ) {
-      result = {
-        status: DispenserRVCondition.OPERATION_PROGRESS,
-      };
     }
 
     return result;

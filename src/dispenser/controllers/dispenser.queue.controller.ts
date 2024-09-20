@@ -9,6 +9,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Dispenser } from '../entities/dispenser.entity';
 import { DispenserQueueService } from '../services/dispenser.queue.service';
 import { GetQueStateDto } from '../dto';
+import { LogDirection, logDispensers } from '../../common/utility/rootpath';
 
 @ApiTags('Dispenser que')
 @Controller('dispenser/que')
@@ -21,7 +22,12 @@ export class DispenserQueueController {
     summary: 'Set dispenser state',
   })
   @ApiResponse({ type: () => Dispenser, isArray: true })
-  async find(@Body() payload: GetQueStateDto): Promise<any> {
+  async checkState(@Body() payload: GetQueStateDto): Promise<any> {
+    try {
+      await logDispensers(`${JSON.stringify(payload)}`, LogDirection.OUT);
+    } catch (e) {
+      console.log(`[${new Date().toUTCString()}] ${JSON.stringify(payload)}`);
+    }
     return this.dispenserQueueService.checkState(payload);
   }
 }

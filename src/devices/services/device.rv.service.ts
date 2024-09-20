@@ -213,62 +213,29 @@ export class DeviceRvService extends AbstractDispenser {
       where: payload.dispenser,
     });
 
-    const operation = await this.operationRepository.findOne({
-      where: {
-        dispenser: {
+    //Ответ приводим к топазовскому, чтобы не ловить вьетнамские флэшбеки
+    const responseData = [0, dispenser.id];
+
+    if (payload.command === DispenserCommand.FLUSH) {
+      await this.dispenserRepository.update(
+        {
           id: dispenser.id,
         },
-        status: Not(OperationStatus.FINISHED),
-        type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
-      },
-    });
+        {
+          statusId: DispenserStatus.MANUAL_MODE,
+        },
+      );
+      responseData.push(DispenserStatus.MANUAL_MODE);
 
-    /**
-     * Поступает команда сброса, если была ошибка - то считаем что пытаемся сбросить ошибку
-     * если ошибки не было - то значит пытаемся зафиксировать результат
-     * по итогу останаливаем операцию в том состоянии в котором была
-     */
-    if (payload.command === DispenserCommand.FLUSH) {
-      if (dispenser?.error?.length) {
-        await this.dispenserRepository.update(
-          {
-            id: dispenser.id,
-          },
-          {
-            statusId: DispenserStatus.TRK_OFF_RK_OFF,
-            error: '',
-          },
-        );
-      }
-
-      if (operation && dispenser?.error?.length === 0) {
-        await this.dispenserRepository.update(
-          {
-            id: dispenser.id,
-          },
-          {
-            statusId: DispenserStatus.MANUAL_MODE,
-            error: '',
-          },
-        );
-
-        await this.operationRepository.update(
-          {
-            id: operation.id,
-          },
-          {
-            status: OperationStatus.STOPPED,
-          },
-        );
-      }
+      return responseData;
     }
 
     /**
      * По дефолту возвращаем текущее состояние
      */
-    if (payload.command === DispenserCommand.STATUS) {
-      return [0, dispenser.id, dispenser.statusId];
-    }
+    responseData.push(dispenser.statusId);
+
+    return responseData;
   }
 
   async start() {
