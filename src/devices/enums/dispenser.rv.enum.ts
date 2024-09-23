@@ -4,6 +4,7 @@ export enum DispenserRVStatus {
   PROCESS = 3, // ТРК включена. Идет отпуск топлива.
   DONE = 4, // ТРК выключена . Отпуск топлива закончен.
   ERROR = 5, //Произошла ошибка
+  CREATE_OPERATION = 6, // Ждем заявки на создание операции
 }
 
 export enum DispenserRVCondition {
