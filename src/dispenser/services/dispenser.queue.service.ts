@@ -140,6 +140,9 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             status: operationStatus,
             dispenserError: !!dispenser?.error?.length,
             factVolume: payload.doseIssCurr,
+            factWeight: payload.mass,
+            docDensity: payload.dens,
+            docTemperature: payload.temp,
           },
         );
       }

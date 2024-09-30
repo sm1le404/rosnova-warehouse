@@ -28,6 +28,42 @@ export class GetQueStateDto {
   })
   doseIssCurr?: number;
 
+  @ApiProperty({ description: 'Выдаваемая масса', required: false })
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
+  mass?: number;
+
+  @ApiProperty({ description: 'Плотность', required: false })
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
+  dens?: number;
+
+  @ApiProperty({ description: 'Температура', required: false })
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  temp?: number;
+
   @ApiProperty({ description: 'Тескт ошибки', required: false })
   @IsOptional()
   error?: string;
