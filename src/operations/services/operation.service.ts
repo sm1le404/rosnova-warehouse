@@ -28,6 +28,9 @@ export class OperationService extends CommonService<Operation> {
 
   async create(createCommonEntity: DeepPartial<Operation>): Promise<Operation> {
     const common = this.getRepository().create(createCommonEntity);
+    if (createCommonEntity.tank.id === createCommonEntity?.sourceTank?.id) {
+      throw new BadRequestException('Выбран одинаковый резервуар');
+    }
     return this.getRepository().save(common);
   }
 
@@ -110,6 +113,19 @@ export class OperationService extends CommonService<Operation> {
             : common.docWeight - updateCommon.docWeight
           : common.docWeight,
       );
+
+      if (common.type === OperationType.MIXED) {
+        await this.changeTankState(
+          common.sourceTank.id,
+          common.type,
+          updateCommon.docVolume != common.docVolume
+            ? updateCommon.docVolume - common.docVolume
+            : common.docVolume,
+          updateCommon.docWeight != common.docWeight
+            ? updateCommon.docWeight - common.docWeight
+            : common.docWeight,
+        );
+      }
     }
     return updateResult;
   }
@@ -119,22 +135,20 @@ export class OperationService extends CommonService<Operation> {
     comment: string,
   ): Promise<Operation> {
     const common = await this.findOne(filter);
-    const withComment = await this.getRepository().save({ ...common, comment });
-    const removeResult = await this.getRepository().softRemove(withComment);
-    if (common?.id && common?.status === OperationStatus.FINISHED) {
-      await this.changeTankState(
-        common.tank.id,
-        common.type,
-        -common.docVolume,
-        -common.docWeight,
-      );
-    }
-    return removeResult;
+
+    await this.getRepository().save({ ...common, comment });
+
+    return this.commonDelete(common);
   }
 
   async delete(filter: FindOneOptions<Operation>): Promise<Operation> {
     const common = await this.findOne(filter);
+    return this.commonDelete(common);
+  }
+
+  private async commonDelete(common: Operation): Promise<Operation> {
     const removeResult = await this.getRepository().softRemove(common);
+
     if (common?.id && common?.status === OperationStatus.FINISHED) {
       await this.changeTankState(
         common.tank.id,
@@ -142,7 +156,17 @@ export class OperationService extends CommonService<Operation> {
         -common.docVolume,
         -common.docWeight,
       );
+
+      if (common?.type === OperationType.MIXED) {
+        await this.changeTankState(
+          common.sourceTank.id,
+          common.type,
+          common.docVolume,
+          common.docWeight,
+        );
+      }
     }
+
     return removeResult;
   }
 
@@ -183,6 +207,7 @@ export class OperationService extends CommonService<Operation> {
           break;
         case OperationType.RETURN:
         case OperationType.SUPPLY:
+        case OperationType.MIXED:
           currentVolume = currentVolume + operationVolume;
           currentWeight = currentWeight + operationWeight;
           break;
@@ -208,7 +233,11 @@ export class OperationService extends CommonService<Operation> {
       where: {
         status: OperationStatus.PROGRESS,
         updatedAt: LessThan(date),
-        type: In([OperationType.SUPPLY, OperationType.RETURN]),
+        type: In([
+          OperationType.SUPPLY,
+          OperationType.MIXED,
+          OperationType.RETURN,
+        ]),
       },
     });
     if (operations.length) {

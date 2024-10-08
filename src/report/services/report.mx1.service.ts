@@ -4,7 +4,7 @@ import { Workbook } from 'exceljs';
 import path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { OperationType } from '../../operations/enums';
 import { GetMx1Dto } from '../dto/get-mx1.dto';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -32,7 +32,7 @@ export class ReportMx1Service {
     const page2 = workbook.getWorksheet('стр2');
 
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.SUPPLY,
+      type: In([OperationType.SUPPLY, OperationType.MIXED]),
     };
 
     if (payload.operationId) {
