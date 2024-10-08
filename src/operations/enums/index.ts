@@ -11,6 +11,7 @@ export enum OperationType {
   OUTCOME = 'outcome',
   SUPPLY = 'supply',
   INTERNAL = 'internal',
+  MIXED = 'mixed',
   RETURN = 'return',
 }
 

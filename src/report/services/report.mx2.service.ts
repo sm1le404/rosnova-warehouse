@@ -7,6 +7,7 @@ import { Operation } from '../../operations/entities/operation.entity';
 import {
   Between,
   FindOptionsWhere,
+  In,
   IsNull,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -32,7 +33,7 @@ export class ReportMx2Service {
     );
     const worksheetMain = workbook.getWorksheet('стр2');
     const filter: FindOptionsWhere<Operation> = {
-      type: OperationType.SUPPLY,
+      type: In([OperationType.SUPPLY, OperationType.MIXED]),
       status: OperationStatus.FINISHED,
       fuelHolder: {
         id: Not(IsNull()),

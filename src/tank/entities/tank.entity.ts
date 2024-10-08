@@ -82,6 +82,9 @@ export class Tank extends CommonEntity {
   @OneToMany(() => Operation, (operation) => operation.tank)
   operation: Operation[];
 
+  @OneToMany(() => Operation, (operation) => operation.sourceTank)
+  sourceOperations: Operation[];
+
   @ApiProperty({
     type: () => Fuel,
     required: false,

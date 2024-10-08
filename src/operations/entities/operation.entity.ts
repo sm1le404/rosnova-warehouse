@@ -213,6 +213,14 @@ export class Operation extends CommonEntity {
   @ManyToOne(() => Tank, (tank) => tank.operation, { eager: true })
   tank: Tank;
 
+  @ApiProperty({
+    type: () => Tank,
+    required: false,
+    description: 'Резервуар, из которого переливают',
+  })
+  @ManyToOne(() => Tank, (tank) => tank.sourceOperations, { eager: true })
+  sourceTank: Tank;
+
   @ApiProperty({ type: () => Shift, required: true, description: 'Смена' })
   @ManyToOne(() => Shift, (shift) => shift.operation, { eager: true })
   shift: Shift;
