@@ -7,24 +7,24 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
-import { Operation } from '../../operations/entities/operation.entity';
-import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
-import { Tank } from '../../tank/entities/tank.entity';
-import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
-import { DeviceTankService } from './device.tank.service';
-import { AbstractDispenser } from '../classes/abstract.dispenser';
-import { DispenserCommandInterface } from '../dto/dispenser.command.interface';
+import { Operation } from '../../../operations/entities/operation.entity';
+import { DispenserGetFuelDto } from '../../dto/dispenser.get.fuel.dto';
+import { Tank } from '../../../tank/entities/tank.entity';
+import { DispenserFixOperationDto } from '../../dto/dispenser.fix.operation.dto';
+import { DeviceTankService } from '../tanks/device.tank.service';
+import { AbstractDispenser } from '../../classes/abstract.dispenser';
+import { DispenserCommandInterface } from '../../dto/dispenser.command.interface';
 
 import {
   OperationEvent,
   OperationStatus,
   OperationType,
-} from '../../operations/enums';
-import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
+} from '../../../operations/enums';
+import { TankOperationStateEvent } from '../../../operations/events/tank-operation-state.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DispenserCommand, DispenserStatus } from '../enums/dispenser.enum';
+import { DispenserCommand, DispenserStatus } from '../../enums/dispenser.enum';
+import { Dispenser } from '../../../dispenser/entities/dispenser.entity';
 
 @Injectable()
 export class DeviceRvService extends AbstractDispenser {

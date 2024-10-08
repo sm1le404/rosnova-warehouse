@@ -8,14 +8,14 @@ import {
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { DeviceDispenser } from '../classes/device.dispenser';
+import { DeviceDispenser } from '../../classes/device.dispenser';
 import {
   DispenserBytes,
   DispenserCommand,
   DispenserStatus,
-} from '../enums/dispenser.enum';
+} from '../../enums/dispenser.enum';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dispenser } from '../../dispenser/entities/dispenser.entity';
+import { Dispenser } from '../../../dispenser/entities/dispenser.entity';
 import {
   FindOptionsWhere,
   In,
@@ -24,29 +24,29 @@ import {
   Not,
   Repository,
 } from 'typeorm';
-import { Operation } from '../../operations/entities/operation.entity';
-import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
+import { Operation } from '../../../operations/entities/operation.entity';
+import { DispenserGetFuelDto } from '../../dto/dispenser.get.fuel.dto';
 import {
   OperationEvent,
   OperationStatus,
   OperationType,
-} from '../../operations/enums';
-import { Tank } from '../../tank/entities/tank.entity';
-import { LogDirection, logDispensers } from '../../common/utility/rootpath';
-import { DispenserHelper } from '../classes/dispenser.helper';
-import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
-import { DeviceTankService } from './device.tank.service';
+} from '../../../operations/enums';
+import { Tank } from '../../../tank/entities/tank.entity';
+import { LogDirection, logDispensers } from '../../../common/utility/rootpath';
+import { DispenserHelper } from '../../classes/dispenser.helper';
+import { DispenserFixOperationDto } from '../../dto/dispenser.fix.operation.dto';
+import { DeviceTankService } from '../tanks/device.tank.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TankOperationStateEvent } from '../../operations/events/tank-operation-state.event';
+import { TankOperationStateEvent } from '../../../operations/events/tank-operation-state.event';
 import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 // eslint-disable-next-line max-len
-import { InteractiveScheduleCronService } from '../../cron/services/interactive.schedule.cron.service';
+import { InteractiveScheduleCronService } from '../../../cron/services/interactive.schedule.cron.service';
 import { SerialPortOpenOptions } from 'serialport/dist/serialport';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
-import { AbstractDispenser } from '../classes/abstract.dispenser';
-import { DispenserCommandInterface } from '../dto/dispenser.command.interface';
-import { ComHelper } from '../../common/utility';
+import { AbstractDispenser } from '../../classes/abstract.dispenser';
+import { DispenserCommandInterface } from '../../dto/dispenser.command.interface';
+import { ComHelper } from '../../../common/utility';
 
 @Injectable()
 export class DeviceTopazService extends AbstractDispenser {

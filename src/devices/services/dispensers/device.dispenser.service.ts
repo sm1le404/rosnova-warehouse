@@ -5,17 +5,17 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { DispenserDeviceTypes } from '../enums/dispenser.enum';
-import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
-import { DispenserCommandDto } from '../dto/dispenser.command.dto';
-import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
-import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
-import { SettingsService } from '../../settings/services/settings.service';
+import { DispenserDeviceTypes } from '../../enums';
+import { DispenserGetFuelDto } from '../../dto/dispenser.get.fuel.dto';
+import { DispenserCommandDto } from '../../dto/dispenser.command.dto';
+import { DispenserFixOperationDto } from '../../dto/dispenser.fix.operation.dto';
+import { DispenserCommandDtoExt } from '../../dto/dispenser.command.dto.ext';
+import { SettingsService } from '../../../settings/services/settings.service';
 import { DeviceTopazService } from './device.topaz.service';
-import { AbstractDispenser } from '../classes/abstract.dispenser';
+import { AbstractDispenser } from '../../classes/abstract.dispenser';
 import { DeviceTestService } from './device.test.service';
 import { DeviceRvService } from './device.rv.service';
-import { SettingsKey } from '../../settings/enums';
+import { SettingsKey } from '../../../settings/enums';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {

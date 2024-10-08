@@ -35,10 +35,10 @@ import { JwtAuthGuard } from '../../auth/guard';
 import { HasRole } from '../../auth/guard/has-role.guard';
 import { SetRoles } from '../../auth/decorators/roles.decorator';
 import { RoleType } from '../../user/enums';
-import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { DispenserService } from '../../dispenser/services/dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
 import { CloseShiftDto } from '../dto/close.shift.dto';
+import { DeviceDispenserService } from '../../devices/services';
 
 @ApiTags('Shift')
 @Controller('shift')

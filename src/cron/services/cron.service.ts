@@ -1,15 +1,17 @@
 import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { DeviceTankService } from '../../devices/services/device.tank.service';
 import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 import { ConfigService } from '@nestjs/config';
-import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
 import { TankService } from '../../tank/services/tank.service';
 import { KafkaService } from '../../kafka/services';
 import { OperationService } from '../../operations/services/operation.service';
 import { EventService } from '../../event/services/event.service';
 import { LessThan } from 'typeorm';
+import {
+  DeviceDispenserService,
+  DeviceTankService,
+} from '../../devices/services';
 
 @Injectable()
 export class CronService {

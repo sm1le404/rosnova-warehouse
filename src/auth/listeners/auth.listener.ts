@@ -3,7 +3,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { AuthEventsEnum } from '../enums/auth.events.enum';
 import { AuthEvent } from '../events/auth.event';
 import { ShiftService } from '../../shift/services/shift.service';
-import { DeviceDispenserService } from '../../devices/services/device.dispenser.service';
+import { DeviceDispenserService } from '../../devices/services';
 import { DispenserService } from '../../dispenser/services/dispenser.service';
 
 @Injectable()

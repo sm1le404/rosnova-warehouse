@@ -21,7 +21,7 @@ export abstract class AbstractDispenser {
   abstract drainFuel(payload: DispenserGetFuelDto): Promise<void>;
 
   /**
-   * Пытаемся произвести продолжиь после перезапуска приложения
+   * Пытаемся произвести продолжить после перезапуска приложения
    */
   abstract start(): Promise<void>;
 

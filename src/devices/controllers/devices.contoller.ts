@@ -8,9 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { DeviceTankService } from '../services/device.tank.service';
-import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
-import { DeviceDispenserService } from '../services/device.dispenser.service';
+import { ApiTags } from '@nestjs/swagger';
 import { DispenserCommandDto } from '../dto/dispenser.command.dto';
 import { DispenserGetFuelDto } from '../dto/dispenser.get.fuel.dto';
 import { JwtAuthGuard } from '../../auth/guard';
@@ -22,13 +20,10 @@ import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { EventService } from '../../event/services/event.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TankUpdateStateEvent } from '../../tank/events';
-import { DeviceEvents } from '../enums/device-events.enum';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
-import { CompressionTypes } from 'kafkajs';
 import { KafkaService } from '../../kafka/services';
-import { HubTopics } from 'rs-dto';
 import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
+import { DeviceDispenserService, DeviceTankService } from '../services';
 
 @ApiTags('Devices')
 @Controller('devices')
@@ -40,52 +35,6 @@ export class DevicesContoller {
     private eventEmitter: EventEmitter2,
     private readonly kafkaService: KafkaService,
   ) {}
-
-  @ApiExcludeEndpoint()
-  @Get('kafka')
-  async testKafka() {
-    let data = { test: 1, num: 'string' };
-    await this.kafkaService.addMessage({
-      compression: CompressionTypes.GZIP,
-      messages: [
-        {
-          value: JSON.stringify(data),
-          headers: {
-            TO: `WH_1`,
-          },
-        },
-      ],
-      topic: HubTopics.TANK_STATE,
-    });
-  }
-
-  @ApiExcludeEndpoint()
-  @Get('tank/test')
-  async testDevices() {
-    //example test data b50120af01211740020d11c103d49c42047b6f42056d49420651573f077b6f420800000034
-    setTimeout(() => {
-      const buffTest = Buffer.from(
-        'b50120af01211740020d11c103d49c42047b6f',
-        'hex',
-      );
-      console.log(this.deviceTankService.readState(buffTest));
-    }, 500);
-
-    setTimeout(() => {
-      const buffTest2 = Buffer.from(
-        '42056d49420651573f077b6f420800000034',
-        'hex',
-      );
-      const result = this.deviceTankService.readState(buffTest2);
-      console.log(result);
-      console.log(
-        this.eventEmitter.emit(
-          DeviceEvents.UPDATE_TANK_STATE,
-          new TankUpdateStateEvent(1, 1, result),
-        ),
-      );
-    }, 1500);
-  }
 
   @Post('dispenser/callCommand')
   @UseGuards(JwtAuthGuard, HasRole)
@@ -115,7 +64,7 @@ export class DevicesContoller {
     @Param('addressId') addressId: number,
     @Param('comId') comId: number,
   ) {
-    await this.deviceTankService.readTankByAddress(addressId, comId);
+    await this.deviceTankService.readCommand(addressId, comId);
   }
 
   @Post('dispenser/callCommandExt')
