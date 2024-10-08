@@ -19,9 +19,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
 import { EventCollectionType, EventType } from '../../event/enums';
 import { EventService } from '../../event/services/event.service';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DispenserFixOperationDto } from '../dto/dispenser.fix.operation.dto';
-import { KafkaService } from '../../kafka/services';
 import { DispenserCommandDtoExt } from '../dto/dispenser.command.dto.ext';
 import { DeviceDispenserService, DeviceTankService } from '../services';
 
@@ -32,8 +30,6 @@ export class DevicesContoller {
     private readonly deviceTankService: DeviceTankService,
     private readonly deviceDispenserService: DeviceDispenserService,
     private readonly eventService: EventService,
-    private eventEmitter: EventEmitter2,
-    private readonly kafkaService: KafkaService,
   ) {}
 
   @Post('dispenser/callCommand')

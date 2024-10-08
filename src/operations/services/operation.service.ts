@@ -94,6 +94,7 @@ export class OperationService extends CommonService<Operation> {
     }
 
     const updateResult = await this.getRepository().save(common);
+
     if (updateResult?.id && updateCommon?.status === OperationStatus.FINISHED) {
       await this.changeTankState(
         common.tank.id,
@@ -119,11 +120,11 @@ export class OperationService extends CommonService<Operation> {
           common.sourceTank.id,
           common.type,
           updateCommon.docVolume != common.docVolume
-            ? updateCommon.docVolume - common.docVolume
-            : common.docVolume,
+            ? common.docVolume - updateCommon.docVolume
+            : -common.docVolume,
           updateCommon.docWeight != common.docWeight
-            ? updateCommon.docWeight - common.docWeight
-            : common.docWeight,
+            ? common.docWeight - updateCommon.docWeight
+            : -common.docWeight,
         );
       }
     }
