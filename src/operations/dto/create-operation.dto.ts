@@ -2,11 +2,14 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
+  IsNotEmptyObject,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Vehicle } from '../../vehicle/entities/vehicle.entity';
@@ -58,6 +61,18 @@ export class CreateOperationDto {
     type: () => CommonId,
   })
   tank: Pick<Tank, 'id'>;
+
+  @ApiPropertyOptional({
+    required: false,
+    description: 'Резервуар, из которого переливают',
+    type: () => CommonId,
+  })
+  @ValidateIf(
+    (object: CreateOperationDto) => object.type === OperationType.MIXED,
+  )
+  @IsObject()
+  @IsNotEmptyObject()
+  sourceTank: Pick<Tank, 'id'>;
 
   @ApiProperty({
     required: true,

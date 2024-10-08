@@ -45,7 +45,7 @@ export class ReportSummaryDrawbackService {
       ])
       .where('op.docVolume != op.factVolume')
       .andWhere(`op.finishedAt BETWEEN ${dateStart} AND ${dateEnd}`)
-      .andWhere(`op.type == 'supply'`)
+      .andWhere(`op.type == 'supply' OR op.type == 'mixed'`)
       .getMany();
 
     const workbook = new ExcelJS.Workbook();

@@ -30,7 +30,11 @@ export class ReportFilteredService {
     dateEnd,
   }: GetMonthReportDto): Promise<ExcelJS.Workbook> {
     const filter: FindOptionsWhere<Operation> = {
-      type: In([OperationType.SUPPLY, OperationType.RETURN]),
+      type: In([
+        OperationType.SUPPLY,
+        OperationType.MIXED,
+        OperationType.RETURN,
+      ]),
       status: OperationStatus.FINISHED,
       fuelHolder: {
         id: Not(IsNull()),
@@ -89,7 +93,9 @@ export class ReportFilteredService {
       /*eslint-disable*/
       const name = `${operations[i].fuel?.name} ${
         operations[i].fuelHolder?.shortName
-      } ${operations[i].refinery?.shortName ?? ''}`.trim().substring(0, 30);
+      } ${operations[i].refinery?.shortName ?? ''}`
+        .trim()
+        .substring(0, 30);
 
       let worksheet = workbook.getWorksheet('page');
 
