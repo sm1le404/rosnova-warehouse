@@ -37,10 +37,10 @@ export class DeviceTankService implements OnModuleDestroy {
       if (!deviceType) {
         this.tankSensorType = deviceType;
       }
-      if (deviceType === TankTypeEnum.SENS) {
-        this.deviceTank = this.deviceTankSensService;
-      } else if (deviceType === TankTypeEnum.STRELA) {
+      if (deviceType === TankTypeEnum.STRUNA) {
         this.deviceTank = this.deviceTankStrelaService;
+      } else {
+        this.deviceTank = this.deviceTankSensService;
       }
       this.deviceTank.initPorts();
     });

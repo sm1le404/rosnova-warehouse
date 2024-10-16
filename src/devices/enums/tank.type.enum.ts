@@ -1,4 +1,4 @@
 export enum TankTypeEnum {
   SENS = 'SENS',
-  STRELA = 'STRELA',
+  STRUNA = 'STRUNA',
 }
