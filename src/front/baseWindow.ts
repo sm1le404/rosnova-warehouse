@@ -96,30 +96,37 @@ export class BaseWindow {
       if (!isDarwin()) app.quit();
     });
 
-    updateElectronApp({
-      updateSource: {
-        type: UpdateSourceType.StaticStorage,
-        baseUrl: `${APP_STORE_URL}/${process.platform}/${process.arch}`,
-      },
-      updateInterval: '30 minutes',
-      notifyUser: false,
-    });
-
-    autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-      const dialogOpts: MessageBoxOptions = {
-        type: 'info',
-        buttons: ['Выполнить сейчас c перезапуском приложения', 'Позже'],
-        title: 'Обновление приложения',
-        message: process.platform === 'win32' ? releaseNotes : releaseName,
-        detail:
-          'Была выпущена новая версия приложения, ' +
-          'необходимо обновить его в ближайшее удобноее время',
-      };
-
-      dialog.showMessageBox(dialogOpts).then(({ response }) => {
-        if (response === 0) autoUpdater.quitAndInstall();
+    try {
+      updateElectronApp({
+        updateSource: {
+          type: UpdateSourceType.StaticStorage,
+          baseUrl: `${APP_STORE_URL}/${process.platform}/${process.arch}`,
+        },
+        updateInterval: '30 minutes',
+        notifyUser: false,
       });
-    });
+
+      autoUpdater.on(
+        'update-downloaded',
+        (event, releaseNotes, releaseName) => {
+          const dialogOpts: MessageBoxOptions = {
+            type: 'info',
+            buttons: ['Выполнить сейчас c перезапуском приложения', 'Позже'],
+            title: 'Обновление приложения',
+            message: process.platform === 'win32' ? releaseNotes : releaseName,
+            detail:
+              'Была выпущена новая версия приложения, ' +
+              'необходимо обновить его в ближайшее удобноее время',
+          };
+
+          dialog.showMessageBox(dialogOpts).then(({ response }) => {
+            if (response === 0) autoUpdater.quitAndInstall();
+          });
+        },
+      );
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   /**
@@ -155,7 +162,6 @@ export class BaseWindow {
         env: {
           DEV: devMode.toString(),
           USER_DATA: app.getPath('userData'),
-          DB_NAME: 'app.db',
         },
         stdio: 'pipe',
       });
@@ -164,7 +170,6 @@ export class BaseWindow {
         ELECTRON_RUN_AS_NODE: '1',
         DEV: devMode.toString(),
         USER_DATA: app.getPath('userData'),
-        DB_NAME: 'app.db',
         ROOT: '',
         CLEAR_UPDATE_DIR: 'N',
       };
