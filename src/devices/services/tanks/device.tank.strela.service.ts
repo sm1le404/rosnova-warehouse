@@ -62,7 +62,6 @@ export class DeviceTankStrelaService extends AbstractTank {
     // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
     // критический случай 100 символов
     // this.message[2] - длина сообщения
-    console.log(data);
     const tempData: any = data;
     logTanks(`${tempData.inspect().toString()}`);
     if (DeviceTankStrelaService.buffMessLen(this.message) > 100) {
