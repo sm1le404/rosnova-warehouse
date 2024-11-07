@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { In, Repository } from 'typeorm';
 import * as ExcelJS from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { OperationType } from '../../operations/enums';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import date from 'date-and-time';

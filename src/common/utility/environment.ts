@@ -89,6 +89,11 @@ export const envirmomentFields: Array<envFieldInterface> = [
     type: 'checkbox',
   },
   {
+    name: 'Включить логирование резевуаров',
+    code: 'LOG_TANKS',
+    type: 'checkbox',
+  },
+  {
     name: 'Код склада',
     code: 'SHOP_KEY',
     type: 'text',

@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import { Workbook } from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import {

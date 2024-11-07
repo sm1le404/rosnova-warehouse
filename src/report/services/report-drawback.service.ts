@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { Repository } from 'typeorm';
 import * as ExcelJS from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { dateFormatter, timeFormatter } from '../utils';
 import { IVehicleTank } from '../../vehicle/types';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';

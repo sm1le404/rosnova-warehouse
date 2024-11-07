@@ -25,7 +25,7 @@ import { OperationModule } from './operations/operation.module';
 import { ShiftModule } from './shift/shift.module';
 import { EventModule } from './event/event.module';
 import { AuthModule } from './auth/auth.module';
-import path from 'path';
+import * as path from 'path';
 import { rootpath } from './common/utility/rootpath';
 import { DevicesModule } from './devices/devices.module';
 import { CronModule } from './cron/cron.module';

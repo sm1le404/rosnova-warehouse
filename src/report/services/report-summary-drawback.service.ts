@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
 import { Repository } from 'typeorm';
 import * as ExcelJS from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { dateFormatter, timeFormatter, valueRound } from '../utils';
 import { GetSummaryDrawbackReportDto } from '../dto/get-summary-drawback-report.dto';
 import { getDriverFullName } from '../utils';

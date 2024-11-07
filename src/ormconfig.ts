@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import path from 'path';
+import * as path from 'path';
 import { config } from 'dotenv';
 import { rootpath } from './common/utility/rootpath';
 import { isDev } from './common/utility';

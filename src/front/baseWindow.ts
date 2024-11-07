@@ -9,7 +9,7 @@ import {
   dialog,
   ipcMain,
 } from 'electron';
-import path from 'path';
+import * as path from 'path';
 import { spawn } from 'child_process';
 import { isDarwin } from '../common/utility';
 import { updateElectronApp, UpdateSourceType } from 'update-electron-app';

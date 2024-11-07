@@ -11,7 +11,7 @@ import {
   Repository,
 } from 'typeorm';
 import { OperationType } from '../../operations/enums';
-import path from 'path';
+import * as path from 'path';
 import { GetOutcomeReportDto } from '../dto/get-outcome-report.dto';
 import {
   dateFormatter,

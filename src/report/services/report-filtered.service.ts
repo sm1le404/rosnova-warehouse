@@ -13,7 +13,7 @@ import {
   Repository,
 } from 'typeorm';
 import { OperationStatus, OperationType } from '../../operations/enums';
-import path from 'path';
+import * as path from 'path';
 import { addFormulas, monthReportMapper } from '../utils';
 import { GetMonthReportDto } from '../dto/get-month-report.dto';
 

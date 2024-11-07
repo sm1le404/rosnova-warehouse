@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GetClosingReportDto } from '../dto/get-closing-report.dto';
 import * as ExcelJS from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { In, Repository } from 'typeorm';

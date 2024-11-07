@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
-import path from 'path';
+import * as path from 'path';
 import { GetDiffDetectionDto } from '../dto/get-diff-detection.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';

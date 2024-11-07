@@ -1,11 +1,12 @@
-import { readdirSync, statSync } from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { rimraf } from 'rimraf';
 
 export const getDirectories = (srcPath: string) => {
-  return readdirSync(srcPath)
+  return fs
+    .readdirSync(srcPath)
     .map((file) => path.join(srcPath, file))
-    .filter((path) => statSync(path).isDirectory());
+    .filter((path) => fs.statSync(path).isDirectory());
 };
 
 export const clearDir = async (baseRootPath: string) => {
