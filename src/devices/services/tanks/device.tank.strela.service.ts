@@ -87,7 +87,6 @@ export class DeviceTankStrelaService extends AbstractTank {
       this.message[2] == DeviceTankStrelaService.buffMessLen(this.message) ||
       DeviceTankStrelaService.checkFullMessage(this.message)
     ) {
-      this.currentAddressId = this.message[0];
       this.currentCommand = this.message[1];
       const payload = this.message.slice(3, -2);
       this.message = [];
@@ -187,11 +186,33 @@ export class DeviceTankStrelaService extends AbstractTank {
   }
 
   async readCommand(addressId: number, comId: number = 0) {
+    //Сначала необходимо установить адресс считывания
+    const setPacket = [
+      STRELA_FIRST_BYTE,
+      TankStrelaHelperParams.COMMAND_SET_ADDRESS,
+      TankStrelaHelperParams.DATA,
+      TankStrelaHelperParams.DATA,
+      TankStrelaHelperParams.DATA,
+      addressId,
+    ];
+    const setBuffData = Buffer.from([
+      ...setPacket,
+      crc16(Buffer.from(setPacket)),
+      crc16top(Buffer.from(setPacket)),
+    ]);
+    const setTempData: any = setBuffData;
+    await logTanks(
+      `Вызов команды ${setTempData.inspect().toString()}`,
+      LogDirection.OUT,
+    );
+    await this.writePort(comId, addressId, setBuffData);
+
+    //Потом произвести считывание
     const packet = [
       STRELA_FIRST_BYTE,
       TankStrelaHelperParams.COMMAND_READ,
       TankStrelaHelperParams.DATA,
-      addressId,
+      TankStrelaHelperParams.DATA_ADDR,
       TankStrelaHelperParams.DATA,
       TankStrelaHelperParams.FULL_REGISTERS,
     ];
@@ -206,22 +227,34 @@ export class DeviceTankStrelaService extends AbstractTank {
       `Вызов команды ${tempData.inspect().toString()}`,
       LogDirection.OUT,
     );
-    this.serialPortList[ComHelper.numberToCom(comId)].write(
-      buffData,
-      (data) => {
-        //Бьем ошибку только через 2 минуты, бывают сбои в ответах
-        if (data instanceof Error) {
-          this.logError(data);
-          this.blockTanks(data, {
-            addressId,
-            comId,
-            updatedAt: LessThanOrEqual(Math.floor(Date.now() / 1000) - 60 * 2),
-          });
-        } else {
-          this.unblockTanks({ addressId, comId });
-        }
-      },
-    );
+    await this.writePort(comId, addressId, buffData);
+
+    this.currentAddressId = addressId;
+  }
+
+  private async writePort(comId: number, addressId: number, buffData: Buffer) {
+    return new Promise((resolve, reject) => {
+      this.serialPortList[ComHelper.numberToCom(comId)].write(
+        buffData,
+        (data) => {
+          //Бьем ошибку только через 2 минуты, бывают сбои в ответах
+          if (data instanceof Error) {
+            this.logError(data);
+            this.blockTanks(data, {
+              addressId,
+              comId,
+              updatedAt: LessThanOrEqual(
+                Math.floor(Date.now() / 1000) - 60 * 2,
+              ),
+            });
+            reject(false);
+          } else {
+            this.unblockTanks({ addressId, comId });
+            resolve(true);
+          }
+        },
+      );
+    });
   }
 
   async start() {

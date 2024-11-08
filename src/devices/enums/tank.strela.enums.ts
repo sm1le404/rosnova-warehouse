@@ -1,7 +1,9 @@
 export enum TankStrelaHelperParams {
   FULL_REGISTERS = 0x2a,
   COMMAND_READ = 0x04,
+  COMMAND_SET_ADDRESS = 0x06,
   DATA = 0x00,
+  DATA_ADDR = 0x03,
 }
 
 export enum TankStrelaDeviceParams {
