@@ -112,7 +112,7 @@ export class BaseWindow {
           const dialogOpts: MessageBoxOptions = {
             type: 'info',
             buttons: ['Выполнить сейчас c перезапуском приложения', 'Позже'],
-            title: 'Обновление приложения',
+            title: 'Обновление приложения ROSNOVA WAREHOUSE',
             message: process.platform === 'win32' ? releaseNotes : releaseName,
             detail:
               'Была выпущена новая версия приложения, ' +
