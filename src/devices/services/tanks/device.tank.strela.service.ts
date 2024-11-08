@@ -7,10 +7,9 @@ import {
 import { SerialPort } from 'serialport';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { DeviceNames } from '../../enums';
 import { DeviceInfoType } from '../../types/device.info.type';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DeviceEvents } from '../../enums';
+import { DeviceEvents, DeviceNames } from '../../enums';
 import { TankUpdateStateEvent } from '../../../tank/events';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tank } from '../../../tank/entities/tank.entity';
@@ -28,6 +27,7 @@ import { WindowsBindingInterface } from '@serialport/bindings-cpp/dist/win32';
 import { chunk, ComHelper } from '../../../common/utility';
 import { AbstractTank } from '../../classes/abstract.tank';
 import {
+  STRELA_FIRST_BYTE,
   TankStrelaDeviceParams,
   TankStrelaHelperParams,
 } from '../../enums/tank.strela.enums';
@@ -64,7 +64,10 @@ export class DeviceTankStrelaService extends AbstractTank {
     // this.message[2] - длина сообщения
     const tempData: any = data;
     logTanks(`${tempData.inspect().toString()}`);
-    if (DeviceTankStrelaService.buffMessLen(this.message) > 100) {
+    if (
+      data[0] == STRELA_FIRST_BYTE ||
+      DeviceTankStrelaService.buffMessLen(this.message) > 100
+    ) {
       this.message = [];
     }
 
@@ -185,10 +188,10 @@ export class DeviceTankStrelaService extends AbstractTank {
 
   async readCommand(addressId: number, comId: number = 0) {
     const packet = [
-      addressId,
+      STRELA_FIRST_BYTE,
       TankStrelaHelperParams.COMMAND_READ,
       TankStrelaHelperParams.DATA,
-      TankStrelaHelperParams.DATA_ADDR,
+      addressId,
       TankStrelaHelperParams.DATA,
       TankStrelaHelperParams.FULL_REGISTERS,
     ];

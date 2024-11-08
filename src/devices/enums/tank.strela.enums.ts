@@ -1,6 +1,5 @@
 export enum TankStrelaHelperParams {
   FULL_REGISTERS = 0x2a,
-  DATA_ADDR = 0x03,
   COMMAND_READ = 0x04,
   DATA = 0x00,
 }
@@ -13,3 +12,5 @@ export enum TankStrelaDeviceParams {
   TEMP = 4,
   TOTAL_VOLUME = 13,
 }
+
+export const STRELA_FIRST_BYTE = 0x50;
