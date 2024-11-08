@@ -39,6 +39,10 @@ export class DeviceTankStrelaService extends AbstractTank {
 
   private message: Array<any> = [];
 
+  private setMessage: Buffer;
+
+  private addressSetted: boolean = false;
+
   private currentAddressId?: number;
 
   private currentCommand?: number;
@@ -59,6 +63,11 @@ export class DeviceTankStrelaService extends AbstractTank {
   }
 
   readState(data: Buffer): DeviceInfoType | null {
+    //Проверяем установлен ли адрес
+    if (Buffer.compare(data, this.setMessage) !== -1) {
+      this.addressSetted = true;
+      return;
+    }
     // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
     // критический случай 100 символов
     // this.message[2] - длина сообщения
@@ -186,6 +195,7 @@ export class DeviceTankStrelaService extends AbstractTank {
   }
 
   async readCommand(addressId: number, comId: number = 0) {
+    this.addressSetted = false;
     //Сначала необходимо установить адресс считывания
     const setPacket = [
       STRELA_FIRST_BYTE,
@@ -205,31 +215,36 @@ export class DeviceTankStrelaService extends AbstractTank {
       `Вызов команды ${setTempData.inspect().toString()}`,
       LogDirection.OUT,
     );
+    this.setMessage = setBuffData;
     await this.writePort(comId, addressId, setBuffData);
 
-    //Потом произвести считывание
-    const packet = [
-      STRELA_FIRST_BYTE,
-      TankStrelaHelperParams.COMMAND_READ,
-      TankStrelaHelperParams.DATA,
-      TankStrelaHelperParams.DATA_ADDR,
-      TankStrelaHelperParams.DATA,
-      TankStrelaHelperParams.FULL_REGISTERS,
-    ];
+    const waiting = setInterval(async () => {
+      if (this.addressSetted) {
+        //Потом произвести считывание
+        const packet = [
+          STRELA_FIRST_BYTE,
+          TankStrelaHelperParams.COMMAND_READ,
+          TankStrelaHelperParams.DATA,
+          TankStrelaHelperParams.DATA_ADDR,
+          TankStrelaHelperParams.DATA,
+          TankStrelaHelperParams.FULL_REGISTERS,
+        ];
 
-    const buffData = Buffer.from([
-      ...packet,
-      crc16(Buffer.from(packet)),
-      crc16top(Buffer.from(packet)),
-    ]);
-    const tempData: any = buffData;
-    await logTanks(
-      `Вызов команды ${tempData.inspect().toString()}`,
-      LogDirection.OUT,
-    );
-    await this.writePort(comId, addressId, buffData);
-
-    this.currentAddressId = addressId;
+        const buffData = Buffer.from([
+          ...packet,
+          crc16(Buffer.from(packet)),
+          crc16top(Buffer.from(packet)),
+        ]);
+        const tempData: any = buffData;
+        await logTanks(
+          `Вызов команды ${tempData.inspect().toString()}`,
+          LogDirection.OUT,
+        );
+        await this.writePort(comId, addressId, buffData);
+        this.currentAddressId = addressId;
+        clearInterval(waiting);
+      }
+    }, 200);
   }
 
   private async writePort(comId: number, addressId: number, buffData: Buffer) {
