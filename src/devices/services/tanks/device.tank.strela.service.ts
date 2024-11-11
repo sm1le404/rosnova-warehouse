@@ -238,30 +238,41 @@ export class DeviceTankStrelaService extends AbstractTank {
     this.currentAddressId = addressId;
     this.currentPortId = comId;
     await this.writePort(comId, addressId, setBuffData);
+
+    //Потом произвести считывание
+    const packet = [
+      STRELA_FIRST_BYTE,
+      TankStrelaHelperParams.COMMAND_READ,
+      TankStrelaHelperParams.DATA,
+      TankStrelaHelperParams.DATA_ADDR,
+      TankStrelaHelperParams.DATA,
+      TankStrelaHelperParams.FULL_REGISTERS,
+    ];
+
+    const buffData = Buffer.from([
+      ...packet,
+      crc16(Buffer.from(packet)),
+      crc16top(Buffer.from(packet)),
+    ]);
+    const tempData: any = buffData;
+    await logTanks(
+      `Вызов команды ${tempData.inspect().toString()}`,
+      LogDirection.OUT,
+    );
+    await this.writePort(this.currentPortId, this.currentPortId, buffData);
   }
 
   private async writePort(comId: number, addressId: number, buffData: Buffer) {
-    return new Promise((resolve, reject) => {
-      this.serialPortList[ComHelper.numberToCom(comId)].write(
-        buffData,
-        (data) => {
-          //Бьем ошибку только через 2 минуты, бывают сбои в ответах
-          if (data instanceof Error) {
-            this.logError(data);
-            this.blockTanks(data, {
-              addressId,
-              comId,
-              updatedAt: LessThanOrEqual(
-                Math.floor(Date.now() / 1000) - 60 * 2,
-              ),
-            });
-            reject(false);
-          } else {
-            this.unblockTanks({ addressId, comId });
-            resolve(true);
-          }
-        },
-      );
+    return new Promise((resolve) => {
+      this.serialPortList[ComHelper.numberToCom(comId)].write(buffData, () => {
+        this.serialPortList[ComHelper.numberToCom(comId)].once(
+          'data',
+          (data) => {
+            console.log(data);
+            resolve(data);
+          },
+        );
+      });
     });
   }
 
@@ -385,23 +396,23 @@ export class DeviceTankStrelaService extends AbstractTank {
                   ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
                 });
 
-                this.serialPortList[tankPath].on('data', (data) => {
-                  try {
-                    const result = this.readState(data);
-                    if (!!result) {
-                      this.eventEmitter.emit(
-                        DeviceEvents.UPDATE_TANK_STATE,
-                        new TankUpdateStateEvent(
-                          this.currentAddressId,
-                          ComHelper.comToNumber(tankPath),
-                          result,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    this.logError(e);
-                  }
-                });
+                // this.serialPortList[tankPath].on('data', (data) => {
+                //   try {
+                //     const result = this.readState(data);
+                //     if (!!result) {
+                //       this.eventEmitter.emit(
+                //         DeviceEvents.UPDATE_TANK_STATE,
+                //         new TankUpdateStateEvent(
+                //           this.currentAddressId,
+                //           ComHelper.comToNumber(tankPath),
+                //           result,
+                //         ),
+                //       );
+                //     }
+                //   } catch (e) {
+                //     this.logError(e);
+                //   }
+                // });
 
                 this.serialPortList[tankPath].on('error', (data) => {
                   this.logError(data);
