@@ -39,12 +39,6 @@ export class DeviceTankStrelaService extends AbstractTank {
 
   private message: Array<any> = [];
 
-  private setMessage: Buffer;
-
-  private currentAddressId?: number;
-
-  private currentPortId?: number;
-
   private currentCommand?: number;
 
   constructor(
@@ -63,31 +57,6 @@ export class DeviceTankStrelaService extends AbstractTank {
   }
 
   readState(data: Buffer): DeviceInfoType | null {
-    //Проверяем установлен ли адрес
-    if (Buffer.compare(data, this.setMessage) !== -1) {
-      //Потом произвести считывание
-      const packet = [
-        STRELA_FIRST_BYTE,
-        TankStrelaHelperParams.COMMAND_READ,
-        TankStrelaHelperParams.DATA,
-        TankStrelaHelperParams.DATA_ADDR,
-        TankStrelaHelperParams.DATA,
-        TankStrelaHelperParams.FULL_REGISTERS,
-      ];
-
-      const buffData = Buffer.from([
-        ...packet,
-        crc16(Buffer.from(packet)),
-        crc16top(Buffer.from(packet)),
-      ]);
-      const tempData: any = buffData;
-      logTanks(
-        `Вызов команды ${tempData.inspect().toString()}`,
-        LogDirection.OUT,
-      );
-      this.writePort(this.currentPortId, this.currentPortId, buffData);
-      return;
-    }
     // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
     // критический случай 100 символов
     // this.message[2] - длина сообщения
@@ -125,6 +94,8 @@ export class DeviceTankStrelaService extends AbstractTank {
         );
       }
     }
+
+    return null;
   }
 
   private static checkFullMessage(message: Array<any>): Boolean {
@@ -234,10 +205,8 @@ export class DeviceTankStrelaService extends AbstractTank {
       `Вызов команды ${setTempData.inspect().toString()}`,
       LogDirection.OUT,
     );
-    this.setMessage = setBuffData;
-    this.currentAddressId = addressId;
-    this.currentPortId = comId;
-    await this.writePort(comId, addressId, setBuffData);
+
+    await this.writePort(comId, setBuffData);
 
     //Потом произвести считывание
     const packet = [
@@ -259,16 +228,28 @@ export class DeviceTankStrelaService extends AbstractTank {
       `Вызов команды ${tempData.inspect().toString()}`,
       LogDirection.OUT,
     );
-    await this.writePort(this.currentPortId, this.currentPortId, buffData);
+    const data = await this.writePort(comId, buffData);
+
+    if (data.length) {
+      const result = this.readState(data);
+      if (!!result) {
+        this.eventEmitter.emit(
+          DeviceEvents.UPDATE_TANK_STATE,
+          new TankUpdateStateEvent(addressId, comId, result),
+        );
+      }
+    }
   }
 
-  private async writePort(comId: number, addressId: number, buffData: Buffer) {
+  private async writePort(
+    comId: number,
+    buffData: Buffer,
+  ): Promise<Buffer | null> {
     return new Promise((resolve) => {
       this.serialPortList[ComHelper.numberToCom(comId)].write(buffData, () => {
         this.serialPortList[ComHelper.numberToCom(comId)].once(
           'data',
           (data) => {
-            console.log(data);
             resolve(data);
           },
         );
