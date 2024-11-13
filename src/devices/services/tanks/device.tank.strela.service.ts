@@ -259,12 +259,6 @@ export class DeviceTankStrelaService extends AbstractTank {
               resolve(data);
             },
           );
-          this.serialPortList[ComHelper.numberToCom(comId)].once(
-            'error',
-            (error) => {
-              reject(error);
-            },
-          );
           //Обрываем в ручную если было потеряно соединение
           setTimeout(() => {
             resolve(null);
