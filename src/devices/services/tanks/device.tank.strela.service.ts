@@ -230,7 +230,7 @@ export class DeviceTankStrelaService extends AbstractTank {
     );
     const data = await this.writePort(comId, buffData);
 
-    if (data.length) {
+    if (Buffer.isBuffer(data) && data.length) {
       const result = this.readState(data);
       if (!!result) {
         this.eventEmitter.emit(
@@ -245,15 +245,32 @@ export class DeviceTankStrelaService extends AbstractTank {
     comId: number,
     buffData: Buffer,
   ): Promise<Buffer | null> {
-    return new Promise((resolve) => {
-      this.serialPortList[ComHelper.numberToCom(comId)].write(buffData, () => {
-        this.serialPortList[ComHelper.numberToCom(comId)].once(
-          'data',
-          (data) => {
-            resolve(data);
-          },
-        );
-      });
+    return new Promise((resolve, reject) => {
+      this.serialPortList[ComHelper.numberToCom(comId)].write(
+        buffData,
+        (writeCbData) => {
+          if (writeCbData instanceof Error) {
+            reject(writeCbData);
+          }
+          this.serialPortList[ComHelper.numberToCom(comId)].once(
+            'data',
+            (data) => {
+              logTanks(`Ответ ${data.inspect().toString()}`, LogDirection.IN);
+              resolve(data);
+            },
+          );
+          this.serialPortList[ComHelper.numberToCom(comId)].once(
+            'error',
+            (error) => {
+              reject(error);
+            },
+          );
+          //Обрываем в ручную если было потеряно соединение
+          setTimeout(() => {
+            resolve(null);
+          }, 1500);
+        },
+      );
     });
   }
 
@@ -376,24 +393,6 @@ export class DeviceTankStrelaService extends AbstractTank {
                   path: tankPath,
                   ...(portParams as SerialPortOpenOptions<WindowsBindingInterface>),
                 });
-
-                // this.serialPortList[tankPath].on('data', (data) => {
-                //   try {
-                //     const result = this.readState(data);
-                //     if (!!result) {
-                //       this.eventEmitter.emit(
-                //         DeviceEvents.UPDATE_TANK_STATE,
-                //         new TankUpdateStateEvent(
-                //           this.currentAddressId,
-                //           ComHelper.comToNumber(tankPath),
-                //           result,
-                //         ),
-                //       );
-                //     }
-                //   } catch (e) {
-                //     this.logError(e);
-                //   }
-                // });
 
                 this.serialPortList[tankPath].on('error', (data) => {
                   this.logError(data);

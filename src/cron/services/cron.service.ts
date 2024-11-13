@@ -34,7 +34,7 @@ export class CronService {
     );
   }
 
-  @Cron(CronExpression.EVERY_SECOND, {
+  @Cron(CronExpression.EVERY_5_SECONDS, {
     name: 'readTankState',
   })
   async readTankState() {
