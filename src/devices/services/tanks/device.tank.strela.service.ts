@@ -60,8 +60,6 @@ export class DeviceTankStrelaService extends AbstractTank {
     // Очищаем сообщение и сдвигаем позицию, если пришел первый байт
     // критический случай 100 символов
     // this.message[2] - длина сообщения
-    const tempData: any = data;
-    logTanks(`${tempData.inspect().toString()}`);
     if (
       data[0] == STRELA_FIRST_BYTE ||
       DeviceTankStrelaService.buffMessLen(this.message) > 100
@@ -393,6 +391,15 @@ export class DeviceTankStrelaService extends AbstractTank {
                   this.blockTanks(data, {
                     comId: ComHelper.comToNumber(tankPath),
                   });
+                });
+
+                this.serialPortList[tankPath].on('data', (data) => {
+                  if (data) {
+                    logTanks(
+                      `FULL ${data.inspect().toString()}`,
+                      LogDirection.IN,
+                    );
+                  }
                 });
               })
               .catch((e) => this.logError(e));
