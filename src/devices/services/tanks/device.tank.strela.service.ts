@@ -392,15 +392,6 @@ export class DeviceTankStrelaService extends AbstractTank {
                     comId: ComHelper.comToNumber(tankPath),
                   });
                 });
-
-                this.serialPortList[tankPath].on('data', (data) => {
-                  if (data) {
-                    logTanks(
-                      `FULL ${data.inspect().toString()}`,
-                      LogDirection.IN,
-                    );
-                  }
-                });
               })
               .catch((e) => this.logError(e));
           }

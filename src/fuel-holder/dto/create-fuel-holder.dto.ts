@@ -1,6 +1,7 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { i18nValidationMessage } from 'nestjs-i18n';
+import { Column } from 'typeorm';
 
 export class CreateFuelHolderDto {
   @ApiProperty({ required: true, description: 'Полное наименование' })
@@ -32,4 +33,11 @@ export class CreateFuelHolderDto {
     message: i18nValidationMessage('validation.IsString'),
   })
   inn?: string;
+
+  @ApiProperty({ required: false, description: 'Полные реквизиты' })
+  @IsOptional()
+  @IsString({
+    message: i18nValidationMessage('validation.IsString'),
+  })
+  requisites?: string;
 }
