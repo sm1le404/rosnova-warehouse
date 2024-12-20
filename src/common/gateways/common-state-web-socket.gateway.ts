@@ -8,7 +8,8 @@ import { Socket } from 'socket.io';
 import { Inject, LoggerService, OnModuleInit } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { WsServer } from '../interfaces/ws-server.type';
-import { CommonEntity } from '../entities/common.entity';
+import { BaseEntity } from 'typeorm';
+import { IGNORE_ENTITY_TYPES } from '../../ws/ws.const';
 
 export class CommonStateWebSocketGateway
   implements OnGatewayDisconnect, OnModuleInit
@@ -54,11 +55,9 @@ export class CommonStateWebSocketGateway
    * @param event
    * @param data
    */
-  emitUpdateStatusToRoom(
-    entityType: string,
-    event: string,
-    data: CommonEntity,
-  ) {
-    this.server.to(this.roomName).emit('state', { entityType, event, data });
+  emitUpdateStatusToRoom(entityType: string, event: string, data: BaseEntity) {
+    if (!IGNORE_ENTITY_TYPES.includes(entityType)) {
+      this.server.to(this.roomName).emit('state', { entityType, event, data });
+    }
   }
 }
