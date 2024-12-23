@@ -16,9 +16,11 @@ export const clearDir = async (baseRootPath: string) => {
 
   const dirs = getDirectories(tempPath);
 
-  for (const dirName of dirs) {
-    if (dirName.includes('app') && dirName != baseRootPath) {
-      await rimraf(dirName);
+  for (const dirFullName of dirs) {
+    const fullPath = dirFullName.split(path.sep);
+    const dirName = fullPath.pop();
+    if (dirName.includes('app') && dirFullName != baseRootPath) {
+      await rimraf(dirFullName);
     }
   }
 };
