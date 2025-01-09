@@ -7,11 +7,12 @@ import { TankService } from '../../tank/services/tank.service';
 import { KafkaService } from '../../kafka/services';
 import { OperationService } from '../../operations/services/operation.service';
 import { EventService } from '../../event/services/event.service';
-import { LessThan } from 'typeorm';
+import { DataSource, LessThan } from 'typeorm';
 import {
   DeviceDispenserService,
   DeviceTankService,
 } from '../../devices/services';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
 export class CronService {
@@ -25,6 +26,8 @@ export class CronService {
     private readonly kafkaService: KafkaService,
     private readonly operationService: OperationService,
     private readonly eventService: EventService,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   isDev(): boolean {
@@ -164,6 +167,24 @@ export class CronService {
       });
     } catch (e) {
       this.logger.error(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_HOUR, {
+    name: 'clearDbSize',
+  })
+  async clearDbSize() {
+    if (this.isDev()) {
+      return;
+    }
+    /**
+     * Нельзя посмотреть открытую транзакцию в sqlite
+     */
+    try {
+      await this.dataSource.query(`COMMIT;`);
+    } catch (e) {
+    } finally {
+      await this.dataSource.query(`VACUUM;`);
     }
   }
 }

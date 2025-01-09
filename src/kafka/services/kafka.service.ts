@@ -188,15 +188,5 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
       await this.deleteMessage(message.id);
     }
-
-    /**
-     * Нельзя посмотреть открытую транзакцию в sqlite
-     */
-    try {
-      await this.kafkaMessageRepository.query(`COMMIT;`);
-    } catch (e) {
-    } finally {
-      await this.kafkaMessageRepository.query(`VACUUM;`);
-    }
   }
 }
