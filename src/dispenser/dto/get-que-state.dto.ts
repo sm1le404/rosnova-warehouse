@@ -67,4 +67,17 @@ export class GetQueStateDto {
   @ApiProperty({ description: 'Тескт ошибки', required: false })
   @IsOptional()
   error?: string;
+
+  @ApiProperty({ description: 'Номер ошибки', required: false })
+  @IsOptional()
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    {
+      message: i18nValidationMessage('validation.IsNumber'),
+    },
+  )
+  @Min(0, {
+    message: i18nValidationMessage('validation.Min'),
+  })
+  errReg?: number;
 }

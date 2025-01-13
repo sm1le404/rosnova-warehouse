@@ -9,8 +9,10 @@ import { DispenserService } from './dispenser.service';
 import {
   DispenserRVCondition,
   DispenserRVStatus,
-} from '../../devices/enums/dispenser.rv.enum';
-import { DispenserStatus } from '../../devices/enums/dispenser.enum';
+  DispenserStatus,
+  DispenserRVErrors,
+  DispenserRVWarnings,
+} from '../../devices/enums';
 import { DispenserRvResponseDto } from '../../devices/dto/dispenser.rv.response.dto';
 import { Operation } from '../../operations/entities/operation.entity';
 import { OperationStatus, OperationType } from '../../operations/enums';
@@ -73,6 +75,8 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         id: dispenser.id,
       };
 
+      let plMessageId = payload?.errReg ? payload.errReg : 0;
+
       let operationStatus: OperationStatus = OperationStatus.PROGRESS;
 
       if (payload.state === DispenserRVStatus.ERROR) {
@@ -80,6 +84,9 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           error: payload?.error ? payload.error : `Произошла ошибка`,
           statusId: DispenserStatus.TRK_OFF_RK_OFF,
         };
+        if (DispenserRVErrors[plMessageId]) {
+          dispenserData.error = DispenserRVErrors[plMessageId];
+        }
         operationStatus = OperationStatus.INTERRUPTED;
       } else if (payload.state === DispenserRVStatus.DONE) {
         dispenserData = {
@@ -104,6 +111,10 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           statusId: DispenserStatus.INITIALIZE,
         };
         operationStatus = OperationStatus.STARTED;
+      }
+
+      if (plMessageId && DispenserRVWarnings[plMessageId]) {
+        dispenserData.error = DispenserRVWarnings[plMessageId];
       }
 
       if (dispenser?.id) {
