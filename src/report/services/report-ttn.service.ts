@@ -36,7 +36,7 @@ export class ReportTtnService {
       where: {
         numberTTN: operation.numberTTN,
         type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
-        createdAt: MoreThanOrEqual(operation.createdAt - 3600 * 24 * 365),
+        createdAt: MoreThanOrEqual(operation.createdAt - 3600 * 24),
       },
     });
 
