@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Operation } from '../../operations/entities/operation.entity';
-import { In, Repository } from 'typeorm';
+import { In, MoreThanOrEqual, Repository } from 'typeorm';
 import * as ExcelJS from 'exceljs';
 import * as path from 'path';
 import { OperationType } from '../../operations/enums';
@@ -36,6 +36,7 @@ export class ReportTtnService {
       where: {
         numberTTN: operation.numberTTN,
         type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+        createdAt: MoreThanOrEqual(operation.createdAt - 3600 * 24 * 365),
       },
     });
 
