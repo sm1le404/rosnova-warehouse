@@ -8,10 +8,10 @@ import { Dispenser } from '../entities/dispenser.entity';
 import { DispenserService } from './dispenser.service';
 import {
   DispenserRVCondition,
-  DispenserRVStatus,
-  DispenserStatus,
   DispenserRVErrors,
+  DispenserRVStatus,
   DispenserRVWarnings,
+  DispenserStatus,
 } from '../../devices/enums';
 import { DispenserRvResponseDto } from '../../devices/dto/dispenser.rv.response.dto';
 import { Operation } from '../../operations/entities/operation.entity';
@@ -87,7 +87,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         if (DispenserRVErrors[plMessageId]) {
           dispenserData.error = DispenserRVErrors[plMessageId];
         }
-        operationStatus = OperationStatus.INTERRUPTED;
+        operationStatus = OperationStatus.STOPPED;
       } else if (payload.state === DispenserRVStatus.DONE) {
         dispenserData = {
           error: ``,
@@ -100,6 +100,23 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           error: ``,
           statusId: DispenserStatus.TRK_OFF_RK_ON,
         };
+        // Если у нас есть остановленная операция, значит до этого был сброс ошибки
+        // Тогда переводим колонку в процесс, чтобы можно было продолжить операцию
+        const stoppedOperation = await this.operationRepository.findOne({
+          where: {
+            type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
+            dispenser: {
+              id: payload.idTrk,
+            },
+            status: OperationStatus.STOPPED,
+          },
+          order: {
+            id: 'asc',
+          },
+        });
+        if (stoppedOperation) {
+          dispenserData.statusId = DispenserStatus.PROCESS;
+        }
       } else if (payload.state === DispenserRVStatus.PROCESS) {
         dispenserData = {
           error: ``,
@@ -129,6 +146,10 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       }
 
       if (operation?.id) {
+        const currentVolume =
+          operation.docVolume - operation.factVolume > 0
+            ? operation.docVolume - operation.factVolume
+            : operation.docVolume;
         result = {
           ...result,
           idOp: `1`,
@@ -136,7 +157,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             payload.state === DispenserRVStatus.ERROR
               ? DispenserRVCondition.WAITING
               : DispenserRVCondition.OPERATION_PROGRESS,
-          doseRef: operation.docVolume,
+          doseRef: currentVolume,
           fuelNameRu: operation.fuel.name,
           fuelName: CyrillicToTranslit().transform(operation.fuel.name),
           tankNum: operation.tank?.addressId ?? operation.tank.id,
@@ -150,8 +171,8 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             id: operation.id,
             status: operationStatus,
             dispenserError: !!dispenser?.error?.length,
-            factVolume: payload.doseIssCurr,
-            factWeight: payload.mass,
+            factVolume: operation.factVolume + payload.doseIssCurr,
+            factWeight: operation.factWeight + payload.mass,
             docDensity: payload.dens,
             docTemperature: payload.temp,
           },
