@@ -19,6 +19,7 @@ import { OperationStatus, OperationType } from '../../operations/enums';
 import CyrillicToTranslit from 'cyrillic-to-translit-js';
 import { DispenserRvSimpleResponseDto } from '../../devices/dto/dispenser.rv.simple.response.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class DispenserQueueService extends CommonService<DispenserQueue> {
@@ -30,6 +31,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
     private operationRepository: Repository<Operation>,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     super();
   }
@@ -146,10 +148,35 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       }
 
       if (operation?.id) {
+        const lastErrorVolume: number =
+          (await this.cacheManager.get(`operation_volume_${operation.id}`)) ??
+          0;
+
+        const lastErrorWeight: number =
+          (await this.cacheManager.get(`operation_weight_${operation.id}`)) ??
+          0;
+
+        if (operationStatus === OperationStatus.STOPPED) {
+          if (dispenserData.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
+            await this.cacheManager.set(
+              `operation_volume_${operation.id}`,
+              lastErrorVolume + operation.factVolume,
+            );
+            await this.cacheManager.set(
+              `operation_weight_${operation.id}`,
+              lastErrorVolume + operation.factWeight,
+            );
+          } else {
+            await this.cacheManager.del(`operation_volume_${operation.id}`);
+            await this.cacheManager.del(`operation_weight_${operation.id}`);
+          }
+        }
+
         const currentVolume =
           operation.docVolume - operation.factVolume > 0
             ? operation.docVolume - operation.factVolume
             : operation.docVolume;
+
         result = {
           ...result,
           idOp: `1`,
@@ -171,8 +198,8 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             id: operation.id,
             status: operationStatus,
             dispenserError: !!dispenser?.error?.length,
-            factVolume: operation.factVolume + payload.doseIssCurr,
-            factWeight: operation.factWeight + payload.mass,
+            factVolume: lastErrorVolume + payload.doseIssCurr,
+            factWeight: lastErrorWeight + payload.mass,
             docDensity: payload.dens,
             docTemperature: payload.temp,
           },
