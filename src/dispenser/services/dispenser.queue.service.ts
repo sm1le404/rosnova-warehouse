@@ -148,31 +148,31 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       }
 
       if (operation?.id) {
-        const lastErrorVolume: number =
+        let lastErrorVolume: number =
           (await this.cacheManager.get(`operation_volume_${operation.id}`)) ??
           0;
 
-        const lastErrorWeight: number =
+        let lastErrorWeight: number =
           (await this.cacheManager.get(`operation_weight_${operation.id}`)) ??
           0;
 
-        if (operationStatus === OperationStatus.STOPPED) {
-          if (dispenserData.statusId === DispenserStatus.TRK_OFF_RK_OFF) {
-            await this.cacheManager.set(
-              `operation_volume_${operation.id}`,
-              lastErrorVolume + operation.factVolume,
-            );
-            await this.cacheManager.set(
-              `operation_weight_${operation.id}`,
-              lastErrorVolume + operation.factWeight,
-            );
-          } else {
-            await this.cacheManager.del(`operation_volume_${operation.id}`);
-            await this.cacheManager.del(`operation_weight_${operation.id}`);
-          }
+        if (
+          operationStatus === OperationStatus.STOPPED &&
+          dispenserData.statusId === DispenserStatus.TRK_OFF_RK_OFF
+        ) {
+          lastErrorVolume = operation.factVolume;
+          await this.cacheManager.set(
+            `operation_volume_${operation.id}`,
+            operation.factVolume,
+          );
+          lastErrorWeight = operation.factWeight;
+          await this.cacheManager.set(
+            `operation_weight_${operation.id}`,
+            operation.factWeight,
+          );
         }
 
-        const currentVolume =
+        const doseRef =
           operation.docVolume - operation.factVolume > 0
             ? operation.docVolume - operation.factVolume
             : operation.docVolume;
@@ -184,7 +184,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             payload.state === DispenserRVStatus.ERROR
               ? DispenserRVCondition.WAITING
               : DispenserRVCondition.OPERATION_PROGRESS,
-          doseRef: currentVolume,
+          doseRef,
           fuelNameRu: operation.fuel.name,
           fuelName: CyrillicToTranslit().transform(operation.fuel.name),
           tankNum: operation.tank?.addressId ?? operation.tank.id,

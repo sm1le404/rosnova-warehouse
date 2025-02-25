@@ -25,6 +25,7 @@ import { TankOperationStateEvent } from '../../../operations/events/tank-operati
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DispenserCommand, DispenserStatus } from '../../enums/dispenser.enum';
 import { Dispenser } from '../../../dispenser/entities/dispenser.entity';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class DeviceRvService extends AbstractDispenser {
@@ -40,6 +41,7 @@ export class DeviceRvService extends AbstractDispenser {
     @InjectRepository(Tank)
     private readonly tankRepository: Repository<Tank>,
     private eventEmitter: EventEmitter2,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {
     super();
   }
@@ -112,6 +114,9 @@ export class DeviceRvService extends AbstractDispenser {
         operation.factVolume * operation.tank.density,
       ),
     );
+
+    await this.cacheManager.del(`operation_volume_${operation.id}`);
+    await this.cacheManager.del(`operation_weight_${operation.id}`);
   }
 
   async drainFuel(payload: DispenserGetFuelDto): Promise<void> {
