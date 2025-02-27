@@ -94,7 +94,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         dispenserData = {
           error: ``,
           statusId: DispenserStatus.DONE,
-          currentCounter: dispenser.currentCounter + payload.doseIssCurr,
+          currentCounter: dispenser.currentCounter + operation.factVolume,
         };
         operationStatus = OperationStatus.STOPPED;
       } else if (payload.state === DispenserRVStatus.TRK_OFF_RK_ON) {
@@ -161,6 +161,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           dispenserData.statusId === DispenserStatus.TRK_OFF_RK_OFF
         ) {
           lastErrorVolume = operation.factVolume;
+
           await this.cacheManager.set(
             `operation_volume_${operation.id}`,
             operation.factVolume,
