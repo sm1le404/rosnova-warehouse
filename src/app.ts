@@ -37,18 +37,35 @@ const reload = document.getElementById('reload');
     formData.innerHTML = '';
     if (settings.style.display === 'none' || settings.style.display === '') {
       data.forEach((item) => {
+        let input;
         let div = document.createElement('div');
         let label = document.createElement('label');
         label.textContent = item.name;
-        let input = document.createElement('input');
-        input.setAttribute('type', item.type);
-        input.setAttribute('value', item.value);
-        input.setAttribute('name', item.code);
-        if (item.type === 'checkbox') {
-          if (item.value === '1') {
-            input.setAttribute('checked', 'checked');
+        if (item.type === 'select') {
+          input = document.createElement('select');
+          input.setAttribute('name', item.code);
+          if (item?.options && Array.isArray(item.options)) {
+            item.options.forEach((option) => {
+              let optionInput = document.createElement('option');
+              optionInput.textContent = option.text;
+              optionInput.setAttribute('value', option.value);
+              if (option.value === item.value) {
+                optionInput.setAttribute('selected', 'selected');
+              }
+              input.appendChild(optionInput);
+            });
           }
-          input.setAttribute('value', '1');
+        } else {
+          input = document.createElement('input');
+          input.setAttribute('type', item.type);
+          input.setAttribute('value', item.value);
+          input.setAttribute('name', item.code);
+          if (item.type === 'checkbox') {
+            if (item.value === '1') {
+              input.setAttribute('checked', 'checked');
+            }
+            input.setAttribute('value', '1');
+          }
         }
         div!.append(label);
         div!.append(input);

@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as os from 'os';
+import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 
 /**
  * @param envFilePath
@@ -51,11 +52,17 @@ export const setEnvValue = (
 };
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
+export interface envFieldOptionsInterface {
+  value: string;
+  text: string;
+}
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface envFieldInterface {
   name: string;
   code: string;
-  type: 'text' | 'checkbox';
+  type: 'text' | 'checkbox' | 'select';
   value?: string;
+  options?: envFieldOptionsInterface[];
 }
 export const envirmomentFields: Array<envFieldInterface> = [
   {
@@ -116,6 +123,58 @@ export const envirmomentFields: Array<envFieldInterface> = [
   {
     name: 'Пароль kafka',
     code: 'KAFKA_PLAIN_PWD',
+    type: 'text',
+  },
+  {
+    name: 'Частота резервной копии',
+    code: 'BACKUP_HOURS',
+    type: 'select',
+    options: [
+      {
+        value: CronExpression.EVERY_HOUR,
+        text: 'Каждый час',
+      },
+      {
+        value: CronExpression.EVERY_6_HOURS,
+        text: 'Каждые 6 часов',
+      },
+      {
+        value: CronExpression.EVERY_12_HOURS,
+        text: 'Каждые 12 часов',
+      },
+      {
+        value: CronExpression.EVERY_DAY_AT_MIDNIGHT,
+        text: 'Каждый день',
+      },
+      {
+        value: CronExpression.EVERY_WEEK,
+        text: 'Каждую неделю',
+      },
+    ],
+  },
+  {
+    name: 'Адрес FTP',
+    code: 'FTP_HOST',
+    type: 'text',
+  },
+  {
+    name: 'Использовать secure режим FTP',
+    code: 'FTP_SECURE',
+    type: 'checkbox',
+  },
+  {
+    name: 'Пользователь FTP',
+    code: 'FTP_USER',
+    type: 'text',
+  },
+  {
+    name: 'Пароль пользователя FTP',
+    code: 'FTP_PWD',
+    type: 'text',
+  },
+  {
+    name: 'Путь до директории на FTP',
+    code: 'FTP_PATH',
     type: 'text',
   },
 ];
