@@ -20,6 +20,7 @@ import CyrillicToTranslit from 'cyrillic-to-translit-js';
 import { DispenserRvSimpleResponseDto } from '../../devices/dto/dispenser.rv.simple.response.dto';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { valueRound } from '../../report/utils';
 
 @Injectable()
 export class DispenserQueueService extends CommonService<DispenserQueue> {
@@ -193,11 +194,12 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             status: operationStatus,
             dispenserError: !!dispenser?.error?.length,
             factVolume:
-              lastErrorVolume == payload.doseIssCurr
+              valueRound(lastErrorVolume, 0) ==
+              valueRound(payload.doseIssCurr, 0)
                 ? payload.doseIssCurr
                 : lastErrorVolume + payload.doseIssCurr,
             factWeight:
-              lastErrorWeight == payload.mass
+              valueRound(lastErrorWeight, 0) == valueRound(payload.mass, 0)
                 ? payload.mass
                 : lastErrorWeight + payload.mass,
             docDensity: payload.dens,
