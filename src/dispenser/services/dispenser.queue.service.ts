@@ -94,11 +94,11 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         if (operation?.id) {
           await this.cacheManager.set(
             `operation_volume_${operation.id}`,
-            operation.factVolume,
+            payload.doseIssCurr,
           );
           await this.cacheManager.set(
             `operation_weight_${operation.id}`,
-            operation.factWeight,
+            payload.doseIssCurr,
           );
         }
       } else if (payload.state === DispenserRVStatus.DONE) {
@@ -168,8 +168,8 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           0;
 
         const doseRef =
-          operation.docVolume - operation.factVolume > 0
-            ? operation.docVolume - operation.factVolume
+          operation.docVolume - lastErrorVolume > 0
+            ? operation.docVolume - lastErrorVolume
             : operation.docVolume;
 
         result = {
