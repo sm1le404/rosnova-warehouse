@@ -90,6 +90,16 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           dispenserData.error = DispenserRVErrors[plMessageId];
         }
         operationStatus = OperationStatus.STOPPED;
+        if (operation?.id) {
+          await this.cacheManager.set(
+            `operation_volume_${operation.id}`,
+            operation.factVolume,
+          );
+          await this.cacheManager.set(
+            `operation_weight_${operation.id}`,
+            operation.factWeight,
+          );
+        }
       } else if (payload.state === DispenserRVStatus.DONE) {
         dispenserData = {
           error: ``,
@@ -155,23 +165,6 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         let lastErrorWeight: number =
           (await this.cacheManager.get(`operation_weight_${operation.id}`)) ??
           0;
-
-        if (
-          operationStatus === OperationStatus.STOPPED &&
-          dispenserData.statusId === DispenserStatus.TRK_OFF_RK_OFF
-        ) {
-          lastErrorVolume = operation.factVolume;
-
-          await this.cacheManager.set(
-            `operation_volume_${operation.id}`,
-            operation.factVolume,
-          );
-          lastErrorWeight = operation.factWeight;
-          await this.cacheManager.set(
-            `operation_weight_${operation.id}`,
-            operation.factWeight,
-          );
-        }
 
         const doseRef =
           operation.docVolume - operation.factVolume > 0
