@@ -54,7 +54,7 @@ import { APP_STARTED_MESS } from './front/updater.conf';
     }),
     CacheModule.register({
       isGlobal: true,
-      ttl: 86400,
+      ttl: 86400 * 1000,
     }),
     TypeOrmModule.forRootAsync({
       useFactory() {

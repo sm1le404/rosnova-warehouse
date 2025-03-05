@@ -95,10 +95,12 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           await this.cacheManager.set(
             `operation_volume_${operation.id}`,
             payload.doseIssCurr,
+            1000 * 86400,
           );
           await this.cacheManager.set(
             `operation_weight_${operation.id}`,
             payload.mass,
+            1000 * 86400,
           );
         }
       } else if (payload.state === DispenserRVStatus.DONE) {
