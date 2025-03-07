@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { Operation } from '../../../operations/entities/operation.entity';
 import { DispenserGetFuelDto } from '../../dto/dispenser.get.fuel.dto';
 import { Tank } from '../../../tank/entities/tank.entity';
@@ -23,12 +23,12 @@ import {
 } from '../../../operations/enums';
 import { TankOperationStateEvent } from '../../../operations/events/tank-operation-state.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { DispenserCommand, DispenserStatus } from '../../enums/dispenser.enum';
 import { Dispenser } from '../../../dispenser/entities/dispenser.entity';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { DispenserCommand, DispenserStatus } from '../../enums';
 
 @Injectable()
-export class DeviceRvService extends AbstractDispenser {
+export class DeviceDemoService extends AbstractDispenser {
   constructor(
     private readonly configService: ConfigService,
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
@@ -78,13 +78,6 @@ export class DeviceRvService extends AbstractDispenser {
       );
     }
 
-    if (operation?.tank?.addressId) {
-      await this.deviceTankService.readCommand(
-        operation.tank.addressId,
-        operation.tank.comId,
-      );
-    }
-
     const tankState = await this.tankRepository.findOne({
       where: { id: operation.tank.id },
     });
@@ -105,6 +98,17 @@ export class DeviceRvService extends AbstractDispenser {
       },
     );
 
+    await this.dispenserRepository.update(
+      {
+        id: operation.dispenser.id,
+      },
+      {
+        id: operation.dispenser.id,
+        isBlocked: false,
+        statusId: DispenserStatus.TRK_OFF_RK_ON,
+      },
+    );
+
     this.eventEmitter.emit(
       OperationEvent.FINISH,
       new TankOperationStateEvent(
@@ -114,64 +118,26 @@ export class DeviceRvService extends AbstractDispenser {
         operation.factVolume * operation.tank.density,
       ),
     );
-
-    await this.cacheManager.del(`operation_volume_${operation.id}`);
-    await this.cacheManager.del(`operation_weight_${operation.id}`);
   }
 
   async drainFuel(payload: DispenserGetFuelDto): Promise<void> {
-    const baseFilter: FindOptionsWhere<Operation> = {
-      status: Not(OperationStatus.FINISHED),
-      type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
-    };
     const operation = await this.operationRepository.findOneOrFail({
       where: {
-        ...baseFilter,
         id: payload.operationId,
+        status: Not(In([OperationStatus.STOPPED, OperationStatus.FINISHED])),
       },
       relations: {
         dispenser: true,
         tank: true,
-        shift: true,
-        fuel: true,
       },
     });
+
     if (!operation?.dispenser?.addressId) {
       throw new BadRequestException(`На колонке не установлен адрес`);
     }
 
-    const checkOperation = await this.operationRepository.findOne({
-      where: {
-        ...baseFilter,
-        status: Not(
-          In([OperationStatus.FINISHED, OperationStatus.INTERRUPTED]),
-        ),
-        id: Not(operation.id),
-        dispenser: {
-          id: operation.dispenser.id,
-        },
-        shift: {
-          id: operation.shift.id,
-        },
-      },
-      select: {
-        id: true,
-        status: true,
-      },
-    });
-
-    if (
-      checkOperation?.id &&
-      checkOperation?.status !== OperationStatus.CREATED
-    ) {
-      throw new BadRequestException(
-        `Нельзя начинать новую операцию, 
-        предварительно необходимо завершить ТТН ${operation.numberTTN}`,
-      );
-    }
-
-    const tankState = await this.tankRepository.findOne({
-      where: { id: operation.tank.id },
+    const dispenser = await this.dispenserRepository.findOne({
+      where: { id: operation.dispenser.id },
     });
 
     await this.operationRepository.update(
@@ -182,29 +148,77 @@ export class DeviceRvService extends AbstractDispenser {
         id: operation.id,
         startedAt: Math.floor(Date.now() / 1000),
         status: OperationStatus.STARTED,
-        counterBefore: operation.dispenser.currentCounter,
-        volumeBefore: tankState.volume,
-        levelBefore: tankState.level,
+        counterBefore: dispenser.currentCounter,
       },
     );
 
+    await this.dispenserRepository.update(
+      {
+        id: operation.dispenser.id,
+      },
+      {
+        id: operation.dispenser.id,
+        isBlocked: true,
+        statusId: DispenserStatus.PROCESS,
+      },
+    );
+    await this.tankRepository.update(
+      {
+        id: operation.tank.id,
+      },
+      { isBlocked: true },
+    );
+
+    let counter = 0;
+    let step = 10;
+    const ratio = Math.pow(payload.litres, 1 / 20);
     return new Promise((resolve) => {
       let intervalCheckCompileStatus = setInterval(async () => {
-        const currentOperationState = await this.operationRepository.findOne({
-          where: {
+        step++;
+
+        counter += Math.pow(ratio, step) - Math.pow(ratio, step - 1);
+
+        await this.operationRepository.update(
+          {
             id: operation.id,
           },
-          select: {
-            id: true,
-            status: true,
+          {
+            id: operation.id,
+            status: OperationStatus.PROGRESS,
+            factVolume: counter,
+            factWeight: counter * operation.tank.density,
+            counterAfter: dispenser.currentCounter + counter,
           },
-          loadEagerRelations: false,
-        });
-        if (
-          !currentOperationState?.id ||
-          currentOperationState.status === OperationStatus.STOPPED ||
-          currentOperationState.status === OperationStatus.FINISHED
-        ) {
+        );
+        if (counter >= payload.litres) {
+          await this.operationRepository.update(
+            {
+              id: operation.id,
+            },
+            {
+              id: operation.id,
+              status: OperationStatus.STOPPED,
+              factVolume: payload.litres,
+              factWeight: payload.litres * operation.tank.density,
+            },
+          );
+          await this.dispenserRepository.update(
+            {
+              id: operation.dispenser.id,
+              currentCounter: dispenser.currentCounter + counter,
+            },
+            {
+              id: operation.dispenser.id,
+              statusId: DispenserStatus.DONE,
+              isBlocked: false,
+            },
+          );
+          await this.tankRepository.update(
+            {
+              id: operation.tank.id,
+            },
+            { isBlocked: false },
+          );
           clearInterval(intervalCheckCompileStatus);
           resolve();
         }
@@ -228,10 +242,10 @@ export class DeviceRvService extends AbstractDispenser {
         },
         {
           id: dispenser.id,
-          statusId: DispenserStatus.MANUAL_MODE,
+          statusId: DispenserStatus.TRK_OFF_RK_ON,
         },
       );
-      responseData.push(DispenserStatus.MANUAL_MODE);
+      responseData.push(DispenserStatus.TRK_OFF_RK_ON);
 
       return responseData;
     }

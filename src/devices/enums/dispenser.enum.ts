@@ -45,4 +45,5 @@ export enum DispenserStatus {
 export enum DispenserDeviceTypes {
   RV = 'RV',
   TOPAZ = 'TOPAZ',
+  DEMO = 'DEMO',
 }

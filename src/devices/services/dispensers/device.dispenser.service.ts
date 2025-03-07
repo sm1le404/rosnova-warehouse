@@ -16,6 +16,7 @@ import { AbstractDispenser } from '../../classes/abstract.dispenser';
 import { DeviceTestService } from './device.test.service';
 import { DeviceRvService } from './device.rv.service';
 import { SettingsKey } from '../../../settings/enums';
+import { DeviceDemoService } from './device.demo.service';
 
 @Injectable()
 export class DeviceDispenserService implements OnModuleDestroy {
@@ -30,6 +31,7 @@ export class DeviceDispenserService implements OnModuleDestroy {
     private readonly deviceTopazService: DeviceTopazService,
     private readonly deviceTestService: DeviceTestService,
     private readonly deviceRvService: DeviceRvService,
+    private readonly deviceDemoService: DeviceDemoService,
   ) {
     (
       settingsService.getValue(
@@ -45,6 +47,8 @@ export class DeviceDispenserService implements OnModuleDestroy {
         this.deviceDispenser = this.deviceTopazService;
       } else if (deviceType === DispenserDeviceTypes.RV) {
         this.deviceDispenser = this.deviceRvService;
+      } else if (deviceType === DispenserDeviceTypes.DEMO) {
+        this.deviceDispenser = this.deviceDemoService;
       }
       this.deviceDispenser.initPorts();
     });

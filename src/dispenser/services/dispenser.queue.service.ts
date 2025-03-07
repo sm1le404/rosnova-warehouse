@@ -21,6 +21,7 @@ import { DispenserRvSimpleResponseDto } from '../../devices/dto/dispenser.rv.sim
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { valueRound } from '../../report/utils';
+import { RvErrorInterface } from '../interfaces';
 
 @Injectable()
 export class DispenserQueueService extends CommonService<DispenserQueue> {
@@ -55,17 +56,26 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
     };
 
     try {
-      const dispenser = await this.dispenserService.getRepository().findOne({
+      let dispenser = await this.dispenserService.getRepository().findOne({
         where: {
-          id: payload.idTrk,
+          addressId: payload.idTrk,
         },
       });
+      if (!dispenser) {
+        dispenser = await this.dispenserService.getRepository().findOne({
+          where: {
+            id: payload.idTrk,
+          },
+        });
+      }
+
+      let lastError: RvErrorInterface;
 
       const operation = await this.operationRepository.findOne({
         where: {
           type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
           dispenser: {
-            id: payload.idTrk,
+            id: dispenser?.id,
           },
           status: In([OperationStatus.STARTED, OperationStatus.PROGRESS]),
         },
@@ -74,8 +84,24 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
         },
       });
 
+      if (operation?.id) {
+        const tempErrorData: RvErrorInterface = await this.cacheManager.get(
+          `operation_error_${operation.id}`,
+        );
+
+        if (tempErrorData) {
+          lastError = tempErrorData;
+        } else {
+          lastError = {
+            volume: 0,
+            weight: 0,
+            errorTime: 0,
+          };
+        }
+      }
+
       let dispenserData: Partial<Dispenser> = {
-        id: dispenser.id,
+        id: dispenser?.id,
       };
 
       let plMessageId = payload?.errReg ? payload.errReg : 0;
@@ -91,15 +117,32 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           dispenserData.error = DispenserRVErrors[plMessageId];
         }
         operationStatus = OperationStatus.STOPPED;
+
         if (operation?.id) {
+          // Ждем 60 секунд, думаем что это одна ошибка,
+          // если прошло > 60 сек и объем не равен,
+          // то записываем сумму, иначе берем последнее значение
+          const realErrorVolume =
+            Date.now() - lastError.errorTime > 60 * 1000 &&
+            payload.doseIssCurr != lastError.volume
+              ? payload.doseIssCurr + lastError.volume
+              : payload.doseIssCurr;
+
+          const realErrorWeight =
+            Date.now() - lastError.errorTime > 60 * 1000 &&
+            payload.mass != lastError.weight
+              ? payload.mass + lastError.weight
+              : payload.mass;
+
+          lastError.volume = realErrorVolume;
+          lastError.weight = realErrorWeight;
+          lastError.errorTime = Date.now();
+
           await this.cacheManager.set(
-            `operation_volume_${operation.id}`,
-            payload.doseIssCurr,
-            1000 * 86400,
-          );
-          await this.cacheManager.set(
-            `operation_weight_${operation.id}`,
-            payload.mass,
+            `operation_error_${operation.id}`,
+            {
+              ...lastError,
+            },
             1000 * 86400,
           );
         }
@@ -121,7 +164,7 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           where: {
             type: In([OperationType.OUTCOME, OperationType.INTERNAL]),
             dispenser: {
-              id: payload.idTrk,
+              id: dispenser?.id,
             },
             status: OperationStatus.STOPPED,
           },
@@ -161,17 +204,9 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
       }
 
       if (operation?.id) {
-        let lastErrorVolume: number =
-          (await this.cacheManager.get(`operation_volume_${operation.id}`)) ??
-          0;
-
-        let lastErrorWeight: number =
-          (await this.cacheManager.get(`operation_weight_${operation.id}`)) ??
-          0;
-
         const doseRef =
-          operation.docVolume - lastErrorVolume > 0
-            ? operation.docVolume - lastErrorVolume
+          operation.docVolume - lastError.volume > 0
+            ? operation.docVolume - lastError.volume
             : operation.docVolume;
 
         result = {
@@ -196,14 +231,14 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
             status: operationStatus,
             dispenserError: !!dispenser?.error?.length,
             factVolume:
-              valueRound(lastErrorVolume, 0) ==
+              valueRound(lastError.volume, 0) ==
               valueRound(payload.doseIssCurr, 0)
                 ? payload.doseIssCurr
-                : lastErrorVolume + payload.doseIssCurr,
+                : lastError.volume + payload.doseIssCurr,
             factWeight:
-              valueRound(lastErrorWeight, 0) == valueRound(payload.mass, 0)
+              valueRound(lastError.weight, 0) == valueRound(payload.mass, 0)
                 ? payload.mass
-                : lastErrorWeight + payload.mass,
+                : lastError.weight + payload.mass,
             docDensity: payload.dens,
             docTemperature: payload.temp,
           },

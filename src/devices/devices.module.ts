@@ -9,6 +9,7 @@ import { Event } from '../event/entities/event.entity';
 import { InteractiveScheduleCronService } from '../cron/services/interactive.schedule.cron.service';
 import { DispenserQueue } from '../dispenser/entities/dispenser.queue.entity';
 import {
+  DeviceDemoService,
   DeviceDispenserService,
   DeviceRvService,
   DeviceTankSensService,
@@ -36,6 +37,7 @@ import { DeviceTankStrelaService } from './services/tanks/device.tank.strela.ser
     InteractiveScheduleCronService,
     DeviceTopazService,
     DeviceRvService,
+    DeviceDemoService,
     DeviceTestService,
     DeviceTankSensService,
     DeviceTankStrelaService,
