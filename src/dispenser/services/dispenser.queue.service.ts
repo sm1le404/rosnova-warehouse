@@ -77,7 +77,15 @@ export class DispenserQueueService extends CommonService<DispenserQueue> {
           dispenser: {
             id: dispenser?.id,
           },
-          status: In([OperationStatus.STARTED, OperationStatus.PROGRESS]),
+          status: In(
+            dispenser?.statusId == DispenserStatus.TRK_OFF_RK_OFF
+              ? [
+                  OperationStatus.STARTED,
+                  OperationStatus.PROGRESS,
+                  OperationStatus.STOPPED,
+                ]
+              : [OperationStatus.STARTED, OperationStatus.PROGRESS],
+          ),
         },
         order: {
           id: 'asc',
