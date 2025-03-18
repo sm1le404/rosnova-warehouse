@@ -43,7 +43,11 @@ export class BackupService implements OnApplicationBootstrap {
                 process.env.DB_NAME
               }_${new Date().toISOString()}.zip`;
 
-              const fileData = fs.createWriteStream(backupName);
+              const backupPath = isDev()
+                ? path.join(process.env.PWD, backupName)
+                : path.join(process.env.USER_DATA, backupName);
+
+              const fileData = fs.createWriteStream(backupPath);
               fileData.on('error', (error) => {
                 this.logger.error(error);
               });
@@ -52,7 +56,7 @@ export class BackupService implements OnApplicationBootstrap {
                 .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
                 .pipe(fileData)
                 .on('finish', async () => {
-                  if (fs.existsSync(backupName)) {
+                  if (fs.existsSync(backupPath)) {
                     const client = new Client();
                     await client.access({
                       host: `${process.env.FTP_HOST}`,
@@ -62,11 +66,11 @@ export class BackupService implements OnApplicationBootstrap {
                     });
                     client
                       .uploadFrom(
-                        backupName,
+                        backupPath,
                         `${process.env.FTP_PATH}/${backupName}`,
                       )
                       .finally(() => {
-                        rimraf(backupName);
+                        rimraf(backupPath);
                         client.close();
                       })
                       .catch((error) => this.logger.error(error));
