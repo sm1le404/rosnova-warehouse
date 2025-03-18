@@ -31,7 +31,10 @@ export class BackupService implements OnApplicationBootstrap {
           process.env.BACKUP_HOURS,
           () => {
             const dbPath = isDev()
-              ? path.join(process.env.PWD, process.env.DB_NAME)
+              ? path.join(
+                  process.env.PWD || process.env.INIT_CWD,
+                  process.env.DB_NAME,
+                )
               : path.join(process.env.USER_DATA, process.env.DB_NAME);
 
             const backupName = `backup_${
@@ -39,7 +42,7 @@ export class BackupService implements OnApplicationBootstrap {
             }_${Date.now()}.zip`;
 
             const backupPath = isDev()
-              ? path.join(process.env.PWD, backupName)
+              ? path.join(process.env.PWD || process.env.INIT_CWD, backupName)
               : path.join(process.env.USER_DATA, backupName);
 
             const zip = new JSZip();
