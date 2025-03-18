@@ -33,7 +33,7 @@ export class BackupService implements OnApplicationBootstrap {
           () => {
             const dbPath = isDev()
               ? path.join(process.env.PWD, process.env.DB_NAME)
-              : path.join(rootpath(), process.env.DB_NAME);
+              : path.join(process.env.USER_DATA, process.env.DB_NAME);
 
             const zip = new JSZip();
             const dbData = fs.readFileSync(dbPath);
