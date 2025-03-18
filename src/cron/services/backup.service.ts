@@ -73,6 +73,7 @@ export class BackupService implements OnApplicationBootstrap {
                         `${process.env.FTP_PATH}/${backupName}`,
                       )
                       .finally(() => {
+                        fileData.close();
                         rimraf(backupPath);
                         client.close();
                       })
