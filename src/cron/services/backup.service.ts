@@ -29,7 +29,7 @@ export class BackupService implements OnApplicationBootstrap {
       if (process.env.BACKUP_HOURS && process.env.FTP_HOST) {
         await this.interactiveScheduleCronService.upsertCronJob(
           `backup`,
-          `0 0-23/${parseInt(process.env.BACKUP_HOURS) ?? 1} * * *`,
+          process.env.BACKUP_HOURS,
           () => {
             const dbPath = isDev()
               ? path.join(process.env.PWD, process.env.DB_NAME)
@@ -58,7 +58,7 @@ export class BackupService implements OnApplicationBootstrap {
                       host: `${process.env.FTP_HOST}`,
                       user: `${process.env.FTP_USER}`,
                       password: `${process.env.FTP_PWD}`,
-                      secure: !!process.env.FTP_SECURE,
+                      secure: process.env.FTP_SECURE !== '0',
                     });
                     client
                       .uploadFrom(
