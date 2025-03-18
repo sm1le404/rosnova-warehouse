@@ -35,18 +35,19 @@ export class BackupService implements OnApplicationBootstrap {
               ? path.join(process.env.PWD, process.env.DB_NAME)
               : path.join(process.env.USER_DATA, process.env.DB_NAME);
 
+            const backupName = `backup_${
+              process.env.DB_NAME
+            }_${new Date().toISOString()}.zip`;
+
+            const backupPath = isDev()
+              ? path.join(process.env.PWD, backupName)
+              : path.join(process.env.USER_DATA, backupName);
+
             const zip = new JSZip();
             const dbData = fs.readFileSync(dbPath);
-            const fileSaved = zip.file(process.env.DB_NAME, dbData);
+            const fileSaved = zip.file(backupPath, dbData);
+
             if (fileSaved) {
-              const backupName = `backup_${
-                process.env.DB_NAME
-              }_${new Date().toISOString()}.zip`;
-
-              const backupPath = isDev()
-                ? path.join(process.env.PWD, backupName)
-                : path.join(process.env.USER_DATA, backupName);
-
               const fileData = fs.createWriteStream(backupPath);
               fileData.on('error', (error) => {
                 this.logger.error(error);
