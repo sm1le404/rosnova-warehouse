@@ -8,7 +8,6 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { InteractiveScheduleCronService } from './interactive.schedule.cron.service';
 import { isDev } from '../../common/utility';
 import path from 'path';
-import { rootpath } from '../../common/utility/rootpath';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import JSZip from 'jszip';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -37,7 +36,7 @@ export class BackupService implements OnApplicationBootstrap {
 
             const backupName = `backup_${
               process.env.DB_NAME
-            }_${new Date().toISOString()}.zip`;
+            }_${Date.now()}.zip`;
 
             const backupPath = isDev()
               ? path.join(process.env.PWD, backupName)
@@ -45,7 +44,7 @@ export class BackupService implements OnApplicationBootstrap {
 
             const zip = new JSZip();
             const dbData = fs.readFileSync(dbPath);
-            const fileSaved = zip.file(backupPath, dbData);
+            const fileSaved = zip.file(process.env.DB_NAME, dbData);
 
             if (fileSaved) {
               const fileData = fs.createWriteStream(backupPath);
