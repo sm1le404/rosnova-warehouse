@@ -4,14 +4,14 @@ export const dateFormatter = (dateStart?: number, dateEnd?: number): string => {
   if (dateStart) {
     const tempDate = new Date(dateStart * 1000);
     offsetDateStart = new Date(
-      tempDate.getTime() + tempDate.getTimezoneOffset() * 1000 * 60,
+      tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset()) * 1000 * 60,
     );
   }
 
   if (dateEnd) {
     const tempDate = new Date(dateEnd * 1000);
     offsetDateEnd = new Date(
-      tempDate.getTime() + tempDate.getTimezoneOffset() * 1000 * 60,
+      tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset()) * 1000 * 60,
     );
   }
 
@@ -49,7 +49,7 @@ export const dateFormatter = (dateStart?: number, dateEnd?: number): string => {
 
 export const timeFormatter = (date: Date): string => {
   let offsetDate = new Date(
-    date.getTime() + date.getTimezoneOffset() * 1000 * 60,
+    date.getTime() + Math.abs(date.getTimezoneOffset()) * 1000 * 60,
   );
   const hours = String(offsetDate.getHours()).padStart(2, '0');
   const minutes = String(offsetDate.getMinutes()).padStart(2, '0');

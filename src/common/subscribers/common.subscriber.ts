@@ -9,8 +9,8 @@ import {
 export class CommonSubscriber implements EntitySubscriberInterface {
   private static prepareTzTime(time: number): number {
     const date = new Date(time * 1000);
-    if (-date.getTimezoneOffset() > 0) {
-      date.setHours(date.getHours() + -date.getTimezoneOffset() / 60);
+    if (Math.abs(date.getTimezoneOffset()) > 0) {
+      date.setHours(date.getHours() + Math.abs(date.getTimezoneOffset()) / 60);
     }
     return Math.floor(date.getTime() / 1000);
   }
