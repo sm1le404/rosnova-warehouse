@@ -27,10 +27,10 @@ export class ReportDrawbackService {
         operation?.dateTTN > 0 ? operation?.dateTTN : operation.createdAt,
       ),
     );
-    const dateStart = dateFormatter(operation.startedAtTzTime);
-    const timeStart = timeFormatter(new Date(operation.startedAtTzTime * 1000));
-    const dateEnd = dateFormatter(operation.finishedAtTzTime);
-    const timeEnd = timeFormatter(new Date(operation.finishedAtTzTime * 1000));
+    const dateStart = dateFormatter(operation.startedAt);
+    const timeStart = timeFormatter(new Date(operation.startedAt * 1000));
+    const dateEnd = dateFormatter(operation.finishedAt);
+    const timeEnd = timeFormatter(new Date(operation.finishedAt * 1000));
     const vehicleState = operation.vehicleState as unknown as IVehicleTank[];
 
     if (operation.vehicle?.trailer?.sectionVolumes) {

@@ -3,16 +3,12 @@ export const dateFormatter = (dateStart?: number, dateEnd?: number): string => {
   let offsetDateEnd: Date;
   if (dateStart) {
     const tempDate = new Date(dateStart * 1000);
-    offsetDateStart = new Date(
-      tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset()) * 1000 * 60,
-    );
+    offsetDateStart = new Date(tempDate.getTime());
   }
 
   if (dateEnd) {
     const tempDate = new Date(dateEnd * 1000);
-    offsetDateEnd = new Date(
-      tempDate.getTime() + Math.abs(tempDate.getTimezoneOffset()) * 1000 * 60,
-    );
+    offsetDateEnd = new Date(tempDate.getTime());
   }
 
   const dayStart = dateStart
@@ -48,9 +44,7 @@ export const dateFormatter = (dateStart?: number, dateEnd?: number): string => {
 };
 
 export const timeFormatter = (date: Date): string => {
-  let offsetDate = new Date(
-    date.getTime() + Math.abs(date.getTimezoneOffset()) * 1000 * 60,
-  );
+  let offsetDate = new Date(date.getTime());
   const hours = String(offsetDate.getHours()).padStart(2, '0');
   const minutes = String(offsetDate.getMinutes()).padStart(2, '0');
   const seconds = String(offsetDate.getSeconds()).padStart(2, '0');
