@@ -4,7 +4,7 @@ export const findDispenserIndices = (operations: Operation[]): number[] => {
   const indices: Record<number, number> = {};
 
   return operations.reduce((result, item, index) => {
-    const id = item.dispenser?.id;
+    const id = item.dispenser?.sortIndex;
     if (indices[id] === undefined) {
       indices[id] = index;
       result.push(index);

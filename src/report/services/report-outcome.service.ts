@@ -100,8 +100,8 @@ export class ReportOutcomeService {
 
       for (let i = 0; i < indices.length; i++) {
         const index = indices[i];
-        const elementToAdd = operations[index].dispenser?.id
-          ? `${operations[index].dispenser.id} трк`
+        const elementToAdd = operations[index].dispenser?.sortIndex
+          ? `${operations[index].dispenser.sortIndex} трк`
           : '';
 
         reportRows.splice(index, 0, ['', elementToAdd]);
@@ -110,7 +110,9 @@ export class ReportOutcomeService {
 
       reportRows.unshift([
         '',
-        operations[0]?.dispenser?.id ? `${operations[0].dispenser.id} трк` : '',
+        operations[0]?.dispenser?.sortIndex
+          ? `${operations[0].dispenser.sortIndex} трк`
+          : '',
       ]);
 
       copySheet.name =

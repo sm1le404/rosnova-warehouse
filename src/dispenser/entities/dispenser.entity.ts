@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CommonEntity } from '../../common/entities/common.entity';
 import { Operation } from '../../operations/entities/operation.entity';
-import { DispenserStatus } from '../../devices/enums/dispenser.enum';
+import { DispenserStatus } from '../../devices/enums';
 
 @Entity()
 export class Dispenser extends CommonEntity {
