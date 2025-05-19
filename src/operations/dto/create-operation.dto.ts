@@ -1,7 +1,6 @@
 import {
   IsBoolean,
   IsEnum,
-  IsNotEmpty,
   IsNotEmptyObject,
   IsNumber,
   IsObject,
@@ -98,10 +97,6 @@ export class CreateOperationDto {
   @ApiPropertyOptional({
     required: false,
     description: 'Назначение',
-  })
-  @IsOptional()
-  @IsNotEmpty({
-    message: i18nValidationMessage('validation.IsNotEmpty'),
   })
   @IsString({
     message: i18nValidationMessage('validation.IsString'),
