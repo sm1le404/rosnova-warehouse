@@ -3,14 +3,14 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { json, urlencoded } from 'express';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import express from 'express';
 import * as fs from 'fs';
 import path from 'path';
-// eslint-disable-next-line max-len
-import { NestApplicationOptions } from '@nestjs/common/interfaces/nest-application-options.interface';
 import {
   I18nValidationException,
   I18nValidationExceptionFilter,
@@ -18,50 +18,20 @@ import {
 } from 'nestjs-i18n';
 import { ArgumentsHost } from '@nestjs/common';
 import { clearDir } from './clearUpdate';
+import * as https from 'https';
+import * as http from 'http';
+import { SocketIoAdapter } from './ws/socket.io.adapter';
+import { ShutdownObserver } from './common/services/shutdown.observer';
+import { SocketObserver } from './ws/socket.observer';
 
 async function bootstrap() {
-  let appParams: NestApplicationOptions = {
+  const server = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
     rawBody: true,
-  };
-
-  const keyExist = fs.existsSync(path.join(__dirname, 'assets', 'key.pem'));
-  const certExist = fs.existsSync(path.join(__dirname, 'assets', 'cert.pem'));
-
-  if (certExist && keyExist && !!+process.env.HTTPS) {
-    appParams = {
-      ...appParams,
-      httpsOptions: {
-        key: fs.readFileSync(path.join(__dirname, 'assets', 'key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'assets', 'cert.pem')),
-        passphrase: 'ROSNOVA',
-      },
-    };
-  }
-
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    appParams,
-  );
-
-  let corsList = ['http://localhost:3000'];
-  if (process.env.CLIENT_PORT) {
-    let clientPath = 'http://localhost:';
-    if (process.env.CLIENT_PATH) {
-      clientPath = `${process.env.CLIENT_PATH}:`;
-    }
-    clientPath = `${clientPath}${process.env.CLIENT_PORT}`;
-    corsList.push(clientPath);
-  }
-
-  if (process.env.ADD_CORS) {
-    const corsAdd = process.env.ADD_CORS.toString().split(',');
-    if (Array.isArray(corsAdd)) {
-      corsList = [...corsList, ...corsAdd];
-    }
-  }
+  });
 
   app.enableCors({
-    origin: corsList,
+    origin: true,
     credentials: true,
   });
   app.use(cookieParser());
@@ -94,11 +64,49 @@ async function bootstrap() {
   );
 
   swagger(app);
-
-  app.enable('trust proxy');
   app.enableShutdownHooks();
 
-  await app.listen(process.env?.APP_PORT ?? 3000, '0.0.0.0');
+  await app.init();
+
+  const keyExist = fs.existsSync(path.join(__dirname, 'assets', 'key.pem'));
+  const certExist = fs.existsSync(path.join(__dirname, 'assets', 'cert.pem'));
+
+  const shutdownObserver = app.get(ShutdownObserver);
+  const socketObserver = app.get(SocketObserver);
+
+  if (certExist && keyExist && !!+process.env.HTTPS) {
+    const httpsServer = https.createServer(
+      {
+        key: fs.readFileSync(path.join(__dirname, 'assets', 'key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'assets', 'cert.pem')),
+        passphrase: 'ROSNOVA',
+      },
+      server,
+    );
+
+    const httpsSocket = new SocketIoAdapter(httpsServer);
+    socketObserver.addSocket(httpsSocket);
+    app.useWebSocketAdapter(httpsSocket);
+
+    httpsServer.listen(
+      process.env?.HTTPS_PORT ? parseInt(process.env.HTTPS_PORT) : 443,
+      '0.0.0.0',
+    );
+
+    shutdownObserver.addHttpServer(httpsServer);
+  }
+
+  const httpServer = http.createServer(server);
+
+  httpServer.listen(
+    process.env?.APP_PORT ? parseInt(process.env.APP_PORT) : 3000,
+    '0.0.0.0',
+  );
+  const httpSocket = new SocketIoAdapter(httpServer);
+  socketObserver.addSocket(httpSocket);
+  app.useWebSocketAdapter(httpSocket);
+
+  shutdownObserver.addHttpServer(httpServer);
 }
 
 bootstrap();

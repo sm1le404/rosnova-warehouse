@@ -10,6 +10,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { WsServer } from '../interfaces/ws-server.type';
 import { BaseEntity } from 'typeorm';
 import { IGNORE_ENTITY_TYPES } from '../../ws/ws.const';
+import { SocketObserver } from '../../ws/socket.observer';
 
 export class CommonStateWebSocketGateway
   implements OnGatewayDisconnect, OnModuleInit
@@ -22,6 +23,7 @@ export class CommonStateWebSocketGateway
   constructor(
     @Inject(WINSTON_MODULE_NEST_PROVIDER)
     protected readonly logger: LoggerService,
+    protected readonly socketObserver: SocketObserver,
   ) {}
 
   onModuleInit(): any {
@@ -57,6 +59,7 @@ export class CommonStateWebSocketGateway
    */
   emitUpdateStatusToRoom(entityType: string, event: string, data: BaseEntity) {
     if (!IGNORE_ENTITY_TYPES.includes(entityType)) {
+      this.socketObserver.sendMessage('state', { entityType, event, data });
       this.server.to(this.roomName).emit('state', { entityType, event, data });
     }
   }

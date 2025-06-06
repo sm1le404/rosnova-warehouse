@@ -19,16 +19,6 @@ export class AppLoggerMiddlewar implements NestMiddleware {
       )} - ${userAgent} ${ip} `,
     );
 
-    if (request.originalUrl === '/api/auth/refresh') {
-      this.logger.error(
-        JSON.stringify({
-          refreshCheck: true,
-          path: request?.originalUrl,
-          headers: request?.headers,
-          cookie: request?.cookies,
-        }),
-      );
-    }
     next();
   }
 }

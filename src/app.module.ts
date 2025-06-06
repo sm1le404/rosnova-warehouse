@@ -37,6 +37,7 @@ import { WsModule } from './ws/ws.module';
 import { I18nModule } from 'nestjs-i18n';
 import { isDev } from './common/utility';
 import { APP_STARTED_MESS } from './front/updater.conf';
+import { ShutdownObserver } from './common/services/shutdown.observer';
 
 @Module({
   imports: [
@@ -136,6 +137,7 @@ import { APP_STARTED_MESS } from './front/updater.conf';
     WsModule,
   ],
   controllers: [],
+  providers: [ShutdownObserver],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

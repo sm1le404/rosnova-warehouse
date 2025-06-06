@@ -81,6 +81,11 @@ export const envirmomentFields: Array<envFieldInterface> = [
     type: 'checkbox',
   },
   {
+    name: 'HTTPS порт',
+    code: 'HTTPS_PORT',
+    type: 'text',
+  },
+  {
     name: 'Порт клиента',
     code: 'CLIENT_PORT',
     type: 'text',
