@@ -38,6 +38,8 @@ import { I18nModule } from 'nestjs-i18n';
 import { isDev } from './common/utility';
 import { APP_STARTED_MESS } from './front/updater.conf';
 import { ShutdownObserver } from './common/services/shutdown.observer';
+import { SwaggerService } from './common/services/swagger.service';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -136,8 +138,8 @@ import { ShutdownObserver } from './common/services/shutdown.observer';
     SettingsModule,
     WsModule,
   ],
-  controllers: [],
-  providers: [ShutdownObserver],
+  controllers: [AppController],
+  providers: [ShutdownObserver, SwaggerService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

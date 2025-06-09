@@ -38,4 +38,6 @@ export function swagger(app: INestApplication) {
       JSON.stringify(document, null, 4),
     );
   }
+
+  return document;
 }

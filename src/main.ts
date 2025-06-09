@@ -23,6 +23,7 @@ import * as http from 'http';
 import { SocketIoAdapter } from './ws/socket.io.adapter';
 import { ShutdownObserver } from './common/services/shutdown.observer';
 import { SocketObserver } from './ws/socket.observer';
+import { SwaggerService } from './common/services/swagger.service';
 
 async function bootstrap() {
   const server = express();
@@ -63,7 +64,9 @@ async function bootstrap() {
     }),
   );
 
-  swagger(app);
+  const document = swagger(app);
+  app.get(SwaggerService).setDocument(document);
+
   app.enableShutdownHooks();
 
   await app.init();
