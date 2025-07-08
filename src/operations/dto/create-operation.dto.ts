@@ -98,6 +98,7 @@ export class CreateOperationDto {
     required: false,
     description: 'Назначение',
   })
+  @IsOptional()
   @IsString({
     message: i18nValidationMessage('validation.IsString'),
   })
