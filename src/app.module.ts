@@ -1,4 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  OnApplicationBootstrap,
+  OnModuleInit,
+} from '@nestjs/common';
 import { AppLoggerMiddlewar } from './common/middlewares/app-logger.middlewar';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -40,6 +46,11 @@ import { APP_STARTED_MESS } from './front/updater.conf';
 import { ShutdownObserver } from './common/services/shutdown.observer';
 import { SwaggerService } from './common/services/swagger.service';
 import { AppController } from './app.controller';
+import { getMotherBoardCode } from './common/utility/seiral.num';
+import { decrypt, BRKEY } from './common/utility/key-worker';
+import { HasKeyGuard } from './common/guard/has-key.guard';
+import { APP_GUARD } from '@nestjs/core';
+import * as process from 'node:process';
 
 @Module({
   imports: [
@@ -139,14 +150,28 @@ import { AppController } from './app.controller';
     WsModule,
   ],
   controllers: [AppController],
-  providers: [ShutdownObserver, SwaggerService],
+  providers: [
+    ShutdownObserver,
+    SwaggerService,
+    { useClass: HasKeyGuard, provide: APP_GUARD },
+  ],
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnModuleInit {
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AppLoggerMiddlewar).forRoutes('*');
   }
 
-  onApplicationBootstrap() {
+  async onModuleInit() {
     console.log(APP_STARTED_MESS);
+
+    global.licenseAvailable = false;
+
+    try {
+      const mbcode = await getMotherBoardCode();
+      const dec = await decrypt(process.env.LICENSE_KEY ?? '', BRKEY);
+      if (mbcode == dec.mbcode && dec.bef > Date.now()) {
+        global.licenseAvailable = true;
+      }
+    } catch (e) {}
   }
 }
