@@ -191,7 +191,7 @@ export class CronService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_HOUR, {
     name: 'checker',
   })
   async checker() {
@@ -200,8 +200,10 @@ export class CronService {
     }
 
     try {
-      if (process.env?.LICENSE_KEY) {
-        const response = await fetch(`https://b.rosnova.systems/s/timestamp`);
+      const BURL = 'https://b.rosnova.systems';
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      if (process.env?.LICENSE_KEY && global.licenseAvailable) {
+        const response = await fetch(`${BURL}/s/timestamp`);
         const json = await response.json();
         if (json?.timestamp) {
           if (Date.now() - Number(json.timestamp) > 3600 * 1000 * 48) {
@@ -211,6 +213,15 @@ export class CronService {
             );
             global.licenseAvailable = false;
           }
+        }
+
+        if (global.licenseAvailable) {
+          const checkResponse = await fetch(
+            `${BURL}/api/wh-keys/check?key=${process.env.LICENSE_KEY}`,
+          );
+          const responseString = await checkResponse.text();
+          global.licenseAvailable =
+            checkResponse.status === 200 && responseString === 'true';
         }
       }
     } catch (e) {}
