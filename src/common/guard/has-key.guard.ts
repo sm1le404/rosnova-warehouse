@@ -6,7 +6,6 @@ export class HasKeyGuard {
     if (global.licenseAvailable) {
       return true;
     }
-    return true;
     throw new ImATeapotException();
   }
 }
