@@ -5,12 +5,27 @@ const logo = document.getElementById('logo');
 const settings = document.getElementById('settings');
 const formData = document.getElementById('formData');
 const reload = document.getElementById('reload');
+const serialNumber = document.getElementById('serialNumber');
+const copy = document.getElementById('copy');
 
 (async () => {
   // @ts-expect-error
   ipcRenderer.on('server-running', () => {
     loading!.style.display = 'none';
     logo!.style.display = 'flex';
+  });
+
+  // @ts-expect-error
+  ipcRenderer.on('serial-number', (_event, data) => {
+    let infoSpan = document.createElement('span');
+    infoSpan.id = 'serial-text';
+    infoSpan.textContent = data;
+    serialNumber!.append(infoSpan);
+  });
+
+  copy.addEventListener('click', async () => {
+    const data = document.getElementById('serial-text').innerText;
+    await navigator.clipboard.writeText(`${data}`);
   });
 
   // @ts-expect-error

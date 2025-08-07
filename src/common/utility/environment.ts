@@ -66,6 +66,11 @@ export interface envFieldInterface {
 }
 export const envirmomentFields: Array<envFieldInterface> = [
   {
+    name: 'Лицензионный ключ',
+    code: 'LICENSE_KEY',
+    type: 'text',
+  },
+  {
     name: 'Имя файла БД',
     code: 'DB_NAME',
     type: 'text',

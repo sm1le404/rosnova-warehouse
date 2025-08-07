@@ -20,6 +20,7 @@ import {
   getEnvValue,
   setEnvValue,
 } from '../common/utility/environment';
+import { getMotherBoardCode } from '../common/utility/seiral.num';
 
 export class BaseWindow {
   /**
@@ -211,7 +212,7 @@ export class BaseWindow {
       skipTaskbar: false,
     });
 
-    nestApp.on('spawn', () => {
+    nestApp.on('spawn', async () => {
       this.mainWindow!.webContents.send(
         'server-log-entry',
         `User data path: ${app.getPath('userData')}`,
@@ -220,6 +221,8 @@ export class BaseWindow {
         'server-log-entry',
         `Execute path: ${app.getPath('exe')}`,
       );
+      const serialNumber = await getMotherBoardCode();
+      this.mainWindow!.webContents.send('serial-number', serialNumber);
     });
 
     if (nestApp?.stdout) {

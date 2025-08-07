@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  ImATeapotException,
 } from '@nestjs/common';
 import { AbstractHttpAdapter } from '@nestjs/core';
 import { TypeORMError } from 'typeorm';
@@ -47,6 +48,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (httpStatus === 403) {
       responseBody.expMessage = 'Отказано в доступе';
+    }
+
+    if (exception instanceof ImATeapotException) {
+      responseBody.message = 'Ваша лицензия истекла';
+      responseBody.expMessage = '';
     }
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
