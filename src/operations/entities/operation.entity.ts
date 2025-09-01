@@ -22,6 +22,8 @@ import { Vehicle } from '../../vehicle/entities/vehicle.entity';
 import { Fuel } from '../../fuel/entities/fuel.entity';
 import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
+import { Carrier } from '../../carrier/entities/carrier.entity';
+import { Dock } from '../../dock/entities/dock.entity';
 
 @Entity()
 export class Operation extends CommonEntity {
@@ -192,6 +194,22 @@ export class Operation extends CommonEntity {
   })
   @ManyToOne(() => Refinery, (refinery) => refinery.operation, { eager: true })
   refinery: Refinery;
+
+  @ApiProperty({
+    type: () => Carrier,
+    required: false,
+    description: 'Перевозчик',
+  })
+  @ManyToOne(() => Carrier, (carrier) => carrier.operation, { eager: true })
+  carrier: Carrier;
+
+  @ApiProperty({
+    type: () => Dock,
+    required: false,
+    description: 'Место погрузки',
+  })
+  @ManyToOne(() => Dock, (dock) => dock.operation, { eager: true })
+  dock: Dock;
 
   @ApiProperty({
     type: () => Trailer,

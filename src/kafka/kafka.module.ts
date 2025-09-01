@@ -10,6 +10,8 @@ import { KafkaDriverSubscriber } from './subscribers/kafka.driver.subscriber';
 import { KafkaFuelSubscriber } from './subscribers/kafka.fuel.subscriber';
 import { KafkaFuelHolderSubscriber } from './subscribers/kafka.fuel.holder.subscriber';
 import { KafkaRefinerySubscriber } from './subscribers/kafka.refinery.subscriber';
+import { KafkaDockSubscriber } from './subscribers/kafka.dock.subscriber';
+import { KafkaCarrierSubscriber } from './subscribers/kafka.carrier.subscriber';
 
 @Global()
 @Module({
@@ -24,6 +26,8 @@ import { KafkaRefinerySubscriber } from './subscribers/kafka.refinery.subscriber
     KafkaFuelSubscriber,
     KafkaFuelHolderSubscriber,
     KafkaRefinerySubscriber,
+    KafkaDockSubscriber,
+    KafkaCarrierSubscriber,
   ],
   exports: [KafkaService],
 })

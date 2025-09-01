@@ -24,6 +24,8 @@ import { FuelHolder } from '../../fuel-holder/entities/fuel-holder.entity';
 import { Refinery } from '../../refinery/entities/refinery.entity';
 import { Dispenser } from '../../dispenser/entities/dispenser.entity';
 import { i18nValidationMessage } from 'nestjs-i18n';
+import { Dock } from '../../dock/entities/dock.entity';
+import { Carrier } from '../../carrier/entities/carrier.entity';
 
 export class CreateOperationDto {
   @ApiProperty({
@@ -72,6 +74,30 @@ export class CreateOperationDto {
   @IsObject()
   @IsNotEmptyObject()
   sourceTank: Pick<Tank, 'id'>;
+
+  @ApiPropertyOptional({
+    required: false,
+    description: 'Место погрузки',
+    type: () => CommonId,
+  })
+  @ValidateIf(
+    (object: CreateOperationDto) => object.type === OperationType.SUPPLY,
+  )
+  @IsObject()
+  @IsNotEmptyObject()
+  dock: Pick<Dock, 'id'>;
+
+  @ApiPropertyOptional({
+    required: false,
+    description: 'Перевозчик',
+    type: () => CommonId,
+  })
+  @ValidateIf(
+    (object: CreateOperationDto) => object.type === OperationType.SUPPLY,
+  )
+  @IsObject()
+  @IsNotEmptyObject()
+  carrier: Pick<Carrier, 'id'>;
 
   @ApiProperty({
     required: true,

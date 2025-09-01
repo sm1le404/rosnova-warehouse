@@ -81,7 +81,7 @@
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.7",
-    "rs-dto": "gitlab:rosnova/rs-dto#main",
+    "rs-dto": "gitlab:rosnova/rs-dto",
     "rxjs": "^7.8.1",
     "serialport": "^11.0.0",
     "socket.io": "^4.8.1",

@@ -51,6 +51,8 @@ import { decrypt, BRKEY } from './common/utility/key-worker';
 import { HasKeyGuard } from './common/guard/has-key.guard';
 import { APP_GUARD } from '@nestjs/core';
 import * as process from 'node:process';
+import { DockModule } from './dock/dock.module';
+import { CarrierModule } from './carrier/carrier.module';
 
 @Module({
   imports: [
@@ -146,6 +148,8 @@ import * as process from 'node:process';
     ScheduleModule.forRoot(),
     CronModule,
     ReportModule,
+    DockModule,
+    CarrierModule,
     SettingsModule,
     WsModule,
   ],
