@@ -7,12 +7,15 @@ import * as path from 'path';
 import { dateFormatter, timeFormatter } from '../utils';
 import { IVehicleTank } from '../../vehicle/types';
 import { ICurrentUser } from '../../auth/interface/current-user.interface';
+import { SettingsService } from '../../settings/services/settings.service';
+import { SettingsKey } from '../../settings/enums';
 
 @Injectable()
 export class ReportDrawbackService {
   constructor(
     @InjectRepository(Operation)
     private operationRepository: Repository<Operation>,
+    private settingsService: SettingsService,
   ) {}
 
   async generate(
@@ -65,6 +68,18 @@ export class ReportDrawbackService {
     worksheet.getCell('C8').value = operation.refinery?.fullName ?? '';
     // Место приемки
     worksheet.getCell('E11:G11').value = operation.destination ?? '';
+
+    // Свидетельство о поверке
+    const cert = await this.settingsService.getValue(SettingsKey.VER_CERT);
+    const certDate = await this.settingsService.getValue(
+      SettingsKey.VER_CERT_DATE,
+    );
+    worksheet.getCell('A20').value = cert
+      ? `Свидетельство о поверке ${cert}`
+      : '';
+    worksheet.getCell('D20').value = cert
+      ? `Действительно до ${certDate.split('-').reverse().join('.')} г.`
+      : '';
 
     // Даты начала и конца приемки
     worksheet.getCell('D28:E28').value = dateStart;
