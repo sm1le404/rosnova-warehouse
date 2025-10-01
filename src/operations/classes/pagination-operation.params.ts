@@ -20,6 +20,8 @@ PaginationOperationParams.relationList = [
   'fuelHolder',
   'refinery',
   'sourceTank',
+  'dock',
+  'carrier',
 ];
 
 PaginationOperationParams.filterableColumns = {
@@ -35,4 +37,6 @@ PaginationOperationParams.filterableColumns = {
   status: [FilterOperator.IN, FilterOperator.EQ],
   type: [FilterOperator.IN, FilterOperator.EQ],
   sourceTank: [FilterOperator.IN, FilterOperator.EQ],
+  dock: [FilterOperator.IN, FilterOperator.EQ],
+  carrier: [FilterOperator.IN, FilterOperator.EQ],
 };
