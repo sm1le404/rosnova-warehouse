@@ -69,6 +69,8 @@ export class KafkaOperationSubscriber
           vehicleExtId: data?.vehicle?.regNumber,
           trailerExtId: data?.trailer?.regNumber,
           tankExtId: data?.tank?.id.toString(),
+          dockExtId: data?.dock?.shortName,
+          carrierExtId: data?.carrier?.shortName,
           type: data?.type,
           status: data?.status,
           vehicleState: JSON.parse(
