@@ -2,7 +2,6 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  OnApplicationBootstrap,
   OnModuleInit,
 } from '@nestjs/common';
 import { AppLoggerMiddlewar } from './common/middlewares/app-logger.middlewar';
@@ -53,6 +52,7 @@ import { APP_GUARD } from '@nestjs/core';
 import * as process from 'node:process';
 import { DockModule } from './dock/dock.module';
 import { CarrierModule } from './carrier/carrier.module';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -158,6 +158,7 @@ import { CarrierModule } from './carrier/carrier.module';
     ShutdownObserver,
     SwaggerService,
     { useClass: HasKeyGuard, provide: APP_GUARD },
+    AppService,
   ],
 })
 export class AppModule implements NestModule, OnModuleInit {
