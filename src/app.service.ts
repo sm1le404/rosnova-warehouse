@@ -129,10 +129,11 @@ export class AppService {
     await driverRepository.save(driver2);
 
     //Создание прицепа
+    // @ts-ignore
     const trailer1 = trailerRepository.create({
       regNumber: 'АМ 1950 777',
       currentState: null,
-      sectionVolumes: '[{"index":1,"volume":31650}]',
+      sectionVolumes: [{ index: 1, volume: 31650 }],
       isEnabled: true,
       type: TrailerType.TRAILER,
       trailerModel: '',
@@ -140,18 +141,20 @@ export class AppService {
     await trailerRepository.save(trailer1);
 
     //Создание транспорта
+    // @ts-ignore
     const vehicle1 = vehicleRepository.create({
       type: VehicleType.WAGON,
       driver: null,
       trailer: null,
       currentState: '',
-      sectionVolumes: '',
+      sectionVolumes: [],
       carModel: 'ЖД Вагон',
-      regNumber: '123',
+      regNumber: 'Вагон 5',
       isEnabled: true,
     });
     await vehicleRepository.save(vehicle1);
 
+    // @ts-ignore
     const vehicle2 = vehicleRepository.create({
       type: VehicleType.LOADER,
       driver: {
@@ -159,13 +162,17 @@ export class AppService {
       },
       trailer: null,
       currentState: null,
-      sectionVolumes: '[{"index":1,"volume":6020},{"index":2,"volume":6026}]',
+      sectionVolumes: [
+        { index: 1, volume: 6020 },
+        { index: 2, volume: 6026 },
+      ],
       carModel: 'SCANIA',
       regNumber: 'О 233 ОО 77',
       isEnabled: true,
     });
     await vehicleRepository.save(vehicle2);
 
+    // @ts-ignore
     const vehicle3 = vehicleRepository.create({
       type: VehicleType.TRUCK,
       driver: {
@@ -175,7 +182,7 @@ export class AppService {
         id: 1,
       },
       currentState: null,
-      sectionVolumes: '[]',
+      sectionVolumes: [],
       carModel: 'КАМАЗ',
       regNumber: 'Р 100 РР 777',
       isEnabled: true,
