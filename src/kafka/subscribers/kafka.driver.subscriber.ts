@@ -66,7 +66,7 @@ export class KafkaDriverSubscriber
       };
       const driverDataDto: Partial<DriverDataDto> = {
         id: event.entity.id,
-        lastName: event.entity.lastName,
+        fullName: event.entity.fullName,
         whExternalCode: this.configService.get('SHOP_KEY'),
       };
       kafkaPayload.messages.push({

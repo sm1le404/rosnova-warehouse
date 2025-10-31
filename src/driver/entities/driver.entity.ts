@@ -30,7 +30,7 @@ export class Driver extends CommonEntity {
   vehicle: Vehicle[];
 
   @Column()
-  protected fullName: string;
+  fullName: string;
 
   @BeforeInsert()
   getFullName() {

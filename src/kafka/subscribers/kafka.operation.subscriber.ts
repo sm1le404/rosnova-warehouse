@@ -70,6 +70,7 @@ export class KafkaOperationSubscriber
           trailerExtId: data?.trailer?.regNumber,
           tankExtId: data?.tank?.id.toString(),
           dockExtId: data?.dock?.shortName,
+          driverExtId: data?.driver?.fullName,
           carrierExtId: data?.carrier?.shortName,
           type: data?.type,
           status: data?.status,
