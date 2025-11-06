@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -90,7 +91,15 @@ export class TrailerController {
     return this.trailerService.delete({ where: { id } });
   }
 
-  @Post('kafka/:limit')
+  @Get('kafka')
+  async sendToKafkaByDate(
+    @Query('dateFrom') dateFrom: number,
+    @Query('dateTo') dateTo: number,
+  ) {
+    await this.trailerService.uploadByDateToKafka(dateFrom, dateTo);
+  }
+
+  @Get('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.trailerService.uploadAllToKafka(limit);
   }

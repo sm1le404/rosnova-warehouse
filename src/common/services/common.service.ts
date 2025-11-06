@@ -1,4 +1,5 @@
 import {
+  Between,
   DeepPartial,
   FindManyOptions,
   FindOneOptions,
@@ -65,6 +66,29 @@ export abstract class CommonService<T extends CommonEntity> {
         JSON.stringify({
           withDeleted: false,
           take: Number(limit) ?? 100,
+          order: {
+            id: 'desc',
+          },
+        }),
+      ),
+    );
+    for (const ent of entities) {
+      const filter: any = {
+        id: ent.id,
+      };
+      const data: any = {
+        updatedAt: Date.now() / 1000,
+      };
+      await this.update({ where: filter }, { ...data });
+    }
+  }
+
+  async uploadByDateToKafka(dateStart: number, dateEnd: number) {
+    const entities = await this.find(
+      JSON.parse(
+        JSON.stringify({
+          updatedAt: Between(dateStart / 1000, dateEnd / 1000),
+          withDeleted: false,
           order: {
             id: 'desc',
           },

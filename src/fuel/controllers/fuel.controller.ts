@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -91,7 +92,15 @@ export class FuelController {
     return this.fuelService.delete({ where: { id } });
   }
 
-  @Post('kafka/:limit')
+  @Get('kafka')
+  async sendToKafkaByDate(
+    @Query('dateFrom') dateFrom: number,
+    @Query('dateTo') dateTo: number,
+  ) {
+    await this.fuelService.uploadByDateToKafka(dateFrom, dateTo);
+  }
+
+  @Get('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.fuelService.uploadAllToKafka(limit);
   }
