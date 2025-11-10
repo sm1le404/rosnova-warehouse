@@ -92,7 +92,7 @@ export class DockController {
     return this.dockService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -100,7 +100,7 @@ export class DockController {
     await this.dockService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.dockService.uploadAllToKafka(limit);
   }

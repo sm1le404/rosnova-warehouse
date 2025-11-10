@@ -255,7 +255,7 @@ export class OperationController {
     return this.operationService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka-date')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -263,7 +263,7 @@ export class OperationController {
     await this.operationService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.operationService.uploadAllToKafka(limit);
   }

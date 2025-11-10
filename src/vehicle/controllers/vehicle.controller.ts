@@ -91,7 +91,7 @@ export class VehicleController {
     return this.vehicleService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -99,7 +99,7 @@ export class VehicleController {
     await this.vehicleService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.vehicleService.uploadAllToKafka(limit);
   }

@@ -91,7 +91,7 @@ export class TrailerController {
     return this.trailerService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -99,7 +99,7 @@ export class TrailerController {
     await this.trailerService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.trailerService.uploadAllToKafka(limit);
   }

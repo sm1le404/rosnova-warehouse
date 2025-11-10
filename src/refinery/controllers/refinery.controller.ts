@@ -94,7 +94,7 @@ export class RefineryController {
     return this.refineryService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -102,7 +102,7 @@ export class RefineryController {
     await this.refineryService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.refineryService.uploadAllToKafka(limit);
   }

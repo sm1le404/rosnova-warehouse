@@ -92,7 +92,7 @@ export class CarrierController {
     return this.carrierService.delete({ where: { id } });
   }
 
-  @Get('kafka')
+  @Post('kafka')
   async sendToKafkaByDate(
     @Query('dateFrom') dateFrom: number,
     @Query('dateTo') dateTo: number,
@@ -100,7 +100,7 @@ export class CarrierController {
     await this.carrierService.uploadByDateToKafka(dateFrom, dateTo);
   }
 
-  @Get('kafka/:limit')
+  @Post('kafka/:limit')
   async sendToKafka(@Param('limit') limit: number) {
     await this.carrierService.uploadAllToKafka(limit);
   }
