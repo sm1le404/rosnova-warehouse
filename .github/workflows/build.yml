@@ -24,7 +24,8 @@ jobs:
 
       - name: Configure GitLab access for rs-dto
         run: |
-          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "gitlab:"
+          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "ssh://git@gitlab.com/"
+          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "git@gitlab.com:"
 
       - name: Install dependencies
         run: npm ci
@@ -68,7 +69,8 @@ jobs:
 
       - name: Configure GitLab access for rs-dto
         run: |
-          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "gitlab:"
+          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "ssh://git@gitlab.com/"
+          git config --global url."https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/".insteadOf "git@gitlab.com:"
 
       - name: Install dependencies
         run: npm ci
